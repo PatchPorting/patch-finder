@@ -1,5 +1,5 @@
 import argparse
-from patchfinder.vulnerability import CVE
+from patchfinder.context import CVE
 
 parser = argparse.ArgumentParser(description='Finds patches for a vulnerability id.')
 parser.add_argument('--cve')

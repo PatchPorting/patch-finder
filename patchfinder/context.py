@@ -1,4 +1,3 @@
-#TODO: Rename this file, name can be confusing
 import re
 from collections import deque
 
@@ -22,13 +21,13 @@ class Context(object):
     """Base Class for the runtime context of the patch finder
 
     Attributes:
-        vulnerability: The current Vulnerability object
+        vuln: The current Vulnerability object
         current_path: A linked list of the current path the finder is on
         recursion_limit: The depth of recursion performed while crawling
     """
 
-    def __init__(self, vulnerability, recursion_limit=0):
-        self.vulnerability = vulnerability
+    def __init__(self, vuln, recursion_limit=0):
+        self.vuln = vuln
         self.current_path = deque([])
         self.recursion_limit = recursion_limit if (recursion_limit > 0) else 0
 
@@ -51,13 +50,13 @@ class Vulnerability(object):
     """Base class for vulnerabilities
 
     Attributes:
-        vulnerability_id: Self explanatory
-        patches: List of patches relevant to the vulnerability
-        packages: List of packages the vulnerability affects
+        vuln_id: Self explanatory
+        patches: List of patches relevant to the vuln
+        packages: List of packages the vuln affects
     """
 
-    def __init__(self, vulnerability_id, packages=None):
-        self.vulnerability_id = vulnerability_id
+    def __init__(self, vuln_id, packages=None):
+        self.vuln_id = vuln_id
         self.patches = []
         self.packages = packages
 
@@ -67,27 +66,28 @@ class Vulnerability(object):
 
     def entrypoint_URLs(self):
         for entrypoint in self.entrypoints:
-            yield entrypoint % self.vulnerability_id
+            yield entrypoint % self.vuln_id
 
 
 class CVE(Vulnerability):
     """Subclass for CVE"""
 
-    def __init__(self, vulnerability_id, packages=None):
-        super(CVE, self).__init__(vulnerability_id, packages)
+    def __init__(self, vuln_id, packages=None):
+        super(CVE, self).__init__(vuln_id, packages)
         self.entrypoints = ['https://nvd.nist.gov/vuln/detail/%s',
                             'https://cve.mitre.org/cgi-bin/cvename.cgi?name=%s']
 
-def create_vulnerability(vulnerability_id, packages=None):
-    if re.match(r'^CVE\-\d+\-\d+$', vulnerability_id, re.I):
-        return CVE(vulnerability_id, packages)
+
+def create_vuln(vuln_id, packages=None):
+    if re.match(r'^CVE\-\d+\-\d+$', vuln_id, re.I):
+        return CVE(vuln_id, packages)
     return None
 
 
-def create_context(vulnerability_id, packages=None):
-    vulnerability = create_vulnerability(vulnerability_id, packages)
-    if vulnerability:
-        context = Context(vulnerability)
+def create_context(vuln_id, packages=None):
+    vuln = create_vuln(vuln_id, packages)
+    if vuln:
+        context = Context(vuln)
         return context
     return None
 
