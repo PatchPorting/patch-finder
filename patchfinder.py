@@ -6,5 +6,5 @@ parser.add_argument('--cve')
 
 args = parser.parse_args()
 cve = CVE(args.cve)
-for entrypoint in cve.entrypoint_URLs():
-    print(entrypoint)
+for entrypoint in cve.entrypoints:
+    print(entrypoint.urls)

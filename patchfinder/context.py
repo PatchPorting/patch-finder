@@ -1,4 +1,5 @@
 import re
+import patchfinder.entrypoint as entrypoint
 from collections import deque
 
 class Patch(object):
@@ -16,7 +17,6 @@ class Patch(object):
         self.reaching_path = context.current_path
 
 
-#thoughts on this?
 class Context(object):
     """Base Class for the runtime context of the patch finder
 
@@ -64,18 +64,14 @@ class Vulnerability(object):
         patch = Patch(context, patch_link, source_version)
         self.patches.append(patch)
 
-    def entrypoint_URLs(self):
-        for entrypoint in self.entrypoints:
-            yield entrypoint % self.vuln_id
-
 
 class CVE(Vulnerability):
     """Subclass for CVE"""
 
     def __init__(self, vuln_id, packages=None):
         super(CVE, self).__init__(vuln_id, packages)
-        self.entrypoints = ['https://nvd.nist.gov/vuln/detail/%s',
-                            'https://cve.mitre.org/cgi-bin/cvename.cgi?name=%s']
+        self.entrypoints = [entrypoint.NVD(vuln_id),
+                            entrypoint.MITRE(vuln_id)]
 
 
 def create_vuln(vuln_id, packages=None):
