@@ -1,6 +1,6 @@
+from collections import deque
 import re
 import patchfinder.entrypoint as entrypoint
-from collections import deque
 
 class Patch(object):
     """Base class for Patch
@@ -24,12 +24,14 @@ class Context(object):
         vuln: The current Vulnerability object
         current_path: A linked list of the current path the finder is on
         recursion_limit: The depth of recursion performed while crawling
+        visited_urls: A list of visited pages
     """
 
     def __init__(self, vuln, recursion_limit=0):
         self.vuln = vuln
         self.current_path = deque([])
         self.recursion_limit = recursion_limit if (recursion_limit > 0) else 0
+        self.visited_urls = []
 
     def add_to_path(self, url):
         self.current_path.append(url)
@@ -44,6 +46,13 @@ class Context(object):
             raise IndexError('finder in root of path, can\'t pop from path')
         self.current_path.pop()
 
+    def add_to_visited_urls(self, url):
+        self.visited_urls.append(url)
+
+    def check_if_visited(self, url):
+        if url in self.visited_urls:
+            return True
+        return False
 
 
 class Vulnerability(object):
