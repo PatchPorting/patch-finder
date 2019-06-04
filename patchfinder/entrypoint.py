@@ -22,6 +22,9 @@ class Provider(Entrypoint):
     Inherits from Entrypoint
     Provider is an entity that provides patches.
     A provider can also be an Entrypoint.
+
+    Attributes:
+        link_components: A list of components in a patch link for this provider
     """
 
     def __init__(self, link_components, urls):
