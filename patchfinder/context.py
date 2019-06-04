@@ -61,7 +61,8 @@ class Vulnerability(object):
     Attributes:
         vuln_id: Self explanatory
         patches: List of patches relevant to the vuln
-        packages: List of packages the vuln affects
+        packages: Dictionary of packages the vuln affects
+                The keys are the provider to which the package name is relevant
     """
 
     def __init__(self, vuln_id, packages=None):
