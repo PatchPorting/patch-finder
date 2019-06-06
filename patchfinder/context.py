@@ -80,7 +80,7 @@ class CVE(Vulnerability):
 
     def __init__(self, vuln_id, packages=None):
         super(CVE, self).__init__(vuln_id, packages)
-        self.entrypoints = [entrypoint.NVD(vuln_id),
+        self.entrypoints = [entrypoint.NVD(vuln_id), 
                             entrypoint.MITRE(vuln_id)]
 
 
@@ -96,4 +96,3 @@ def create_context(vuln_id, packages=None):
         context = Context(vuln)
         return context
     return None
-
