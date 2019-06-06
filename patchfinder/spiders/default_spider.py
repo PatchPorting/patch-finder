@@ -1,4 +1,7 @@
-from scrapy.Spiders import CrawlSpider
+from scrapy.spiders import CrawlSpider
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
 import entrypoint
 import context
 
@@ -14,7 +17,6 @@ class DefaultSpider(CrawlSpider):
 
     def start_requests(self):
         for entrypoint in self.entrypoints:
-            self.entrypoint_stack.append(entrypoint)
             for url in entrypoint.urls:
                 yield Request(url, callback=self.parse)
 

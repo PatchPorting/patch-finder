@@ -1,8 +1,5 @@
 #TODO: figure out a more sophisticated way to construct URLs,
 #      maybe define a method to substitute a %s for multiple strings
-import re
-
-
 class Entrypoint(object):
     """Base class for an Entrypoint
 

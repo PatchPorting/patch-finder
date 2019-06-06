@@ -6,8 +6,8 @@ class TestEntrypoint(unittest.TestCase):
     """Test Class for Entrypoint"""
 
     def test_entrypoint_init(self):
-        ctx = context.create_context('CVE-2018-20406')
-        entrypoints = ctx.vuln.entrypoints
+        vuln = context.create_vuln('CVE-2018-20406')
+        entrypoints = vuln.entrypoints
         self.assertEqual(entrypoints[0].urls,
                          ['https://nvd.nist.org/vuln/details/CVE-2018-20406'])
         self.assertEqual(entrypoints[1].urls,
