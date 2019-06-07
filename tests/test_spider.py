@@ -12,14 +12,12 @@ class TestSpider(unittest.TestCase):
         self.assertEqual(spider.recursion_limit, 0)
         self.assertEqual(spider.entrypoints, vuln.entrypoints)
 
-    #TODO: make test pass
     def test_spider_crawl(self):
         vuln = context.create_vuln('CVE-2016-4796')
-        spider = default_spider.DefaultSpider(vuln)
         process = CrawlerProcess({
             'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
         })
-        process.crawl(spider)
+        process.crawl(default_spider.DefaultSpider, vuln)
         process.start()
 
 

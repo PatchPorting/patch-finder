@@ -1,15 +1,18 @@
+import scrapy
 from scrapy.spiders import CrawlSpider
+from scrapy.http import Request
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
 import entrypoint
 import context
 
-class DefaultSpider(CrawlSpider):
-    
+class DefaultSpider(scrapy.Spider):
+
     def __init__(self, vuln, recursion_limit=0):
-        self.entrypoints = vuln.entrypoints
+        self.name = 'default_spider'
         self.recursion_limit = recursion_limit
+        self.entrypoints = vuln.entrypoints
         self.visited_urls = []
         self.entrypoint_stack = []
         self.patches = []
@@ -21,7 +24,7 @@ class DefaultSpider(CrawlSpider):
                 yield Request(url, callback=self.parse)
 
     def parse(self, response):
-        links = response.css('a::attr(href)')
+        links = response.css('a::attr(href)').extract()
         for link in links:
             if entrypoint.is_patch(link):
                 if not any(x.patch_link is link for x in self.patches):

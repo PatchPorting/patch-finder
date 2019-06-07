@@ -11,10 +11,10 @@ class Patch(object):
         reaching_path: The path taken by the finder to find the patch
     """
 
-    def __init__(self, context, patch_link, source_version=None):
+    def __init__(self, reaching_path, patch_link, source_version=None):
         self.patch_link = patch_link
         self.source_version = source_version
-        self.reaching_path = context.current_path
+        self.reaching_path = reaching_path
 
 
 class Vulnerability(object):
