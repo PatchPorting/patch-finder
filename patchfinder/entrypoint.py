@@ -62,7 +62,7 @@ class NVD(Entrypoint):
 
     def __init__(self, vuln_id):
         self.name = 'nvd.nist.gov'
-        urls = ['https://nvd.nist.gov/vuln/details/'+vuln_id]
+        urls = ['https://nvd.nist.gov/vuln/detail/'+vuln_id]
         super(NVD, self).__init__(urls=urls)
 
 
