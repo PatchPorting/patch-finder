@@ -61,8 +61,8 @@ class NVD(Entrypoint):
     """Subclass for nvd.nist.org as an entrypoint"""
 
     def __init__(self, vuln_id):
-        self.name = 'nvd.nist.org'
-        urls = ['https://nvd.nist.org/vuln/details/'+vuln_id]
+        self.name = 'nvd.nist.gov'
+        urls = ['https://nvd.nist.gov/vuln/details/'+vuln_id]
         super(NVD, self).__init__(urls=urls)
 
 
@@ -80,7 +80,7 @@ def create_entrypoint(entrypoint_name, vuln_id=None):
         return Github(vuln_id)
     elif entrypoint_name == 'cve.mitre.org':
         return MITRE(vuln_id)
-    elif entrypoint_name == 'nvd.nist.org':
+    elif entrypoint_name == 'nvd.nist.gov':
         return NVD(vuln_id)
     return None
 
@@ -92,4 +92,3 @@ def is_patch(link):
         if provider.match_link(link):
             return True
     return False
-

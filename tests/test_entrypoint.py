@@ -9,7 +9,7 @@ class TestEntrypoint(unittest.TestCase):
         vuln = context.create_vuln('CVE-2018-20406')
         entrypoints = vuln.entrypoints
         self.assertEqual(entrypoints[0].urls,
-                         ['https://nvd.nist.org/vuln/details/CVE-2018-20406'])
+                         ['https://nvd.nist.gov/vuln/details/CVE-2018-20406'])
         self.assertEqual(entrypoints[1].urls,
                          ['https://cve.mitre.org/cgi-bin/cvename.cgi?' \
                           'name=CVE-2018-20406'])
