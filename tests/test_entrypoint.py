@@ -42,6 +42,14 @@ class TestEntrypoint(unittest.TestCase):
                 '0cd3ec1c6c6dc65e41b2faab92b2d91'
         self.assertTrue(entrypoint.is_patch(patch_link))
 
+    def test_get_entrypoint_from_url(self):
+        url1 = 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-4796'
+        url2 = 'https://github.com/jajajasalu2/patch-finder/issues/1'
+        obj1 = entrypoint.get_entrypoint_from_url(url1)
+        obj2 = entrypoint.get_entrypoint_from_url(url2)
+        self.assertEqual(obj2.name, 'github.com')
+        self.assertEqual(obj1.name, 'cve.mitre.org')
+
 
 if __name__ == '__main__':
     unittest.main()

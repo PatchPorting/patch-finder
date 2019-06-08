@@ -20,7 +20,8 @@ class TestSpider(unittest.TestCase):
             'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)',
             'ITEM_PIPELINES': {
                 'patchfinder.spiders.pipelines.PatchPipeline': 300
-            }
+            },
+            'DEPTH_LIMIT': 1
         })
         process.crawl(default_spider.DefaultSpider, vuln)
         process.start()

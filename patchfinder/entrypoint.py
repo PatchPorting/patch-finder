@@ -91,12 +91,12 @@ def map_entrypoint_name(entrypoint_name, vuln_id=None):
 
 
 def get_entrypoint_from_url(url):
-    if re.match(r'^https://github.com/', url):
+    if re.match(r'^https://github\.com/', url):
         return Github(url=url)
-    elif re.match(r'^https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-\d+' \
-                  '-\d+$', url):
+    elif re.match(r'^https://cve\.mitre\.org/cgi\-bin/cvename\.cgi\?name=CVE\-\d' \
+                   '+\-\d+', url):
         return MITRE(url=url)
-    elif re.match(r'^https://nvd.nist.gov/vuln/detail/CVE-\d+-\d+$', url):
+    elif re.match(r'^https://nvd\.nist\.gov/vuln/detail/CVE\-\d+\-\d+$', url):
         return NVD(url=url)
     return Entrypoint(url=url)
 

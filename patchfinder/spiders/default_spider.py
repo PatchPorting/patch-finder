@@ -35,13 +35,13 @@ class DefaultSpider(CrawlSpider):
     def start_requests(self):
         for e in self.entrypoints:
             if e.url not in self.visited_urls:
-                self.last_entrypoint = e
                 yield Request(e.url, callback=self.parse)
 
     def parse(self, response):
         self.add_to_path(response.url)
         self.add_to_visited_urls(response.url)
-        links = response.xpath(self.last_entrypoint.xpath).extract()
+        entrypoint_obj = entrypoint.get_entrypoint_from_url(response.url)
+        links = response.xpath(entrypoint_obj.xpath).extract()
         for link in links:
             if entrypoint.is_patch(link) and link not in self.patches:
                 patch = items.Patch()
@@ -49,22 +49,28 @@ class DefaultSpider(CrawlSpider):
                 patch['reaching_path'] = self.current_path
                 self.add_patch(link)
                 yield patch
-            elif not (len(self.current_path) >= self.recursion_limit) \
-                    and self.url_is_valid(link):
+            elif self.url_is_valid(link):
                 link = self.format_url(link)
                 if link not in self.visited_urls:
-                    self.last_entrypoint = \
-                            entrypoint.get_entrypoint_from_url(link)
                     yield Request(link, callback=self.parse)
         self.pop_from_path()
 
+    def extract_patch(self, link):
+        patch = items.Patch()
+        patch['patch_link'] = link
+        patch['reaching_path'] = self.current_path
+        self.add_patch(link)
+        yield patch
+
     def format_url(self, url):
         if re.match(r'^/', url):
-            url = 'https://' + self.last_entrypoint.url.split('/')[2] + url
+            url = 'https://' + self.current_path[-1].split('/')[2] + url
         return url
 
     def url_is_valid(self, url):
         if re.match(r'^\#', url):
+            return False
+        elif re.match(r'^mailto:', url):
             return False
         return True
 
