@@ -55,13 +55,6 @@ class DefaultSpider(CrawlSpider):
                     yield Request(link, callback=self.parse)
         self.pop_from_path()
 
-    def extract_patch(self, link):
-        patch = items.Patch()
-        patch['patch_link'] = link
-        patch['reaching_path'] = self.current_path
-        self.add_patch(link)
-        yield patch
-
     def format_url(self, url):
         if re.match(r'^/', url):
             url = 'https://' + self.current_path[-1].split('/')[2] + url

@@ -62,9 +62,10 @@ class NVD(Entrypoint):
 
     def __init__(self, vuln_id=None, url=None):
         name = 'nvd.nist.gov'
+        xpath = '//table[@data-testid="vuln-hyperlinks-table"]/tbody//a/@href'
         if vuln_id:
             url = 'https://nvd.nist.gov/vuln/detail/'+vuln_id
-        super(NVD, self).__init__(url=url, name=name)
+        super(NVD, self).__init__(url=url, xpath=xpath, name=name)
 
 
 class MITRE(Entrypoint):
