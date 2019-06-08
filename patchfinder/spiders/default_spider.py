@@ -2,16 +2,17 @@ import scrapy
 from scrapy.spiders import CrawlSpider
 from scrapy.http import Request
 import patchfinder.spiders.items as items
+import re
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
 import entrypoint
 import context
 
-class DefaultSpider(scrapy.Spider):
+class DefaultSpider(CrawlSpider):
     """Scrapy Spider to extract patches
 
-    Inherits from scrapy.Spider
+    Inherits from scrapy.spiders.CrawlSpider
     This spider would run by default
 
     Attributes:
@@ -23,7 +24,7 @@ class DefaultSpider(scrapy.Spider):
         current_path: The current path of the spider from the root
     """
 
-    def __init__(self, vuln, recursion_limit=0):
+    def __init__(self, vuln, recursion_limit=1):
         self.name = 'default_spider'
         self.recursion_limit = recursion_limit
         self.entrypoints = vuln.entrypoints
@@ -32,23 +33,40 @@ class DefaultSpider(scrapy.Spider):
         self.current_path = []
 
     def start_requests(self):
-        for entrypoint in self.entrypoints:
-            for url in entrypoint.urls:
-                self.current_url = url
-                yield Request(url, callback=self.parse)
+        for e in self.entrypoints:
+            if e.url not in self.visited_urls:
+                self.last_entrypoint = e
+                yield Request(e.url, callback=self.parse)
 
     def parse(self, response):
-        self.add_to_path(self.current_url)
-        links = response.css('a::attr(href)').extract()
+        self.add_to_path(response.url)
+        self.add_to_visited_urls(response.url)
+        links = response.xpath(self.last_entrypoint.xpath).extract()
         for link in links:
-            if entrypoint.is_patch(link):
-                if not link in self.patches:
-                    patch = items.Patch()
-                    patch['patch_link'] = link
-                    patch['reaching_path'] = self.current_path
-                    yield patch
-                    self.add_patch(link)
+            if entrypoint.is_patch(link) and link not in self.patches:
+                patch = items.Patch()
+                patch['patch_link'] = link
+                patch['reaching_path'] = self.current_path
+                self.add_patch(link)
+                yield patch
+            elif not (len(self.current_path) >= self.recursion_limit) \
+                    and self.url_is_valid(link):
+                link = self.format_url(link)
+                if link not in self.visited_urls:
+                    self.last_entrypoint = \
+                            entrypoint.get_entrypoint_from_url(link)
+                    yield Request(link, callback=self.parse)
         self.pop_from_path()
+
+    def format_url(self, url):
+        if re.match(r'^/', url):
+            url = 'https://' + self.last_entrypoint.url.split('/')[2] + url
+        return url
+
+    def url_is_valid(self, url):
+        if re.match(r'^\#', url):
+            return False
+        return True
 
     def add_to_path(self, url):
         self.current_path.append(url)
@@ -58,3 +76,6 @@ class DefaultSpider(scrapy.Spider):
 
     def add_patch(self, patch_link):
         self.patches.append(patch_link)
+
+    def add_to_visited_urls(self, url):
+        self.visited_urls.append(url)

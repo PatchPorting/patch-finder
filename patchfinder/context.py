@@ -37,18 +37,17 @@ class Vulnerability(object):
         self.patches.append(patch)
 
 
-
+#TODO: Remove entrypoints from here, instead add a spider_name attribute
 class CVE(Vulnerability):
     """Subclass for CVE"""
 
     def __init__(self, vuln_id, packages=None):
         super(CVE, self).__init__(vuln_id, packages)
-        self.entrypoints = [entrypoint.NVD(vuln_id), 
-                            entrypoint.MITRE(vuln_id)]
+        self.entrypoints = [entrypoint.NVD(vuln_id=vuln_id),
+                            entrypoint.MITRE(vuln_id=vuln_id)]
 
 
 def create_vuln(vuln_id, packages=None):
     if re.match(r'^CVE\-\d+\-\d+$', vuln_id, re.I):
         return CVE(vuln_id, packages)
     return None
-

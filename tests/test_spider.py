@@ -11,7 +11,7 @@ class TestSpider(unittest.TestCase):
         spider = default_spider.DefaultSpider(vuln)
         spider.add_to_path('https://nvd.nist.gov/vuln/detail/CVE-2016-4796')
         self.assertEqual(spider.current_path, ['https://nvd.nist.gov/vuln/detail/CVE-2016-4796'])
-        self.assertEqual(spider.recursion_limit, 0)
+        self.assertEqual(spider.recursion_limit, 1)
         self.assertEqual(spider.entrypoints, vuln.entrypoints)
 
     def test_spider_crawl(self):

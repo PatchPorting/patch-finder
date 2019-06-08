@@ -1,5 +1,7 @@
 #TODO: figure out a more sophisticated way to construct URLs,
 #      maybe define a method to substitute a %s for multiple strings
+import re
+
 class Entrypoint(object):
     """Base class for an Entrypoint
 
@@ -7,12 +9,18 @@ class Entrypoint(object):
     It can be understood as a seed in the crawling process.
 
     Attributes:
-        urls: The entry urls to crawl
+        url: The entry url to crawl
+        xpath: The xpath of the entrypoint to extract links from
     """
+    xpath = '//body//a/@href'
 
-    def __init__(self, urls):
+    def __init__(self, url, xpath=None, name=None):
         """init method"""
-        self.urls = urls
+        self.url = url
+        if xpath:
+            self.xpath = xpath
+        if name:
+            self.name = name
 
 
 class Provider(Entrypoint):
@@ -26,15 +34,9 @@ class Provider(Entrypoint):
         link_components: A list of components in a patch link for this provider
     """
 
-    def __init__(self, link_components, urls):
-        """init method, calls init of Entrypoint if urls is not None
-
-        Args:
-            link_components: A list of components in a patch link for this provider
-            urls: A list of URLs the finder will crawl w/r/t this provider
-        """
-        if urls:
-            super(Provider, self).__init__(urls=urls)
+    def __init__(self, link_components, url=None, xpath=None, name=None):
+        if url:
+            super(Provider, self).__init__(url=url, xpath=xpath, name=name)
         self.link_components = link_components
 
     def match_link(self, link):
@@ -47,48 +49,62 @@ class Provider(Entrypoint):
 class Github(Provider):
     """Subclass for GitHub as a Provider"""
 
-    def __init__(self, vuln_id=None):
+    def __init__(self, vuln_id=None, url=None):
+        name = 'github.com'
         if vuln_id:
-            urls = ['https://github.com/search?q={vuln_id}&type=Commits'.format(vuln_id=vuln_id)]
-        else:
-            urls = None
+            url = 'https://github.com/search?q={vuln_id}&type=Commits'.format(vuln_id=vuln_id)
         link_components = ['github.com', '/commit/']
-        self.name = 'github'
-        super(Github, self).__init__(link_components, urls)
+        super(Github, self).__init__(link_components=link_components, url=url, name=name)
 
 
 class NVD(Entrypoint):
     """Subclass for nvd.nist.org as an entrypoint"""
 
-    def __init__(self, vuln_id):
-        self.name = 'nvd.nist.gov'
-        urls = ['https://nvd.nist.gov/vuln/detail/{vuln_id}'.format(vuln_id=vuln_id)]
-        super(NVD, self).__init__(urls=urls)
+    def __init__(self, vuln_id=None, url=None):
+        name = 'nvd.nist.gov'
+        if vuln_id:
+            url = 'https://nvd.nist.gov/vuln/detail/'+vuln_id
+        super(NVD, self).__init__(url=url, name=name)
 
 
 class MITRE(Entrypoint):
     """Subclass for cve.mitre.org as an entrypoint"""
 
-    def __init__(self, vuln_id):
-        self.name = 'cve.mitre.org'
-        urls = ['https://cve.mitre.org/cgi-bin/cvename.cgi?name={vuln_id}'.format(vuln_id=vuln_id)]
-        super(MITRE, self).__init__(urls=urls)
+    def __init__(self, vuln_id=None, url=None):
+        name = 'cve.mitre.org'
+        xpath = '//*[@id="GeneratedTable"]/table/tr[7]/td//a/@href'
+        if vuln_id:
+            url = 'https://cve.mitre.org/cgi-bin/cvename.cgi?name={vuln_id}'.format(vuln_id=vuln_id)
+        super(MITRE, self).__init__(url=url, xpath=xpath, name=name)
 
 
-def create_entrypoint(entrypoint_name, vuln_id=None):
-    if entrypoint_name == 'github':
-        return Github(vuln_id)
+#TODO: Make this more sophisticated, maybe use something like getattr
+def map_entrypoint_name(entrypoint_name, vuln_id=None):
+    """given an entrypoint name return its corresponding Entrypoint object"""
+    if entrypoint_name == 'github.com':
+        return Github(vuln_id=vuln_id)
     elif entrypoint_name == 'cve.mitre.org':
-        return MITRE(vuln_id)
+        return MITRE(vuln_id=vuln_id)
     elif entrypoint_name == 'nvd.nist.gov':
-        return NVD(vuln_id)
+        return NVD(vuln_id=vuln_id)
     return None
 
 
+def get_entrypoint_from_url(url):
+    if re.match(r'^https://github.com/', url):
+        return Github(url=url)
+    elif re.match(r'^https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-\d+' \
+                  '-\d+$', url):
+        return MITRE(url=url)
+    elif re.match(r'^https://nvd.nist.gov/vuln/detail/CVE-\d+-\d+$', url):
+        return NVD(url=url)
+    return Entrypoint(url=url)
+
+
 def is_patch(link):
-    provider_names = ['github']
+    provider_names = ['github.com']
     for provider_name in provider_names:
-        provider = create_entrypoint(provider_name)
+        provider = map_entrypoint_name(provider_name)
         if provider.match_link(link):
             return True
     return False
