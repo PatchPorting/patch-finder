@@ -49,7 +49,7 @@ class Github(Provider):
 
     def __init__(self, vuln_id=None):
         if vuln_id:
-            urls = ['https://github.com/search?q='+vuln_id+'&type=Commits']
+            urls = ['https://github.com/search?q={vuln_id}&type=Commits'.format(vuln_id=vuln_id)]
         else:
             urls = None
         link_components = ['github.com', '/commit/']
@@ -62,7 +62,7 @@ class NVD(Entrypoint):
 
     def __init__(self, vuln_id):
         self.name = 'nvd.nist.gov'
-        urls = ['https://nvd.nist.gov/vuln/detail/'+vuln_id]
+        urls = ['https://nvd.nist.gov/vuln/detail/{vuln_id}'.format(vuln_id=vuln_id)]
         super(NVD, self).__init__(urls=urls)
 
 
@@ -71,7 +71,7 @@ class MITRE(Entrypoint):
 
     def __init__(self, vuln_id):
         self.name = 'cve.mitre.org'
-        urls = ['https://cve.mitre.org/cgi-bin/cvename.cgi?name='+vuln_id]
+        urls = ['https://cve.mitre.org/cgi-bin/cvename.cgi?name={vuln_id}'.format(vuln_id=vuln_id)]
         super(MITRE, self).__init__(urls=urls)
 
 
