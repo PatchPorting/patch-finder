@@ -18,11 +18,22 @@ class TestEntrypoint(unittest.TestCase):
         github = entrypoint.Github()
         link = 'https://github.com/python/cpython/commit/a4ae828ee416a6' \
                 '6d8c7bf5ee71d653c2cc6a26dd'
-        self.assertEqual(github.link_components, ['github.com', '/commit/'])
+        self.assertEqual(github.link_components, ['github\.com', '/commit/'])
         github = entrypoint.Github('CVE-2018-20406')
         self.assertEqual(github.url, 'https://github.com/search?q=CVE-2018-' \
                                       '20406&type=Commits')
-        self.assertEqual(github.link_components, ['github.com', '/commit/'])
+        self.assertEqual(github.link_components, [r'github\.com', r'/commit/'])
+
+    def test_nvd_init(self):
+        nvd = entrypoint.NVD('CVE-2016-4796')
+        self.assertEqual(nvd.name, 'nvd.nist.gov')
+        self.assertEqual(nvd.xpath, '//table[@data-testid="vuln-hyperlinks-t' \
+                         'able\"]/tbody//a/@href')
+
+    def test_mitre_init(self):
+        mitre = entrypoint.MITRE('CVE-2016-4796')
+        self.assertEqual(mitre.name, 'cve.mitre.org')
+        self.assertEqual(mitre.xpath, '//*[@id="GeneratedTable"]/table/tr[7]/td//a/@href')
 
     def test_github_match_link(self):
         github = entrypoint.Github()

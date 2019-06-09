@@ -61,6 +61,8 @@ class DefaultSpider(CrawlSpider):
         return url
 
     def url_is_valid(self, url):
+        if url is '':
+            return False
         if re.match(r'^\#', url):
             return False
         elif re.match(r'^mailto:', url):

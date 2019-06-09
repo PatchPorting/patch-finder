@@ -9,6 +9,7 @@ class Entrypoint(object):
     It can be understood as a seed in the crawling process.
 
     Attributes:
+        name: Name of the entrypoint
         url: The entry url to crawl
         xpath: The xpath of the entrypoint to extract links from
     """
@@ -17,8 +18,7 @@ class Entrypoint(object):
     def __init__(self, url, xpath=None, name=None):
         """init method"""
         self.url = url
-        if xpath:
-            self.xpath = xpath
+        self.xpath = xpath if xpath else '//body//a/@href'
         if name:
             self.name = name
 
@@ -37,11 +37,13 @@ class Provider(Entrypoint):
     def __init__(self, link_components, url=None, xpath=None, name=None):
         if url:
             super(Provider, self).__init__(url=url, xpath=xpath, name=name)
+        else:
+            self.name = name
         self.link_components = link_components
 
     def match_link(self, link):
         """Checks if 'link' belongs to this provider"""
-        if all(x in link for x in self.link_components):
+        if all(re.search(x, link) for x in self.link_components):
             return True
         return False
 
@@ -53,8 +55,22 @@ class Github(Provider):
         name = 'github.com'
         if vuln_id:
             url = 'https://github.com/search?q={vuln_id}&type=Commits'.format(vuln_id=vuln_id)
-        link_components = ['github.com', '/commit/']
-        super(Github, self).__init__(link_components=link_components, url=url, name=name)
+        link_components = [r'github\.com', r'/commit/']
+        super(Github, self).__init__(link_components=link_components,
+                                     url=url,
+                                     name=name)
+
+
+class Pagure(Provider):
+    """Subclass for Pagure as a Provider"""
+
+    def __init__(self, vuln_id=None, url=None):
+        name = 'pagure.io'
+        link_components = [r'pagure\.io', r'/[0-9a-f]{9}$']
+        super(Pagure, self).__init__(link_components=link_components,
+                                     url=url,
+                                     name=name)
+
 
 
 class NVD(Entrypoint):
