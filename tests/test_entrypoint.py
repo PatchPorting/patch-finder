@@ -27,13 +27,14 @@ class TestEntrypoint(unittest.TestCase):
     def test_nvd_init(self):
         nvd = entrypoint.NVD('CVE-2016-4796')
         self.assertEqual(nvd.name, 'nvd.nist.gov')
-        self.assertEqual(nvd.xpath, '//table[@data-testid="vuln-hyperlinks-t' \
-                         'able\"]/tbody//a/@href')
+        self.assertEqual(nvd.xpaths, ['//table[@data-testid="vuln-hyperlinks-t' \
+                         'able\"]/tbody//a/@href'])
 
     def test_mitre_init(self):
         mitre = entrypoint.MITRE('CVE-2016-4796')
         self.assertEqual(mitre.name, 'cve.mitre.org')
-        self.assertEqual(mitre.xpath, '//*[@id="GeneratedTable"]/table/tr[7]/td//a/@href')
+        self.assertEqual(mitre.xpaths, ['//*[@id="GeneratedTable"]/table/tr[7]/t' \
+                                       'd//a/@href'])
 
     def test_github_match_link(self):
         github = entrypoint.Github()

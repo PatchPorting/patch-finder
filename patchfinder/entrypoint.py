@@ -11,14 +11,13 @@ class Entrypoint(object):
     Attributes:
         name: Name of the entrypoint
         url: The entry url to crawl
-        xpath: The xpath of the entrypoint to extract links from
+        xpaths: The xpaths of the entrypoint to extract links from
     """
-    xpath = '//body//a/@href'
 
-    def __init__(self, url, xpath=None, name=None):
+    def __init__(self, url, xpaths=None, name=None):
         """init method"""
         self.url = url
-        self.xpath = xpath if xpath else '//body//a/@href'
+        self.xpaths = xpaths if xpaths else ['//body//a/@href']
         if name:
             self.name = name
 
@@ -34,9 +33,9 @@ class Provider(Entrypoint):
         link_components: A list of components in a patch link for this provider
     """
 
-    def __init__(self, link_components, url=None, xpath=None, name=None):
+    def __init__(self, link_components, url=None, xpaths=None, name=None):
         if url:
-            super(Provider, self).__init__(url=url, xpath=xpath, name=name)
+            super(Provider, self).__init__(url=url, xpaths=xpaths, name=name)
         else:
             self.name = name
         self.link_components = link_components
@@ -78,10 +77,10 @@ class NVD(Entrypoint):
 
     def __init__(self, vuln_id=None, url=None):
         name = 'nvd.nist.gov'
-        xpath = '//table[@data-testid="vuln-hyperlinks-table"]/tbody//a/@href'
+        xpaths = ['//table[@data-testid="vuln-hyperlinks-table"]/tbody//a/@href']
         if vuln_id:
             url = 'https://nvd.nist.gov/vuln/detail/'+vuln_id
-        super(NVD, self).__init__(url=url, xpath=xpath, name=name)
+        super(NVD, self).__init__(url=url, xpaths=xpaths, name=name)
 
 
 class MITRE(Entrypoint):
@@ -89,10 +88,21 @@ class MITRE(Entrypoint):
 
     def __init__(self, vuln_id=None, url=None):
         name = 'cve.mitre.org'
-        xpath = '//*[@id="GeneratedTable"]/table/tr[7]/td//a/@href'
+        xpaths = ['//*[@id="GeneratedTable"]/table/tr[7]/td//a/@href']
         if vuln_id:
             url = 'https://cve.mitre.org/cgi-bin/cvename.cgi?name={vuln_id}'.format(vuln_id=vuln_id)
-        super(MITRE, self).__init__(url=url, xpath=xpath, name=name)
+        super(MITRE, self).__init__(url=url, xpaths=xpaths, name=name)
+
+
+class DebSecTracker(Entrypoint):
+    """Subclass for the Debian Security Tracker as an entrypoint"""
+
+    def __init__(self, vuln_id=None, url=None):
+        name = 'security-tracker.debian.org'
+        xpaths = ['//pre/a/@href']
+        if vuln_id:
+            url = 'https://security-tracker.debian.org/tracker/{vuln_id}'.format(vuln_id=vuln_id)
+        super(DebSecTracker, self).__init__(url=url, xpaths=xpaths, name=name)
 
 
 #TODO: Make this more sophisticated, maybe use something like getattr
@@ -104,6 +114,8 @@ def map_entrypoint_name(entrypoint_name, vuln_id=None):
         return MITRE(vuln_id=vuln_id)
     elif entrypoint_name == 'nvd.nist.gov':
         return NVD(vuln_id=vuln_id)
+    elif entrypoint_name == 'pagure.io':
+        return Pagure(vuln_id=vuln_id)
     return None
 
 
@@ -119,7 +131,7 @@ def get_entrypoint_from_url(url):
 
 
 def is_patch(link):
-    provider_names = ['github.com']
+    provider_names = ['github.com', 'pagure.io']
     for provider_name in provider_names:
         provider = map_entrypoint_name(provider_name)
         if provider.match_link(link):

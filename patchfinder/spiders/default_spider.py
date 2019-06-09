@@ -7,7 +7,6 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
 import entrypoint
-import context
 
 class DefaultSpider(CrawlSpider):
     """Scrapy Spider to extract patches
@@ -19,7 +18,7 @@ class DefaultSpider(CrawlSpider):
         name: Name of the spider
         recursion_limit: The recursion depth the spider would go to
         entrypoints: A list of entrypoints the spider will crawl
-        visited_urls: A list of pages visited by the spider
+        visited_links: A list of pages visited by the spider
         patches: A list of patch links the spider has found
         current_path: The current path of the spider from the root
     """
@@ -41,36 +40,34 @@ class DefaultSpider(CrawlSpider):
         self.add_to_path(response.url)
         self.add_to_visited_urls(response.url)
         entrypoint_obj = entrypoint.get_entrypoint_from_url(response.url)
-        links = response.xpath(entrypoint_obj.xpath).extract()
-        for link in links:
-            if entrypoint.is_patch(link) and link not in self.patches:
-                patch = items.Patch()
-                patch['patch_link'] = link
-                patch['reaching_path'] = self.current_path
-                self.add_patch(link)
-                yield patch
-            elif self.url_is_valid(link):
-                link = self.format_url(link)
-                if link not in self.visited_urls:
-                    yield Request(link, callback=self.parse)
+        for xpath in entrypoint_obj.xpaths:
+            links = response.xpath(xpath).extract()
+            for link in links:
+                if self.link_is_valid(link):
+                    if entrypoint.is_patch(link) and link not in self.patches:
+                        patch = items.Patch()
+                        patch['patch_link'] = link
+                        patch['reaching_path'] = self.current_path
+                        self.add_patch(link)
+                        yield patch
+                    elif link not in self.visited_urls:
+                        yield Request(link, callback=self.parse)
+        del entrypoint_obj
         self.pop_from_path()
 
-    def format_url(self, url):
-        if re.match(r'^/', url):
-            url = 'https://' + self.current_path[-1].split('/')[2] + url
-        return url
-
-    def url_is_valid(self, url):
-        if url is '':
+    def link_is_valid(self, link):
+        if link is '':
             return False
-        if re.match(r'^\#', url):
+        elif re.match(r'^/', link):
             return False
-        elif re.match(r'^mailto:', url):
+        elif re.match(r'^\#', link):
+            return False
+        elif re.match(r'^mailto:', link):
             return False
         return True
 
-    def add_to_path(self, url):
-        self.current_path.append(url)
+    def add_to_path(self, link):
+        self.current_path.append(link)
 
     def pop_from_path(self):
         self.current_path.pop()
