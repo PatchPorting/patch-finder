@@ -56,13 +56,7 @@ class DefaultSpider(CrawlSpider):
         self.pop_from_path()
 
     def link_is_valid(self, link):
-        if link is '':
-            return False
-        elif re.match(r'^/', link):
-            return False
-        elif re.match(r'^\#', link):
-            return False
-        elif re.match(r'^mailto:', link):
+        if not re.match(r'^http', link):
             return False
         return True
 
