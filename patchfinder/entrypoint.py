@@ -17,7 +17,7 @@ class Entrypoint(object):
     def __init__(self, url, xpaths=None, name=None):
         """init method"""
         self.url = url
-        self.xpaths = xpaths if xpaths else ['//body//a/@href']
+        self.xpaths = xpaths if xpaths else ['//body//a']
         if name:
             self.name = name
 
@@ -54,7 +54,7 @@ class Github(Provider):
         name = 'github.com'
         if vuln_id:
             url = 'https://github.com/search?q={vuln_id}&type=Commits'.format(vuln_id=vuln_id)
-        link_components = [r'github\.com', r'/commit/']
+        link_components = [r'github\.com', r'/commit/', r'[0-9a-f]{40}$']
         super(Github, self).__init__(link_components=link_components,
                                      url=url,
                                      name=name)
@@ -77,7 +77,7 @@ class NVD(Entrypoint):
 
     def __init__(self, vuln_id=None, url=None):
         name = 'nvd.nist.gov'
-        xpaths = ['//table[@data-testid="vuln-hyperlinks-table"]/tbody//a/@href']
+        xpaths = ['//table[@data-testid="vuln-hyperlinks-table"]/tbody//a']
         if vuln_id:
             url = 'https://nvd.nist.gov/vuln/detail/'+vuln_id
         super(NVD, self).__init__(url=url, xpaths=xpaths, name=name)
@@ -88,7 +88,7 @@ class MITRE(Entrypoint):
 
     def __init__(self, vuln_id=None, url=None):
         name = 'cve.mitre.org'
-        xpaths = ['//*[@id="GeneratedTable"]/table/tr[7]/td//a/@href']
+        xpaths = ['//*[@id="GeneratedTable"]/table/tr[7]/td//a']
         if vuln_id:
             url = 'https://cve.mitre.org/cgi-bin/cvename.cgi?name={vuln_id}'.format(vuln_id=vuln_id)
         super(MITRE, self).__init__(url=url, xpaths=xpaths, name=name)
@@ -99,7 +99,7 @@ class DebSecTracker(Entrypoint):
 
     def __init__(self, vuln_id=None, url=None):
         name = 'security-tracker.debian.org'
-        xpaths = ['//pre/a/@href']
+        xpaths = ['//pre/a']
         if vuln_id:
             url = 'https://security-tracker.debian.org/tracker/{vuln_id}'.format(vuln_id=vuln_id)
         super(DebSecTracker, self).__init__(url=url, xpaths=xpaths, name=name)
@@ -116,6 +116,8 @@ def map_entrypoint_name(entrypoint_name, vuln_id=None):
         return NVD(vuln_id=vuln_id)
     elif entrypoint_name == 'pagure.io':
         return Pagure(vuln_id=vuln_id)
+    elif entrypoint_name == 'security-tracker.debian.org':
+        return DebSecTracker(vuln_id=vuln_id)
     return None
 
 
@@ -127,6 +129,8 @@ def get_entrypoint_from_url(url):
         return MITRE(url=url)
     elif re.match(r'^https://nvd\.nist\.gov/vuln/detail/CVE\-\d+\-\d+$', url):
         return NVD(url=url)
+    elif re.match(r'^https://security\-tracker\.debian\.org/tracker/CVE\-\d+\-\d+$', url):
+        return DebSecTracker(url=url)
     return Entrypoint(url=url)
 
 

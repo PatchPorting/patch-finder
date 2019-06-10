@@ -2,17 +2,10 @@ import unittest
 import patchfinder.context as context
 import patchfinder.spiders.default_spider as default_spider
 from scrapy.crawler import CrawlerProcess
+import entrypoint
 
 class TestSpider(unittest.TestCase):
     """Test Class for spiders"""
-
-    def test_spider_init(self):
-        vuln = context.create_vuln('CVE-2016-4796')
-        spider = default_spider.DefaultSpider(vuln)
-        spider.add_to_path('https://nvd.nist.gov/vuln/detail/CVE-2016-4796')
-        self.assertEqual(spider.current_path, ['https://nvd.nist.gov/vuln/detail/CVE-2016-4796'])
-        self.assertEqual(spider.recursion_limit, 1)
-        self.assertEqual(spider.entrypoints, vuln.entrypoints)
 
     def test_spider_crawl(self):
         vuln = context.create_vuln('CVE-2016-4796')
@@ -23,7 +16,7 @@ class TestSpider(unittest.TestCase):
             },
             'DEPTH_LIMIT': 1
         })
-        process.crawl(default_spider.DefaultSpider, vuln)
+        process.crawl(default_spider.DefaultSpider, vuln=vuln, recursion_limit=1)
         process.start()
 
 

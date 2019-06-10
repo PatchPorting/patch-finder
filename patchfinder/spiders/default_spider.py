@@ -1,7 +1,9 @@
 import scrapy
-from scrapy.spiders import CrawlSpider
+from scrapy.spiders import CrawlSpider, Rule
 from scrapy.http import Request
+from urllib.parse import urlparse
 import patchfinder.spiders.items as items
+from patchfinder.spiders.patchfinder_linkextractor import PatchfinderLinkExtractor
 import re
 import sys
 import os
@@ -23,42 +25,31 @@ class DefaultSpider(CrawlSpider):
         current_path: The current path of the spider from the root
     """
 
-    def __init__(self, vuln, recursion_limit=1):
+    rules = [Rule(PatchfinderLinkExtractor(deny=(r'commit')), callback='parse_items', follow=True)] 
+
+    def __init__(self, *args, **kwargs):
         self.name = 'default_spider'
-        self.recursion_limit = recursion_limit
-        self.entrypoints = vuln.entrypoints
+        entrypoints = kwargs.get('vuln').entrypoints
+        self.start_urls = []
+        for e in entrypoints:
+            self.start_urls.append(e.url)
         self.visited_urls = []
         self.patches = []
         self.current_path = []
+        super(DefaultSpider, self).__init__(*args, **kwargs)
 
-    def start_requests(self):
-        for e in self.entrypoints:
-            if e.url not in self.visited_urls:
-                yield Request(e.url, callback=self.parse)
-
-    def parse(self, response):
-        self.add_to_path(response.url)
-        self.add_to_visited_urls(response.url)
+    def parse_items(self, response):
         entrypoint_obj = entrypoint.get_entrypoint_from_url(response.url)
         for xpath in entrypoint_obj.xpaths:
-            links = response.xpath(xpath).extract()
+            links = response.xpath(xpath+'/@href').extract()
             for link in links:
-                if self.link_is_valid(link):
-                    if entrypoint.is_patch(link) and link not in self.patches:
-                        patch = items.Patch()
-                        patch['patch_link'] = link
-                        patch['reaching_path'] = self.current_path
-                        self.add_patch(link)
-                        yield patch
-                    elif link not in self.visited_urls:
-                        yield Request(link, callback=self.parse)
+                if entrypoint.is_patch(link) and link not in self.patches:
+                    patch = items.Patch()
+                    patch['patch_link'] = link
+                    patch['reaching_path'] = self.current_path
+                    self.add_patch(link)
+                    yield patch
         del entrypoint_obj
-        self.pop_from_path()
-
-    def link_is_valid(self, link):
-        if not re.match(r'^http', link):
-            return False
-        return True
 
     def add_to_path(self, link):
         self.current_path.append(link)
