@@ -16,7 +16,7 @@ class TestSpider(unittest.TestCase):
             },
             'DEPTH_LIMIT': 1
         })
-        process.crawl(default_spider.DefaultSpider, vuln=vuln, recursion_limit=1)
+        process.crawl(default_spider.DefaultSpider, vuln=vuln)
         process.start()
 
 
