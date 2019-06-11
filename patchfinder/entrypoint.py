@@ -98,7 +98,8 @@ class MITRE(Entrypoint):
         name = 'cve.mitre.org'
         xpaths = ['//*[@id="GeneratedTable"]/table/tr[7]/td//a']
         if vuln_id:
-            url = 'https://cve.mitre.org/cgi-bin/cvename.cgi?name={vuln_id}'.format(vuln_id=vuln_id)
+            url = 'https://cve.mitre.org/cgi-bin/cvename.cgi?name={vuln_id}' \
+                    .format(vuln_id=vuln_id)
         super(MITRE, self).__init__(url=url, xpaths=xpaths, name=name)
 
 
@@ -109,7 +110,8 @@ class DebSecTracker(Entrypoint):
         name = 'security-tracker.debian.org'
         xpaths = ['//pre/a']
         if vuln_id:
-            url = 'https://security-tracker.debian.org/tracker/{vuln_id}'.format(vuln_id=vuln_id)
+            url = 'https://security-tracker.debian.org/tracker/{vuln_id}' \
+                    .format(vuln_id=vuln_id)
         super(DebSecTracker, self).__init__(url=url, xpaths=xpaths, name=name)
 
 
@@ -133,6 +135,21 @@ class FedoraProjectLists(Entrypoint):
         super(FedoraProjectLists, self).__init__(url=url,
                                                  xpaths=xpaths,
                                                  name=name)
+
+
+class RedhatBugzilla(Entrypoint):
+    """Subclass for bugzilla.redhat.com as an entrypoint"""
+
+    def __init__(self, vuln_id=None, url=None):
+        name = 'bugzilla.redhat.com'
+        xpaths = ['//pre[contains(@class, \'bz_comment_text\')]//a',
+                  '//table[@id=\'external_bugs_table\']//a']
+        if vuln_id:
+            url = 'https://bugzilla.redhat.com/show_bug.cgi?id={vuln_id}' \
+                    .format(vuln_id=vuln_id)
+        super(RedhatBugzilla, self).__init__(url=url,
+                                             xpaths=xpaths,
+                                             name=name)
 
 
 #TODO: Make this more sophisticated, maybe use something like getattr
@@ -161,6 +178,8 @@ def get_entrypoint_from_url(url):
         return OpenwallLists(url=url)
     elif re.match(r'^https://lists\.fedoraproject\.org/archives/list/', url):
         return FedoraProjectLists(url=url)
+    elif re.match(r'^https://bugzilla\.redhat\.com/show_bug\.cgi\?id=', url):
+        return RedhatBugzilla(url=url)
     return Entrypoint(url=url)
 
 

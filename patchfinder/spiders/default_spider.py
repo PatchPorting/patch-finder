@@ -1,5 +1,6 @@
 import scrapy
 from scrapy.http import Request
+from urllib.parse import urlparse
 import patchfinder.spiders.items as items
 import re
 import sys
@@ -34,6 +35,7 @@ class DefaultSpider(scrapy.Spider):
         for xpath in entrypoint_obj.xpaths:
             links = response.xpath(xpath+'/@href').extract()
             for link in links:
+                link = response.urljoin(link[0:])
                 if self.link_is_valid(link):
                     if entrypoint.is_patch(link):
                         if link not in self.patches:
