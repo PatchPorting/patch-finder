@@ -46,9 +46,8 @@ class TestEntrypoint(unittest.TestCase):
         link = 'https://github.com/python/cpython/pull/13797'
         self.assertFalse(github.match_link(link))
 
-    def test_create_entrypoint(self):
+    def test_map_entrypoint_name(self):
         self.assertTrue(entrypoint.map_entrypoint_name('github.com', 'CVE-2016-4796'))
-        self.assertTrue(entrypoint.map_entrypoint_name('cve.mitre.org', 'CVE-2016-4796'))
         self.assertFalse(entrypoint.map_entrypoint_name('opensuse', 'CVE-2016-4796'))
 
     def test_is_patch(self):
@@ -56,13 +55,22 @@ class TestEntrypoint(unittest.TestCase):
                 '0cd3ec1c6c6dc65e41b2faab92b2d91'
         self.assertTrue(entrypoint.is_patch(patch_link))
 
-    def test_get_entrypoint_from_url(self):
-        url1 = 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-4796'
-        url2 = 'https://github.com/jajajasalu2/patch-finder/issues/1'
-        obj1 = entrypoint.get_entrypoint_from_url(url1)
-        obj2 = entrypoint.get_entrypoint_from_url(url2)
-        self.assertEqual(obj2.name, 'github.com')
-        self.assertEqual(obj1.name, 'cve.mitre.org')
+    def test_mitre_url_mapping(self):
+        url = 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-4796'
+        obj = entrypoint.get_entrypoint_from_url(url)
+        self.assertEqual(obj.name, 'cve.mitre.org')
+
+    def test_openwall_url_mapping(self):
+        url = 'https://www.openwall.com/lists/oss-security/2016/05/13/2'
+        obj = entrypoint.get_entrypoint_from_url(url)
+        self.assertEqual(obj.name, 'openwall.com')
+
+    def test_fedoraproject_lists_url_mapping(self):
+        url = 'https://lists.fedoraproject.org/archives/list/package-announ' \
+                'ce@lists.fedoraproject.org/message/5FFMOZOF2EI6N2CR23EQ5EA' \
+                'TWLQKBMHW/'
+        obj = entrypoint.get_entrypoint_from_url(url)
+        self.assertEqual(obj.name, 'lists.fedoraproject.org')
 
 
 if __name__ == '__main__':

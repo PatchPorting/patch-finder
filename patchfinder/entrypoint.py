@@ -18,8 +18,7 @@ class Entrypoint(object):
         """init method"""
         self.url = url
         self.xpaths = xpaths if xpaths else ['//body//a']
-        if name:
-            self.name = name
+        self.name = name
 
 
 class Provider(Entrypoint):
@@ -50,26 +49,35 @@ class Provider(Entrypoint):
 class Github(Provider):
     """Subclass for GitHub as a Provider"""
 
-    def __init__(self, vuln_id=None, url=None):
+    def __init__(self, vuln_id=None, url=None, xpaths=None):
         name = 'github.com'
         if vuln_id:
             url = 'https://github.com/search?q={vuln_id}&type=Commits'.format(vuln_id=vuln_id)
         link_components = [r'github\.com', r'/commit/', r'[0-9a-f]{40}$']
         super(Github, self).__init__(link_components=link_components,
                                      url=url,
+                                     xpaths=xpaths,
                                      name=name)
+
+
+class GithubIssues(Github):
+    """Subclass for Github's issues pages"""
+
+    def __init__(self, vuln_id=None, url=None):
+        xpaths = ['//div[contains(@class, \'commit-message\')]//a']
+        super(GithubIssues, self).__init__(url=url,
+                                           xpaths=xpaths)
 
 
 class Pagure(Provider):
     """Subclass for Pagure as a Provider"""
 
-    def __init__(self, vuln_id=None, url=None):
+    def __init__(self, url=None):
         name = 'pagure.io'
         link_components = [r'pagure\.io', r'/[0-9a-f]{9}$']
         super(Pagure, self).__init__(link_components=link_components,
                                      url=url,
                                      name=name)
-
 
 
 class NVD(Entrypoint):
@@ -105,32 +113,54 @@ class DebSecTracker(Entrypoint):
         super(DebSecTracker, self).__init__(url=url, xpaths=xpaths, name=name)
 
 
+class OpenwallLists(Entrypoint):
+    """Subclass for openwall.com as an entrypoint"""
+
+    def __init__(self, url):
+        name = 'openwall.com'
+        xpaths = ['//pre/a']
+        super(OpenwallLists, self).__init__(url=url,
+                                            xpaths=xpaths,
+                                            name=name)
+
+
+class FedoraProjectLists(Entrypoint):
+    """Subclass for lists.fedoraproject.org as an entrypoint"""
+
+    def __init__(self, url):
+        name = 'lists.fedoraproject.org'
+        xpaths = ['//div[contains(@class, \'email-body\')]//a']
+        super(FedoraProjectLists, self).__init__(url=url,
+                                                 xpaths=xpaths,
+                                                 name=name)
+
+
 #TODO: Make this more sophisticated, maybe use something like getattr
 def map_entrypoint_name(entrypoint_name, vuln_id=None):
     """given an entrypoint name return its corresponding Entrypoint object"""
     if entrypoint_name == 'github.com':
         return Github(vuln_id=vuln_id)
-    elif entrypoint_name == 'cve.mitre.org':
-        return MITRE(vuln_id=vuln_id)
-    elif entrypoint_name == 'nvd.nist.gov':
-        return NVD(vuln_id=vuln_id)
     elif entrypoint_name == 'pagure.io':
-        return Pagure(vuln_id=vuln_id)
-    elif entrypoint_name == 'security-tracker.debian.org':
-        return DebSecTracker(vuln_id=vuln_id)
+        return Pagure()
     return None
 
 
 def get_entrypoint_from_url(url):
-    if re.match(r'^https://github\.com/', url):
-        return Github(url=url)
-    elif re.match(r'^https://cve\.mitre\.org/cgi\-bin/cvename\.cgi\?name=CVE\-\d' \
-                   '+\-\d+', url):
+    """Given a URL, map it to its Entrypoint object"""
+    if re.match(r'^https://github\.com/.+?/.+?/issues/\d+$', url):
+        return GithubIssues(url=url)
+    elif re.match(r'^https://cve\.mitre\.org/cgi\-bin/cvename\.cgi\?name=CVE' \
+                  '\-\d+\-\d+', url):
         return MITRE(url=url)
     elif re.match(r'^https://nvd\.nist\.gov/vuln/detail/CVE\-\d+\-\d+$', url):
         return NVD(url=url)
-    elif re.match(r'^https://security\-tracker\.debian\.org/tracker/CVE\-\d+\-\d+$', url):
+    elif re.match(r'^https://security\-tracker\.debian\.org/tracker/CVE\-\d' \
+                  '+\-\d+$', url):
         return DebSecTracker(url=url)
+    elif re.match(r'^https://www.openwall\.com/lists/oss\-security', url):
+        return OpenwallLists(url=url)
+    elif re.match(r'^https://lists\.fedoraproject\.org/archives/list/', url):
+        return FedoraProjectLists(url=url)
     return Entrypoint(url=url)
 
 
