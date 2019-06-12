@@ -37,12 +37,13 @@ class DefaultSpider(scrapy.Spider):
             for link in links:
                 link = response.urljoin(link[0:])
                 if self.link_is_valid(link):
-                    if entrypoint.is_patch(link):
-                        if link not in self.patches:
+                    patch_link = entrypoint.is_patch(link)
+                    if patch_link:
+                        if patch_link not in self.patches:
                             patch = items.Patch()
-                            patch['patch_link'] = link
+                            patch['patch_link'] = patch_link
                             patch['reaching_path'] = response.url
-                            self.add_patch(link)
+                            self.add_patch(patch_link)
                             yield patch
                     else:
                         yield Request(link, callback=self.parse)

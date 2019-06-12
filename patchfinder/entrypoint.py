@@ -32,12 +32,18 @@ class Provider(Entrypoint):
         link_components: A list of components in a patch link for this provider
     """
 
-    def __init__(self, link_components, url=None, xpaths=None, name=None):
+    def __init__(self, link_components, patch_components, url=None, xpaths=None, name=None):
         if url:
             super(Provider, self).__init__(url=url, xpaths=xpaths, name=name)
         else:
             self.name = name
         self.link_components = link_components
+        self.patch_components = patch_components
+
+    def patch_format(self, link):
+        for i in self.patch_components:
+            link = re.sub(i, self.patch_components[i], link)
+        return link
 
     def match_link(self, link):
         """Checks if 'link' belongs to this provider"""
@@ -54,7 +60,9 @@ class Github(Provider):
         if vuln_id:
             url = 'https://github.com/search?q={vuln_id}&type=Commits'.format(vuln_id=vuln_id)
         link_components = [r'github\.com', r'/commit/', r'[0-9a-f]{40}$']
+        patch_components = {r'$': r'.patch'}
         super(Github, self).__init__(link_components=link_components,
+                                     patch_components=patch_components,
                                      url=url,
                                      xpaths=xpaths,
                                      name=name)
@@ -75,7 +83,9 @@ class Pagure(Provider):
     def __init__(self, url=None):
         name = 'pagure.io'
         link_components = [r'pagure\.io', r'/[0-9a-f]{9}$']
+        patch_components = {r'$': r'.patch'}
         super(Pagure, self).__init__(link_components=link_components,
+                                     patch_components=patch_components,
                                      url=url,
                                      name=name)
 
@@ -188,5 +198,5 @@ def is_patch(link):
     for provider_name in provider_names:
         provider = map_entrypoint_name(provider_name)
         if provider.match_link(link):
-            return True
-    return False
+            return provider.patch_format(link)
+    return None

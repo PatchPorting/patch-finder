@@ -51,9 +51,16 @@ class TestEntrypoint(unittest.TestCase):
         self.assertFalse(entrypoint.map_entrypoint_name('opensuse', 'CVE-2016-4796'))
 
     def test_is_patch(self):
-        patch_link = 'https://github.com/uclouvain/openjpeg/commit/162f6199c' \
+        link = 'https://github.com/uclouvain/openjpeg/commit/162f6199c' \
                 '0cd3ec1c6c6dc65e41b2faab92b2d91'
-        self.assertTrue(entrypoint.is_patch(patch_link))
+        patch_link = entrypoint.is_patch(link)
+        self.assertEqual(patch_link, 'https://github.com/uclouvain/openjpeg/' \
+                         'commit/162f6199c0cd3ec1c6c6dc65e41b2faab92b2d91.pa' \
+                         'tch')
+        link = 'https://pagure.io/389-ds-base/c/4d9cc24da'
+        patch_link = entrypoint.is_patch(link)
+        self.assertEqual(patch_link, 'https://pagure.io/389-ds-base/c/4d9cc2' \
+                         '4da.patch')
 
     def test_mitre_url_mapping(self):
         url = 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-4796'
