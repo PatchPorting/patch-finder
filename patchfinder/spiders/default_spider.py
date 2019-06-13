@@ -2,11 +2,13 @@ import scrapy
 from scrapy.http import Request
 from urllib.parse import urlparse
 import patchfinder.spiders.items as items
+import patchfinder.entrypoint as entrypoint
+from patchfinder.debian import DebianParser
 import re
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
-import entrypoint
+import mmap
+import hashlib
 
 class DefaultSpider(scrapy.Spider):
     """Scrapy Spider to extract patches
@@ -23,16 +25,27 @@ class DefaultSpider(scrapy.Spider):
 
     def __init__(self, *args, **kwargs):
         self.name = 'default_spider'
-        entrypoints = kwargs.get('vuln').entrypoints
-        self.start_urls = []
-        for e in entrypoints:
-            self.start_urls.append(e.url)
+        self.vuln_id = kwargs.get('vuln').vuln_id
+        self.start_urls = kwargs.get('vuln').entrypoint_URLs
         self.patches = []
         super(DefaultSpider, self).__init__(*args, **kwargs)
 
+    def start_requests(self):
+        for url in self.start_urls:
+            if url.startswith('https://security-tracker.debian.org'):
+                yield Request(url, callback=self.parse_debian)
+            else:
+                yield Request(url, callback=self.parse)
+
+    def parse_debian(self, response):
+        debian_parser = DebianParser()
+        patches = debian_parser.parse(self.vuln_id)
+        for patch in patches:
+            yield patch
+
     def parse(self, response):
-        entrypoint_obj = entrypoint.get_entrypoint_from_url(response.url)
-        for xpath in entrypoint_obj.xpaths:
+        xpaths = entrypoint.get_xpath(response.url)
+        for xpath in xpaths:
             links = response.xpath(xpath+'/@href').extract()
             for link in links:
                 link = response.urljoin(link[0:])
@@ -47,7 +60,6 @@ class DefaultSpider(scrapy.Spider):
                             yield patch
                     else:
                         yield Request(link, callback=self.parse)
-        del entrypoint_obj
 
     def link_is_valid(self, link):
         if re.match(r'^http', link):

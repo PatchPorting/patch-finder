@@ -2,7 +2,6 @@ import unittest
 import patchfinder.context as context
 import patchfinder.spiders.default_spider as default_spider
 from scrapy.crawler import CrawlerProcess
-import entrypoint
 
 class TestSpider(unittest.TestCase):
     """Test Class for spiders"""
