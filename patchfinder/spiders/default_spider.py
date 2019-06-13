@@ -5,10 +5,6 @@ import patchfinder.spiders.items as items
 import patchfinder.entrypoint as entrypoint
 from patchfinder.debian import DebianParser
 import re
-import sys
-import os
-import mmap
-import hashlib
 
 class DefaultSpider(scrapy.Spider):
     """Scrapy Spider to extract patches
