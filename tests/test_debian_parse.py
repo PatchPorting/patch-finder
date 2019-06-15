@@ -2,6 +2,7 @@ import os.path
 import unittest
 from patchfinder.debian import DebianParser
 #TODO: Create more tests
+#TODO: There should be some locally stored packages to test parsing logic on
 
 class TestDebianParser(unittest.TestCase):
     """Test Class for DebianParser"""
@@ -24,11 +25,13 @@ class TestDebianParser(unittest.TestCase):
     def test_debian_parse(self):
         debian_parser = DebianParser()
         pkg_name = 'openjpeg2_2.1.1-1.debian.tar.xz'
-        debian_parser.parse('CVE-2016-4796')
+        patches = debian_parser.parse('CVE-2016-4796')
         self.assertTrue(os.path.isfile('./cache/' + pkg_name))
-        debian_parser.parse('CVE-2004-2779')
+        self.assertFalse(patches)
+        patches = debian_parser.parse('CVE-2004-2779')
         pkg_name = 'libid3tag_0.15.1b-5.diff.gz'
         self.assertTrue(os.path.isfile('./cache/' + pkg_name))
+        self.assertFalse(patches)
 
     def test_cve_file_name(self):
         debian_parser = DebianParser()
