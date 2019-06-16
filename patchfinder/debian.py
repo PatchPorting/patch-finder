@@ -156,8 +156,8 @@ class DebianParser(object):
                     tar.close()
                 patch_folder = os.path.join(package['ext_path'], \
                                             'debian/patches/')
-                if not os.path.isdir(patch_folder): continue
                 try:
+                    if not os.path.isdir(patch_folder): continue
                     for f in os.listdir(patch_folder):
                         if f.find(self.vuln_id) is not -1:
                             patches.append({'patch_link': \
