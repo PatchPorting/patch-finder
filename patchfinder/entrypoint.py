@@ -35,7 +35,8 @@ class Github(Provider):
     """Subclass for GitHub as a Provider"""
 
     def __init__(self):
-        link_components = [r'github\.com', r'/commit/', r'[0-9a-f]{40}$']
+        link_components = [r'github\.com', r'/(commit|pull)/', \
+                           r'([0-9a-f]{40}|\d+)$']
         patch_components = {r'$': r'.patch'}
         super(Github, self).__init__(link_components=link_components,
                                      patch_components=patch_components)

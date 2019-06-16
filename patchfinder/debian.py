@@ -1,8 +1,10 @@
+#TODO: Introduce some helpful logging here
 import os
 import re
 import shutil
 import tarfile
 import urllib.request
+import urllib.parse
 from bs4 import BeautifulSoup
 DOWNLOAD_DIRECTORY = './cache/'
 
@@ -60,6 +62,7 @@ class DebianParser(object):
         finally:
             cve_file.close()
 
+
     def retrieve_packages(self):
         """Downloads the package found by find_fixed_packages
 
@@ -74,9 +77,11 @@ class DebianParser(object):
                     .format(pkg=package['package'], ver=package['version'])
             snapshot_html = urllib.request.urlopen(snapshot_url)
             soup = BeautifulSoup(snapshot_html, 'html.parser')
+            quoted_package = urllib.parse.quote(package['package'])
+            quoted_version = urllib.parse.quote(package['version'])
             find_pkg = re.compile(r'/({pkg}_{ver}\.(debian\.tar\..+|diff\..+' \
-                                  '))$'.format(pkg=package['package'],
-                                               ver=package['version']))
+                                  r'))$'.format(pkg=quoted_package,
+                                                ver=quoted_version))
             pkg_url = soup.find('a', href=find_pkg)
             assert pkg_url, "Couldn't find package {pkg} {ver} on {url}" \
                     .format(pkg=package['package'],

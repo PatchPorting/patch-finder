@@ -16,8 +16,9 @@ class TestEntrypoint(unittest.TestCase):
         github = entrypoint.Github()
         link = 'https://github.com/python/cpython/commit/a4ae828ee416a6' \
                 '6d8c7bf5ee71d653c2cc6a26dd'
-        self.assertEqual(github.link_components, ['github\.com', '/commit/',
-                                                  '[0-9a-f]{40}$'])
+        self.assertEqual(github.link_components, ['github\.com',
+                                                  '/(commit|pull)/',
+                                                  '([0-9a-f]{40}|\\d+)$'])
 
     def test_github_match_link(self):
         github = entrypoint.Github()
@@ -25,7 +26,7 @@ class TestEntrypoint(unittest.TestCase):
                 '6d8c7bf5ee71d653c2cc6a26dd'
         self.assertTrue(github.match_link(link))
         link = 'https://github.com/python/cpython/pull/13797'
-        self.assertFalse(github.match_link(link))
+        self.assertTrue(github.match_link(link))
 
     def test_map_entrypoint_name(self):
         self.assertTrue(entrypoint.map_entrypoint_name('github.com'))
