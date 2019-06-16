@@ -19,12 +19,14 @@ class DefaultSpider(scrapy.Spider):
         deny_domains: A list of domains to deny crawling links of
         important_domains: A list of domains with higher crawling priority
         patch_limit: A threshold for the number of patches to collect
+        allowed_keys: A set of allowed keys for initialization
     """
 
     deny_domains = ['facebook.com', 'twitter.com']
     important_domains = []
     patch_limit = 100
     allowed_keys = {'deny_domains', 'important_domains', 'patch_limit'}
+
 
     def __init__(self, *args, **kwargs):
         self.name = 'default_spider'
@@ -35,6 +37,7 @@ class DefaultSpider(scrapy.Spider):
                              if k in self.allowed_keys)
         super(DefaultSpider, self).__init__(*args, **kwargs)
 
+
     def start_requests(self):
         for url in self.start_urls:
             if url.startswith('https://security-tracker.debian.org'):
@@ -42,15 +45,24 @@ class DefaultSpider(scrapy.Spider):
             else:
                 yield Request(url, callback=self.parse)
 
-    def parse_debian(self, response):
-        debian_parser = DebianParser()
-        patches = debian_parser.parse(self.vuln_id)
-        for patch in patches:
-            if len(self.patches) < self.patch_limit:
-                self.add_patch(patch['patch_link'])
-                yield patch
 
-    def parse(self, response):
+    def extract_links(self, response):
+        """Extract links from a response and divide them into patch links
+        and non-patch links.
+
+        Links are extracted from the Response body. These are extracted from
+        the relevant xpath of the page. Links of domains in the deny_domains
+        list are ignored. The extracted links are then divided into patch links
+        and non-patch links.
+
+        Args:
+            response: The Response object used to extract links from.
+
+        Returns:
+            A dictionary of links divided into patch and non-patch links.
+        """
+        divided_links = {'patch_links': [],
+                         'links': []}
         xpaths = entrypoint.get_xpath(response.url)
         links = LxmlLinkExtractor(deny_domains=self.deny_domains,
                                   restrict_xpaths=xpaths) \
@@ -58,22 +70,67 @@ class DefaultSpider(scrapy.Spider):
         for link in links:
             link = response.urljoin(link.url[0:])
             patch_link = entrypoint.is_patch(link)
-            if patch_link and len(self.patches) < self.patch_limit:
-                if patch_link not in self.patches:
-                    patch = items.Patch()
-                    patch['patch_link'] = patch_link
-                    patch['reaching_path'] = response.url
-                    self.add_patch(patch_link)
-                    yield patch
-            elif len(self.patches) < self.patch_limit:
-                priority = self.domain_priority(link)
-                yield Request(link, callback=self.parse, priority=priority)
+            if patch_link:
+                divided_links['patch_links'].append(patch_link)
+            else:
+                divided_links['links'].append(link)
+        return divided_links
+
+
+    def parse_debian(self, response):
+        """The parse method for Debian.
+
+        The DebianParser class' parse method is called for retrieving patches
+        from Debian.
+
+        Args:
+            response: The Response object sent by Scrapy.
+        """
+        debian_parser = DebianParser()
+        patches = debian_parser.parse(self.vuln_id)
+        for patch in patches:
+            if len(self.patches) < self.patch_limit:
+                self.add_patch(patch['patch_link'])
+                yield patch
+
+
+    def parse(self, response):
+        """The default parse method.
+
+        If a url in start_urls does not need a separate parser, this
+        method is called. The links from the response body are extracted first.
+        The patch links are added to the retrieved patches list. The non-patch
+        links are crawled. This recursive process goes on till the DEPTH_LIMIT
+        is reached.
+
+        Args:
+            response: The Response object sent by Scrapy.
+        """
+        links = self.extract_links(response)
+        for link in links['patch_links']:
+            if len(self.patches) < self.patch_limit:
+                patch = items.Patch()
+                patch['patch_link'] = link
+                patch['reaching_path'] = response.url
+                self.add_patch(link)
+                yield patch
+        for link in links['links']:
+            priority = self.domain_priority(link)
+            yield Request(link, callback=self.parse, priority=priority)
+
 
     def domain_priority(self, url):
+        """Returns a priority for a url
+
+        The URL's domain is checked for in the important domains list. If found,
+        a relatively higher priority is returned, i.e. 1. Else a relatively
+        lower priority i.e. 0 is returned.
+        """
         domain = urlparse(url).hostname
         if domain in self.important_domains:
             return 1
         return 0
+
 
     def add_patch(self, patch_link):
         self.patches.append(patch_link)
