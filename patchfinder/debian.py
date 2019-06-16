@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 import tarfile
+import urllib.error
 import urllib.request
 import urllib.parse
 from bs4 import BeautifulSoup
@@ -19,16 +20,51 @@ class DebianParser(object):
     """
 
     cve_list_url = 'https://salsa.debian.org/security-tracker-team/security' \
-                '-tracker/raw/master/data/CVE/list'
-    cve_file = os.path.join(DOWNLOAD_DIRECTORY, 'list')
+            '-tracker/raw/master/data/CVE/list'
+    dsa_list_url = 'https://salsa.debian.org/security-tracker-team/security' \
+            '-tracker/raw/master/data/DSA/list'
+    cve_file = os.path.join(DOWNLOAD_DIRECTORY, 'debian_cve_list')
+    pkg_ver = re.compile(r'^[\[\]a-z\s]+\- ([a-zA-Z0-9\+\-]+) ([a-zA-Z\d\.\+' \
+                         r'\-\~:]+)')
     fixed_packages = []
     package_paths = []
 
+
     #TODO: urlretrieve is most probably deprecated, find something else
-    def _download_item(self, url, save_as):
-        if os.path.isfile(save_as):
+    def _download_item(self, url, save_as, overwrite=False):
+        """Download an item
+
+        Args:
+            url: The url of the item
+            save_as: The path to which the item should be saved
+            overwrite: optional argument to overwrite existing file with
+                same name as save_as. If overwrite is True, the file will
+                be downloaded from url and the existing file will be
+                overwritten.
+        """
+        if os.path.isfile(save_as) and not overwrite:
             return
         urllib.request.urlretrieve(url, save_as)
+
+
+    def pkg_ver_in_line(self, line):
+        """Extracts package and version from a line
+
+        Args:
+            line: String from which the package and version are to be
+                extracted
+
+        Returns:
+            a dictionary of the package name and its version
+        """
+        matches = self.pkg_ver.search(line)
+        if matches and len(matches.groups()) is 2:
+            pkg = matches.group(1).strip()
+            ver = re.sub(r'^.+:', r'', matches.group(2).strip())
+            return {'package': pkg,
+                    'version': ver}
+        return None
+
 
     def find_fixed_packages(self):
         """finds the fixed packages for the current vuln_id
@@ -43,20 +79,15 @@ class DebianParser(object):
         self._download_item(self.cve_list_url, self.cve_file)
         vuln_found = 0
         look_for_cve = re.compile(r'^{vuln_id}'.format(vuln_id=self.vuln_id))
-        pkg_ver = re.compile(r'^\t\- (.+?) ([a-zA-Z\d\.\+\-\~:]+?$|[a-zA-Z' \
-                             '\d\.\+\-\~:]+? )')
         cve_file = open(self.cve_file)
         try:
             for line in cve_file:
                 if vuln_found:
                     if re.match(r'^CVE', line):
                         break
-                    matches = pkg_ver.search(line)
-                    if matches and len(matches.groups()) is 2:
-                        pkg = matches.group(1).strip()
-                        ver = re.sub(r'^.+:', r'', matches.group(2).strip())
-                        self.fixed_packages.append({'package': pkg,
-                                                    'version': ver})
+                    pkg_ver = self.pkg_ver_in_line(line)
+                    if pkg_ver:
+                        self.fixed_packages.append(pkg_ver)
                 elif look_for_cve.match(line):
                     vuln_found = 1
         finally:
@@ -74,8 +105,13 @@ class DebianParser(object):
 
         for package in self.fixed_packages:
             snapshot_url = 'https://snapshot.debian.org/package/{pkg}/{ver}/' \
-                    .format(pkg=package['package'], ver=package['version'])
-            snapshot_html = urllib.request.urlopen(snapshot_url)
+                    .format(pkg=package['package'],
+                            ver=package['version'])
+            try:
+                snapshot_html = urllib.request.urlopen(snapshot_url)
+            except urllib.error.HTTPError as e:
+                raise Exception("Error opening {url}".format(url=snapshot_url))
+
             soup = BeautifulSoup(snapshot_html, 'html.parser')
             quoted_package = urllib.parse.quote(package['package'])
             quoted_version = urllib.parse.quote(package['version'])
@@ -100,6 +136,7 @@ class DebianParser(object):
                                                     '_' + \
                                                     package['version'])})
 
+
     def extract_patches(self):
         """Extract patches from downloaded packages
 
@@ -119,19 +156,27 @@ class DebianParser(object):
                     tar.close()
                 patch_folder = os.path.join(package['ext_path'], \
                                             'debian/patches/')
+                if not os.path.isdir(patch_folder): continue
                 try:
-                    if os.path.isdir(patch_folder):
-                        for f in os.listdir(patch_folder):
-                            if f.find(self.vuln_id) is not -1:
-                                patches.append({'patch_link': \
-                                                os.path.join(patch_folder, f),
-                                                'reaching_path': \
-                                                package['source']})
+                    for f in os.listdir(patch_folder):
+                        if f.find(self.vuln_id) is not -1:
+                            patches.append({'patch_link': \
+                                            os.path.join(patch_folder, f),
+                                            'reaching_path': \
+                                            package['source']})
                 finally:
                     shutil.rmtree(package['ext_path'])
         return patches
 
+
     def parse(self, vuln_id):
+        """The parse method for Debian
+
+        The fixed Debian packages w/r/t the given vulnerability are determined
+        and retrieved. The debian/patches folder in these packages is checked
+        for patches that are relevant to the vulnerability. A list of patches
+        found is returned.
+        """
         self.vuln_id = vuln_id
         self.find_fixed_packages()
         self.retrieve_packages()
