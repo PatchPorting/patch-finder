@@ -115,8 +115,9 @@ class DefaultSpider(scrapy.Spider):
                 self.add_patch(link)
                 yield patch
         for link in links['links']:
-            priority = self.domain_priority(link)
-            yield Request(link, callback=self.parse, priority=priority)
+            if len(self.patches) < self.patch_limit:
+                priority = self.domain_priority(link)
+                yield Request(link, callback=self.parse, priority=priority)
 
 
     def domain_priority(self, url):
