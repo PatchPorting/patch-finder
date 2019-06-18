@@ -13,7 +13,8 @@ class TestSpider(unittest.TestCase):
             'ITEM_PIPELINES': {
                 'patchfinder.spiders.pipelines.PatchPipeline': 300
             },
-            'DEPTH_LIMIT': 1
+            'DEPTH_LIMIT': 1,
+            'LOG_ENABLED': False
         })
         process.crawl(default_spider.DefaultSpider, vuln=vuln)
         process.start()
