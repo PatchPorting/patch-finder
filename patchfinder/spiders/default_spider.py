@@ -2,9 +2,12 @@ from urllib.parse import urlparse
 from scrapy.http import Request
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 import scrapy
+import re
+import argparse
 from patchfinder.debian import DebianParser
 import patchfinder.spiders.items as items
 import patchfinder.entrypoint as entrypoint
+import patchfinder.settings as settings
 
 class DefaultSpider(scrapy.Spider):
     """Scrapy Spider to extract patches
@@ -22,9 +25,13 @@ class DefaultSpider(scrapy.Spider):
         allowed_keys: A set of allowed keys for initialization
     """
 
-    deny_domains = ['facebook.com', 'twitter.com']
-    important_domains = []
-    patch_limit = 100
+    deny_pages = {'github.com': [r'github\.com/[^/]+/[^/]+$',
+                                 r'/blob/',
+                                 r'/releases$',
+                                 r'/releases/.+?/[^/]+$']}
+    deny_domains = settings.DENY_DOMAINS
+    important_domains = settings.IMPORTANT_DOMAINS
+    patch_limit = settings.PATCH_LIMIT
     allowed_keys = {'deny_domains', 'important_domains', 'patch_limit'}
 
 
@@ -71,8 +78,9 @@ class DefaultSpider(scrapy.Spider):
             link = response.urljoin(link.url[0:])
             patch_link = entrypoint.is_patch(link)
             if patch_link:
-                divided_links['patch_links'].append(patch_link)
-            else:
+                if patch_link not in self.patches:
+                    divided_links['patch_links'].append(patch_link)
+            elif self.allow_page(link):
                 divided_links['links'].append(link)
         return divided_links
 
@@ -131,6 +139,19 @@ class DefaultSpider(scrapy.Spider):
         if domain in self.important_domains:
             return 1
         return 0
+
+
+    def allow_page(self, url):
+        """Determine if url is for an allowed page"""
+        domain = urlparse(url).hostname
+        if domain in self.deny_pages:
+            deny_pages = self.deny_pages[domain]
+            for page in deny_pages:
+                page = re.compile(page)
+                if page.search(url):
+                    return False
+            return True
+        return True
 
 
     def add_patch(self, patch_link):
