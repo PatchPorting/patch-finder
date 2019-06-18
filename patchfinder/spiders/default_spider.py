@@ -3,7 +3,6 @@ from scrapy.http import Request
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 import scrapy
 import re
-import argparse
 from patchfinder.debian import DebianParser
 import patchfinder.spiders.items as items
 import patchfinder.entrypoint as entrypoint
