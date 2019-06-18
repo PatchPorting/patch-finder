@@ -16,12 +16,14 @@ class DefaultSpider(scrapy.Spider):
 
     Attributes:
         name: Name of the spider
+        vuln_id: The vulnerability ID for which patches are to be found
         recursion_limit: The recursion depth the spider would go to
         patches: A list of patch links the spider has found
         deny_domains: A list of domains to deny crawling links of
         important_domains: A list of domains with higher crawling priority
         patch_limit: A threshold for the number of patches to collect
         allowed_keys: A set of allowed keys for initialization
+        debian: Boolean value to call the Debian parser
     """
 
     deny_pages = {'github.com': [r'github\.com/[^/]+/[^/]+$',
@@ -31,7 +33,9 @@ class DefaultSpider(scrapy.Spider):
     deny_domains = settings.DENY_DOMAINS
     important_domains = settings.IMPORTANT_DOMAINS
     patch_limit = settings.PATCH_LIMIT
-    allowed_keys = {'deny_domains', 'important_domains', 'patch_limit'}
+    debian = settings.PARSE_DEBIAN
+    allowed_keys = {'deny_domains', 'important_domains', 'patch_limit',
+                    'debian'}
 
 
     def __init__(self, *args, **kwargs):
@@ -47,7 +51,8 @@ class DefaultSpider(scrapy.Spider):
     def start_requests(self):
         for url in self.start_urls:
             if url.startswith('https://security-tracker.debian.org'):
-                yield Request(url, callback=self.parse_debian)
+                if self.debian:
+                    yield Request(url, callback=self.parse_debian)
             else:
                 yield Request(url, callback=self.parse)
 
@@ -127,6 +132,8 @@ class DefaultSpider(scrapy.Spider):
                 yield Request(link, callback=self.parse, priority=priority)
 
 
+    #TODO: Handle www. case here. In fact, create a method to return
+    #      domain name such that all corner cases are handled.
     def domain_priority(self, url):
         """Returns a priority for a url
 

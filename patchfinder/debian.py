@@ -6,8 +6,8 @@ import tarfile
 import urllib.error
 import urllib.request
 import urllib.parse
+import patchfinder.settings as settings
 from bs4 import BeautifulSoup
-DOWNLOAD_DIRECTORY = './cache/'
 
 class DebianParser(object):
     """Class for parsing utilities relevant to Debian
@@ -23,7 +23,7 @@ class DebianParser(object):
             '-tracker/raw/master/data/CVE/list'
     dsa_list_url = 'https://salsa.debian.org/security-tracker-team/security' \
             '-tracker/raw/master/data/DSA/list'
-    cve_file = os.path.join(DOWNLOAD_DIRECTORY, 'debian_cve_list')
+    cve_file = os.path.join(settings.DOWNLOAD_DIRECTORY, 'debian_cve_list')
     pkg_ver = re.compile(r'^[\[\]a-z\s]+\- ([a-zA-Z0-9\+\-]+) ([a-zA-Z\d\.\+' \
                          r'\-\~:]+)')
     fixed_packages = []
@@ -44,6 +44,9 @@ class DebianParser(object):
         """
         if os.path.isfile(save_as) and not overwrite:
             return
+        parent_dir = os.path.split(save_as)[0]
+        if not os.path.isdir(parent_dir):
+            os.makedirs(parent_dir)
         urllib.request.urlretrieve(url, save_as)
 
 
@@ -125,13 +128,15 @@ class DebianParser(object):
                             url=snapshot_url)
             pkg_url = 'https://snapshot.debian.org/' + pkg_url['href']
             pkg_name = find_pkg.search(pkg_url)
-            self._download_item(pkg_url, os.path.join(DOWNLOAD_DIRECTORY,
-                                                      pkg_name.group(1)))
-            self.package_paths.append({'path': os.path.join(DOWNLOAD_DIRECTORY,
-                                                            pkg_name.group(1)),
+            self._download_item(pkg_url,
+                                os.path.join(settings.DOWNLOAD_DIRECTORY,
+                                             pkg_name.group(1)))
+            self.package_paths.append({'path': \
+                                       os.path.join(settings.DOWNLOAD_DIRECTORY,
+                                                    pkg_name.group(1)),
                                        'source': pkg_url,
                                        'ext_path': \
-                                       os.path.join(DOWNLOAD_DIRECTORY,
+                                       os.path.join(settings.DOWNLOAD_DIRECTORY,
                                                     package['package'] + \
                                                     '_' + \
                                                     package['version'])})

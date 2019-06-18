@@ -19,7 +19,8 @@ def spawn_crawler(args):
                   vuln=vuln,
                   patch_limit=args.patch_limit,
                   important_domains=args.imp_domains,
-                  deny_domains=args.deny_domains)
+                  deny_domains=args.deny_domains,
+                  debian=args.debian)
     process.start()
     return True
 
@@ -41,7 +42,11 @@ if __name__ == '__main__':
                         help='Domains to prioritize crawling')
     parser.add_argument('-nl', '--no_log', dest='log', action='store_false',
                         help='Disable Scrapy logging')
+    parser.add_argument('--no-debian', dest='debian',
+                        action='store_false',
+                        help='Don\'t call Debian\'s parser')
     parser.set_defaults(log=True)
+    parser.set_defaults(debian=settings.PARSE_DEBIAN)
     args = parser.parse_args()
     spawn_return = spawn_crawler(args)
     if spawn_return:
