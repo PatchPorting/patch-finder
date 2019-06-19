@@ -1,6 +1,5 @@
 #TODO: Introduce some helpful logging here
 import os
-import sys
 import re
 import shutil
 import tarfile
