@@ -26,14 +26,17 @@ class DefaultSpider(scrapy.Spider):
         debian: Boolean value to call the Debian parser
     """
 
-    deny_pages = {'github.com': [r'github\.com/[^/]+/[^/]+$',
-                                 r'/blob/',
-                                 r'/releases$',
-                                 r'/releases/.+?/[^/]+$']}
+    deny_pages = [r'github\.com/[^/]+/[^/]+$',
+                  r'github\.com/[^/]+/[^/]+/blob/',
+                  r'github\.com.+/releases$',
+                  r'github\.com.+/releases/.+?/[^/]+$',
+                  #fragmented identifiers
+                  r'\#.+$']
     deny_domains = settings.DENY_DOMAINS
     important_domains = settings.IMPORTANT_DOMAINS
     patch_limit = settings.PATCH_LIMIT
     debian = settings.PARSE_DEBIAN
+    request_meta = settings.REQUEST_META
     allowed_keys = {'deny_domains', 'important_domains', 'patch_limit',
                     'debian'}
 
@@ -54,7 +57,7 @@ class DefaultSpider(scrapy.Spider):
                 if self.debian:
                     yield Request(url, callback=self.parse_debian)
             else:
-                yield Request(url, callback=self.parse)
+                yield Request(url, meta=self.request_meta, callback=self.parse)
 
 
     def extract_links(self, response):
@@ -75,7 +78,8 @@ class DefaultSpider(scrapy.Spider):
         divided_links = {'patch_links': [],
                          'links': []}
         xpaths = entrypoint.get_xpath(response.url)
-        links = LxmlLinkExtractor(deny_domains=self.deny_domains,
+        links = LxmlLinkExtractor(deny=self.deny_pages,
+                                  deny_domains=self.deny_domains,
                                   restrict_xpaths=xpaths) \
                                           .extract_links(response)
         for link in links:
@@ -84,7 +88,8 @@ class DefaultSpider(scrapy.Spider):
             if patch_link:
                 if patch_link not in self.patches:
                     divided_links['patch_links'].append(patch_link)
-            elif self.allow_page(link):
+                    self.add_patch(patch_link)
+            else:
                 divided_links['links'].append(link)
         return divided_links
 
@@ -124,12 +129,12 @@ class DefaultSpider(scrapy.Spider):
                 patch = items.Patch()
                 patch['patch_link'] = link
                 patch['reaching_path'] = response.url
-                self.add_patch(link)
                 yield patch
         for link in links['links']:
             if len(self.patches) < self.patch_limit:
                 priority = self.domain_priority(link)
-                yield Request(link, callback=self.parse, priority=priority)
+                yield Request(link, meta=self.request_meta,
+                              callback=self.parse, priority=priority)
 
 
     #TODO: Handle www. case here. In fact, create a method to return
@@ -145,19 +150,6 @@ class DefaultSpider(scrapy.Spider):
         if domain in self.important_domains:
             return 1
         return 0
-
-
-    def allow_page(self, url):
-        """Determine if url is for an allowed page"""
-        domain = urlparse(url).hostname
-        if domain in self.deny_pages:
-            deny_pages = self.deny_pages[domain]
-            for page in deny_pages:
-                page = re.compile(page)
-                if page.search(url):
-                    return False
-            return True
-        return True
 
 
     def add_patch(self, patch_link):

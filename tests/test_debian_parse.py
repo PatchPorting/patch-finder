@@ -45,6 +45,7 @@ class TestDebianParser(unittest.TestCase):
         line_2 = '\t- radare2 <unfixed> (bug #930344)'
         line_3 = '\t[experimental] - gitlab 11.10.5+dfsg-1'
         line_4 = '\t- enigmail 2:2.0.11+ds1-1 (bug #929363)'
+        line_5 = '\t- python3.7 3.7.0-7 (unimportant)'
         self.assertEqual(debian_parser.pkg_ver_in_line(line_1),
                          {'package': 'gvfs',
                           'version': '1.38.1-5'})
@@ -52,9 +53,12 @@ class TestDebianParser(unittest.TestCase):
         self.assertEqual(debian_parser.pkg_ver_in_line(line_3),
                          {'package': 'gitlab',
                           'version': '11.10.5+dfsg-1'})
-        self.assertTrue(debian_parser.pkg_ver_in_line(line_4),
+        self.assertEqual(debian_parser.pkg_ver_in_line(line_4),
                         {'package': 'enigmail',
                          'version': '2.0.11+ds1-1'})
+        self.assertEqual(debian_parser.pkg_ver_in_line(line_5),
+                        {'package': 'python3.7',
+                         'version': '3.7.0-7'})
 
     def test_cve_file_name(self):
         debian_parser = DebianParser()

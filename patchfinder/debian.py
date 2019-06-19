@@ -1,5 +1,6 @@
 #TODO: Introduce some helpful logging here
 import os
+import sys
 import re
 import shutil
 import tarfile
@@ -24,8 +25,8 @@ class DebianParser(object):
     dsa_list_url = 'https://salsa.debian.org/security-tracker-team/security' \
             '-tracker/raw/master/data/DSA/list'
     cve_file = os.path.join(settings.DOWNLOAD_DIRECTORY, 'debian_cve_list')
-    pkg_ver = re.compile(r'^[\[\]a-z\s]+\- ([a-zA-Z0-9\+\-]+) ([a-zA-Z\d\.\+' \
-                         r'\-\~:]+)')
+    pkg_ver = re.compile(r'^[\[\]a-z\s]+\- ([a-zA-Z0-9\+\-\.]+) ([a-zA-Z\d\.' \
+                         r'\+\-\~:]+)')
     fixed_packages = []
     package_paths = []
 

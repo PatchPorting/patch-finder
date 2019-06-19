@@ -4,11 +4,12 @@ import patchfinder.spiders.default_spider as default_spider
 import patchfinder.context as context
 import patchfinder.settings as settings
 
+
 def spawn_crawler(args):
     vuln = context.create_vuln(args.vuln_id)
     if not vuln: return False
     process = CrawlerProcess({
-        'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)',
+        'USER_AGENT': settings.USER_AGENT,
         'ITEM_PIPELINES': {
             'patchfinder.spiders.pipelines.PatchPipeline': 300
         },
@@ -23,6 +24,7 @@ def spawn_crawler(args):
                   debian=args.debian)
     process.start()
     return True
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -42,8 +44,7 @@ if __name__ == '__main__':
                         help='Domains to prioritize crawling')
     parser.add_argument('-nl', '--no_log', dest='log', action='store_false',
                         help='Disable Scrapy logging')
-    parser.add_argument('--no-debian', dest='debian',
-                        action='store_false',
+    parser.add_argument('--no-debian', dest='debian', action='store_false',
                         help='Don\'t call Debian\'s parser')
     parser.set_defaults(log=True)
     parser.set_defaults(debian=settings.PARSE_DEBIAN)
