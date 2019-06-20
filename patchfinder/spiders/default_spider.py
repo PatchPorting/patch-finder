@@ -45,8 +45,12 @@ class DefaultSpider(scrapy.Spider):
 
     def __init__(self, *args, **kwargs):
         self.name = 'default_spider'
-        self.vuln_id = kwargs.get('vuln').vuln_id
-        self.start_urls = kwargs.get('vuln').entrypoint_URLs
+        if 'vuln' in kwargs:
+            self.vuln_id = kwargs.get('vuln').vuln_id
+            self.start_urls = kwargs.get('vuln').entrypoint_URLs
+        else:
+            self.vuln_id = None
+            self.start_urls = []
         self.patches = []
         self.__dict__.update((k, v) for k, v in kwargs.items() \
                              if k in self.allowed_keys)

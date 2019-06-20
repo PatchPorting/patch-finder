@@ -33,16 +33,16 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--depth', type=int,
                         default=settings.DEPTH_LIMIT,
                         help='The maximum depth the crawler should go to')
-    parser.add_argument('-p', '--patch_limit', type=int,
+    parser.add_argument('-p', '--patch-limit', type=int,
                         default=settings.PATCH_LIMIT,
                         help='The maximum number of patches to be collected')
-    parser.add_argument('-dd', '--deny_domains', nargs='+',
+    parser.add_argument('-dd', '--deny-domains', nargs='+',
                         default=settings.DENY_DOMAINS,
                         help='Domains to avoid crawling')
-    parser.add_argument('-id', '--imp_domains', nargs='+',
+    parser.add_argument('-id', '--imp-domains', nargs='+',
                         default=settings.IMPORTANT_DOMAINS,
                         help='Domains to prioritize crawling')
-    parser.add_argument('-nl', '--no_log', dest='log', action='store_false',
+    parser.add_argument('-nl', '--no-log', dest='log', action='store_false',
                         help='Disable Scrapy logging')
     parser.add_argument('--no-debian', dest='debian', action='store_false',
                         help='Don\'t call Debian\'s parser')

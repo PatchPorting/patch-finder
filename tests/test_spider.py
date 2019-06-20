@@ -1,23 +1,22 @@
 import unittest
-import patchfinder.context as context
 import patchfinder.spiders.default_spider as default_spider
-from scrapy.crawler import CrawlerProcess
+from tests import fake_response_from_file
 
 class TestSpider(unittest.TestCase):
     """Test Class for spiders"""
 
-    def test_spider_crawl(self):
-        vuln = context.create_vuln('CVE-2016-4796')
-        process = CrawlerProcess({
-            'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)',
-            'ITEM_PIPELINES': {
-                'patchfinder.spiders.pipelines.PatchPipeline': 300
-            },
-            'DEPTH_LIMIT': 1,
-            'LOG_ENABLED': False
-        })
-        process.crawl(default_spider.DefaultSpider, vuln=vuln)
-        process.start()
+    def setUp(self):
+        self.spider = default_spider.DefaultSpider()
+
+    def test_extract_links(self):
+        response = fake_response_from_file('./mocks/nvd_cve_2016_4796.html',
+                                           'https://nvd.nist.gov/vuln/deta' \
+                                           'il/CVE-2016-4796')
+        links = self.spider.extract_links(response)
+        patch_link = 'https://github.com/uclouvain/openjpeg/commit/162f619' \
+                '9c0cd3ec1c6c6dc65e41b2faab92b2d91.patch'
+        self.assertEqual(links['patch_links'][0], patch_link)
+        self.assertTrue(len(links['patch_links']) is 1)
 
 
 if __name__ == '__main__':

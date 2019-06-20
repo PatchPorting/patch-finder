@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html xml:lang="en" lang="en"><head id="head"><title>
+	NVD - CVE-2016-4796
+</title><meta charset="UTF-8"> 
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta http-equiv="content-style-type" content="text/css">
+<meta http-equiv="content-script-type" content="text/javascript">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="NVD%20-%20CVE-2016-4796_files/font-awesome.css" type="text/css" rel="stylesheet">
+<link href="NVD%20-%20CVE-2016-4796_files/bootstrap.css" type="text/css" rel="stylesheet">
+<link href="NVD%20-%20CVE-2016-4796_files/bootstrap-theme.css" type="text/css" rel="stylesheet">
+<link href="NVD%20-%20CVE-2016-4796_files/bootstrap-datetimepicker.css" type="text/css" rel="stylesheet">
+<link href="NVD%20-%20CVE-2016-4796_files/nist-fonts.css" type="text/css" rel="stylesheet">
+<link href="NVD%20-%20CVE-2016-4796_files/nvd-style.css" type="text/css" rel="stylesheet">
+<link href="NVD%20-%20CVE-2016-4796_files/media-resize.css" type="text/css" rel="stylesheet">
+
+<link rel="apple-touch-icon" sizes="180x180" href="https://nvd.nist.gov/NVD/Media/images/favicons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="https://nvd.nist.gov/NVD/Media/images/favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="https://nvd.nist.gov/NVD/Media/images/favicons/favicon-16x16.png" sizes="16x16">
+<link rel="manifest" href="https://nvd.nist.gov/NVD/Media/images/favicons/manifest.json">
+<link rel="mask-icon" href="https://nvd.nist.gov/NVD/Media/images/favicons/safari-pinned-tab.svg" color="#000000">
+<link rel="shortcut icon" href="https://nvd.nist.gov/NVD/Media/images/favicons/favicon.ico">
+<meta name="msapplication-config" content="/NVD/Media/images/favicons/browserconfig.xml">
+<meta name="theme-color" content="#000000">
+
+
+
+<script type="text/javascript" async="" src="NVD%20-%20CVE-2016-4796_files/ga.js"></script><script src="NVD%20-%20CVE-2016-4796_files/jquery.js" type="text/javascript"></script>
+<script src="NVD%20-%20CVE-2016-4796_files/jquery_002.js" type="text/javascript"></script>
+<script src="NVD%20-%20CVE-2016-4796_files/underscore-min.js" type="text/javascript"></script>
+<script src="NVD%20-%20CVE-2016-4796_files/bootstrap.js" type="text/javascript"></script>
+<script src="NVD%20-%20CVE-2016-4796_files/moment.js" type="text/javascript"></script>
+<script src="NVD%20-%20CVE-2016-4796_files/bootstrap-datetimepicker.js" type="text/javascript"></script>
+<script src="NVD%20-%20CVE-2016-4796_files/megamenu.js" type="text/javascript"></script>
+<script src="NVD%20-%20CVE-2016-4796_files/nist-exit-script.js" type="text/javascript"></script>
+<script src="NVD%20-%20CVE-2016-4796_files/forms.js" type="text/javascript"></script>
+<script language="javascript" id="_fed_an_js_tag" src="NVD%20-%20CVE-2016-4796_files/federated-analytics.js" type="text/javascript"></script>
+
+
+
+<script type="text/javascript">
+   if (self === top) {
+       var antiClickjack = document.getElementById("antiClickjack");
+       antiClickjack.parentNode.removeChild(antiClickjack);
+   } else {
+       top.location = self.location;
+   }
+</script>
+ 
+<link href="https://nvd.nist.gov/NVD/Media/images/favicons/favicon.ico" type="image/x-icon" rel="shortcut icon">
+<link href="https://nvd.nist.gov/NVD/Media/images/favicons/favicon.ico" type="image/x-icon" rel="icon">
+</head>
+<body class="LTR Firefox ENUS ContentBody">
+    
+    <form method="post" action="/vuln/detail/CVE-2016-4796" id="form">
+<div class="aspNetHidden">
+<input type="hidden" name="__CMSCsrfToken" id="__CMSCsrfToken" value="hK1AjOEkkMMbps0pWVcxbims48T8vByWwEi4I227GgTUTbS4HwG0ZgiCi1AM+Mffd9tlSBMvkAiKozz5AGYBguudkOOkQqjaPoNPofMrU8s=">
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="">
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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">
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['form'];
+if (!theForm) {
+    theForm = document.form;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="NVD%20-%20CVE-2016-4796_files/WebResource.axd" type="text/javascript"></script>
+
+<input type="hidden" name="lng" id="lng" value="en-US">
+<script type="text/javascript">
+	//<![CDATA[
+
+function PM_Postback(param) { if (window.top.HideScreenLockWarningAndSync) { window.top.HideScreenLockWarningAndSync(1080); } if(window.CMSContentManager) { CMSContentManager.allowSubmit = true; }; __doPostBack('m$am',param); }
+function PM_Callback(param, callback, ctx) { if (window.top.HideScreenLockWarningAndSync) { window.top.HideScreenLockWarningAndSync(1080); }if (window.CMSContentManager) { CMSContentManager.storeContentChangedStatus(); };WebForm_DoCallback('m$am',param,callback,ctx,null,true); }
+//]]>
+</script>
+<script src="NVD%20-%20CVE-2016-4796_files/ScriptResource.axd" type="text/javascript"></script>
+<script src="NVD%20-%20CVE-2016-4796_files/ScriptResource_002.axd" type="text/javascript"></script>
+<script type="text/javascript">
+	//<![CDATA[
+
+var CMS = CMS || {};
+CMS.Application = {
+  "language": "en",
+  "imagesUrl": "/CMSPages/GetResource.ashx?image=%5bImages.zip%5d%2f",
+  "isDebuggingEnabled": false,
+  "applicationUrl": "/",
+  "isDialog": false,
+  "isRTL": "false"
+};
+
+//]]>
+</script>
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="A5343185">
+	<input type="hidden" name="__SCROLLPOSITIONX" id="__SCROLLPOSITIONX" value="0">
+	<input type="hidden" name="__SCROLLPOSITIONY" id="__SCROLLPOSITIONY" value="0">
+</div>
+    <script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('manScript', 'form', ['tctxM',''], [], [], 90, '');
+//]]>
+</script>
+
+    <div id="ctxM">
+
+</div>
+    <div id="antiClickjack" style="display: none">
+    <h1>You are viewing this page in an unauthorized frame window.</h1>
+    <p>This is a potential security issue, you are being redirected to <a href="https://nvd.nist.gov/">https://nvd.nist.gov</a></p>
+</div>
+
+<nav id="navbar" class="navbar">
+    <div id="nist-menu-container" class="container">
+        <div class="row">
+            <!-- Brand -->
+            <div class="col-xs-6 col-md-4 navbar-header">
+                <a class="navbar-brand" href="https://www.nist.gov/" target="_blank" id="navbar-brand-image">
+                    <img src="NVD%20-%20CVE-2016-4796_files/nist-logo.svg" alt="National Institute of Standards and Technology" width="110" height="30">
+                </a>
+            </div>
+            <div class="col-xs-6 col-md-8 navbar-nist-logo">
+                <span id="nvd-menu-button" class="pull-right">
+            <a href="#">
+              <span class="fa fa-bars"></span>
+              <span id="nvd-menu-full-text"><span class="hidden-xxs">NVD </span>MENU</span>
+            </a>
+          </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-menu-row container">
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="main-menu-drop" class="col-lg-12" style="display: none;">
+            <ul>
+
+                <li>
+                    <a href="https://nvd.nist.gov/general">
+                        General
+                        <span class="expander fa fa-plus" id="main-menu-expander-general" data-expander-name="general" data-expanded="false">
+                            <span class="element-invisible">Expand or Collapse</span>
+                        </span>
+                    </a>
+                    <div style="display: none;" class="sub-menu" data-expander-trigger="general">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/general/nvd-dashboard">NVD Dashboard</a></p>
+                                <p><a href="https://nvd.nist.gov/general/news">News</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/general/email-list">Email List</a></p>
+                                <p><a href="https://nvd.nist.gov/general/faq">FAQ</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/general/visualizations">Visualizations</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <a href="https://nvd.nist.gov/vuln" class="is-active-trail">
+                        Vulnerabilities
+                        <span class="expander fa fa-minus" id="main-menu-expander-vulnerabilities" data-expander-name="vulnerabilities" data-expanded="true">
+                            <span class="element-invisible">Expand or Collapse</span>
+                        </span>
+                    </a>
+                    <div style="" class="sub-menu" data-expander-trigger="vulnerabilities">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/vuln/search">Search &amp; Statistics</a></p>
+                                <p><a href="https://nvd.nist.gov/vuln/full-listing">Full Listing</a></p>
+
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/vuln/categories">Categories</a></p>
+                                <p><a href="https://nvd.nist.gov/vuln/data-feeds">Data Feeds</a></p>
+
+
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/vuln/vendor-comments">Vendor Comments</a></p>
+                            </div>
+                        </div>
+                    </div>
+
+                </li>
+                <li>
+                    <a href="https://nvd.nist.gov/vuln-metrics/cvss#">
+                        Vulnerability Metrics
+                        <span class="expander fa fa-plus" id="main-menu-expander-metrics" data-expander-name="metrics" data-expanded="false">
+                            <span class="element-invisible">Expand or Collapse</span>
+                        </span>
+                    </a>
+                    <div style="display: none;" class="sub-menu" data-expander-trigger="metrics">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator">CVSS V3 Calculator</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/vuln-metrics/cvss/v2-calculator">CVSS V2 Calculator</a></p>
+
+                            </div>
+                            <div class="col-lg-4">
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <a href="https://nvd.nist.gov/products">
+                        Products
+                        <span class="expander fa fa-plus" id="main-menu-expander-products" data-expander-name="products" data-expanded="false">
+                            <span class="element-invisible">Expand or Collapse</span>
+                        </span>
+                    </a>
+                    <div style="display: none;" class="sub-menu" data-expander-trigger="products">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/products/cpe">CPE Dictionary</a></p>
+                                <p><a href="https://nvd.nist.gov/products/cpe/search">CPE Search</a></p>
+
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/products/cpe/statistics">CPE Statistics</a></p>
+                                <p><a href="https://nvd.nist.gov/products/swid">SWID</a></p>
+
+                            </div>
+                            <div class="col-lg-4">
+
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="https://nvd.nist.gov/config/cce">Configurations (CCE)</a></li>
+                <li>
+                    <a href="https://nvd.nist.gov/info">
+                        Contact NVD
+                    </a>
+                </li>
+                <li>
+                    <a href="https://nvd.nist.gov/other">
+                        Other Sites
+                        <span class="expander fa fa-plus" id="main-menu-expander-othersites" data-expander-name="otherSites" data-expanded="false">
+                            <span class="element-invisible">Expand or Collapse</span>
+                        </span>
+                    </a>
+                    <div style="display: none;" class="sub-menu" data-expander-trigger="otherSites">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/ncp/repository">Checklist (NCP) Repository</a></p>
+                                <p><a href="https://nvd.nist.gov/800-53">800-53 Controls</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="https://csrc.nist.gov/projects/scap-validation-program">SCAP Validated Tools</a></p>
+                                <p>  <a href="https://csrc.nist.gov/projects/security-content-automation-protocol">SCAP</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="https://csrc.nist.gov/projects/united-states-government-configuration-baseline/">USGCB</a></p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </li>
+
+                <li>
+                    <a href="https://nvd.nist.gov/search">
+                        Search
+                        <span class="expander fa fa-plus" id="main-menu-expander-search" data-expander-name="search" data-expanded="false">
+                            <span class="element-invisible">Expand or Collapse</span>
+                        </span>
+                    </a>
+                    <div style="display: none;" class="sub-menu" data-expander-trigger="search">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/vuln/search">Vulnerability Search</a></p>
+                            </div>
+                            <div class="col-lg-4">
+                                <p><a href="https://nvd.nist.gov/products/cpe/search">CPE Search</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+
+
+
+            </ul>
+        </div><!-- /#mobile-nav-container -->
+    </div>
+
+</nav>
+<section id="itl-header" class="has-menu">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-md-8">
+                <h2 class="hidden-xs hidden-sm">
+                    <a href="https://www.nist.gov/itl" target="_blank">Information Technology Laboratory</a>
+                </h2>
+                <h1 class="hidden-xs hidden-sm">
+                    <a href="https://nvd.nist.gov/" id="nvd-header-link">National Vulnerability Database</a>
+                </h1>
+                <h1 class="hidden-xs text-center hidden-md hidden-lg">National Vulnerability Database</h1>
+                <h1 class="hidden-sm hidden-md hidden-lg text-center">National Vulnerability <br>Database</h1>
+            </div>
+            <div class="col-sm-12 col-md-4">
+                <a style="width: 100%; text-align: center; display: block;"><img src="NVD%20-%20CVE-2016-4796_files/NVD-white-55.png" alt="NVD Logo" class="nvd-header-logo"></a>
+            </div>
+        </div>
+    </div>
+
+</section>
+<div id="body-section" class="container">
+    
+<ol class="breadcrumb"><a href="https://nvd.nist.gov/vuln" class="CMSBreadCrumbsLink">Vulnerabilities</a> <span class="fa fa-angle-right"></span> <span class="CMSBreadCrumbsCurrentItem">Detail</span>
+</ol> 
+
+
+
+
+<div id="page-content">
+
+
+
+
+
+
+
+
+<div id="p_lt_WebPartZone1_zoneCenter_pageplaceholder_p_lt_WebPartZone1_zoneCenter_VulnerabilityDetail_VulnDetailFormPanel">
+	
+    <table id="p_lt_WebPartZone1_zoneCenter_pageplaceholder_p_lt_WebPartZone1_zoneCenter_VulnerabilityDetail_VulnFormView" style="border-collapse:collapse;" cellspacing="0">
+		<tbody><tr>
+			<td colspan="2">
+
+            <h2 data-testid="page-header">
+                <i class="fa fa-bug fa-flip-vertical"></i><span data-testid="page-header-vuln-id">CVE-2016-4796</span> Detail 
+            </h2>
+            <div class="row">
+
+                <div class="col-lg-9 col-md-7 col-sm-12">
+                    
+
+                    
+                    <h3 id="vulnCurrentDescriptionTitle" data-testid="vuln-description-title">Current Description</h3>
+                    <p data-testid="vuln-description">Heap-based buffer 
+overflow in the color_cmyk_to_rgb in common/color.c in OpenJPEG before 
+2.1.1 allows remote attackers to cause a denial of service (crash) via a
+ crafted .j2k file.</p>
+                    <p>
+                        <strong>Source:</strong>&nbsp;
+                        <span data-testid="vuln-description-source">MITRE</span>
+                        <br>
+                        <a href="#vulnCurrentDescriptionTitle" style="text-decoration: underline" id="showVulnAnalysis"><i class="fa fa-plus"></i>View Analysis Description</a>
+                    </p>
+                    <span id="vulnAnalysisDescription" style="display: none;">
+                        <h3 data-testid="vuln-analysis-description-title">Analysis Description
+                        </h3>
+                        <p data-testid="vuln-analysis-description">Heap-based
+ buffer overflow in the color_cmyk_to_rgb in common/color.c in OpenJPEG 
+before 2.1.1 allows remote attackers to cause a denial of service 
+(crash) via a crafted .j2k file.</p>
+                        <p>
+                            <strong>Source:</strong>&nbsp;
+                            <span data-testid="vuln-analysis-description-source">MITRE</span>
+                            <br>
+                     </p>
+                    </span>
+                    
+                    <div id="p_lt_WebPartZone1_zoneCenter_pageplaceholder_p_lt_WebPartZone1_zoneCenter_VulnerabilityDetail_VulnFormView_CvssPanel" data-testid="vuln-cvss-container" class="row bs-callout bs-callout-success">
+                        <h3>Impact</h3>
+                        <div id="p_lt_WebPartZone1_zoneCenter_pageplaceholder_p_lt_WebPartZone1_zoneCenter_VulnerabilityDetail_VulnFormView_Vuln3CvssPanel" class="col-md-6">
+                            
+
+                                    <strong style="font-size:1.2em">CVSS v3.0 Severity and Metrics:</strong>
+
+                                    <p data-testid="vuln-cvssv3-score-container">
+
+                                        <strong>Base Score:
+                                        </strong>
+
+                                        <a href="https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator?name=CVE-2016-4796&amp;vector=AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H" target="_blank" data-testid="vuln-cvssv3-base-score-link">
+                                            <span data-testid="vuln-cvssv3-base-score">5.5 </span><span data-testid="vuln-cvssv3-base-score-severity">MEDIUM</span>
+                                        </a>
+
+
+                                        <br>
+                                        <strong>Vector:
+                                        </strong>
+                                        <span data-testid="vuln-cvssv3-vector">
+                                            AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+                            (<a href="https://www.first.org/cvss/specification-document" target="_blank" class="external">V3 legend</a>)
+                                        </span>
+                                        <br>
+                                        <strong>Impact Score:
+                                        </strong>
+                                        <span data-testid="vuln-cvssv3-impact-score">
+                                            3.6
+                                        </span>
+                                        <br>
+                                        <strong>Exploitability Score:
+                                        </strong>
+                                        <span data-testid="vuln-cvssv3-exploitability-score">
+                                            1.8
+                                        </span>
+
+                                    </p>
+                                    <hr>
+                                    <p data-testid="vuln-cvssv3-metrics-container">
+
+                                        <strong>Attack Vector (AV):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv3-av">
+                                            Local
+                                        </span>
+                                        <br>
+                                        <strong>Attack Complexity (AC):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv3-ac">
+                                            Low
+                                        </span>
+                                        <br>
+                                        <strong>Privileges Required (PR):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv3-pr">
+                                            None
+                                        </span>
+                                        <br>
+                                        <strong>User Interaction (UI):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv3-ui">
+                                            Required
+                                        </span>
+                                        <br>
+                                        <strong>Scope (S):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv3-s">
+                                            Unchanged
+                                        </span>
+                                        <br>
+                                        <strong>Confidentiality (C):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv3-c">
+                                            None
+                                        </span>
+                                        <br>
+                                        <strong>Integrity (I):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv3-i">
+                                            None
+                                        </span>
+                                        <br>
+                                        <strong>Availability (A):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv3-a">
+                                            High
+                                        </span>
+
+                                    </p>
+
+                                
+                        </div>
+                        <div id="p_lt_WebPartZone1_zoneCenter_pageplaceholder_p_lt_WebPartZone1_zoneCenter_VulnerabilityDetail_VulnFormView_Vuln2CvssPanel" class="col-md-6">
+                            
+
+                                    <strong style="font-size:1.2em">CVSS v2.0 Severity and Metrics:</strong>
+
+                                    <p data-testid="vuln-cvssv2-score-container">
+
+                                        <strong>Base Score:
+                                        </strong>
+
+                                        <a href="https://nvd.nist.gov/vuln-metrics/cvss/v2-calculator?name=CVE-2016-4796&amp;vector=(AV:N/AC:M/Au:N/C:N/I:N/A:P)" target="_blank" data-testid="vuln-cvssv2-base-score-link">
+                                            <span data-testid="vuln-cvssv2-base-score">4.3  </span><span data-testid="vuln-cvssv2-base-score-severity">MEDIUM</span>
+                                        </a>
+
+
+                                        <br>
+                                        <strong>Vector:</strong>
+                                        <span data-testid="vuln-cvssv2-vector">
+
+                                            (AV:N/AC:M/Au:N/C:N/I:N/A:P)
+                            
+                            (<a href="https://www.first.org/cvss/v2/guide" target="_blank" class="external">V2 legend</a>)
+                                        </span>
+                                        <br>
+                                        <strong>Impact Subscore:</strong>
+                                        <span data-testid="vuln-cvssv2-impact-subscore">
+                                            2.9
+                                        </span>
+                                        <br>
+                                        <strong>Exploitability Subscore:</strong>
+                                        <span data-testid="vuln-cvssv2-exploitability-score">
+                                            8.6
+                                        </span>
+
+                                    </p>
+                                    <hr>
+                                    <p data-testid="vuln-cvssv2-metrics-container">
+
+                                        <strong>Access Vector (AV):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv2-av">
+                                            Network
+                                        </span>
+                                        <br>
+                                        <strong>Access Complexity (AC):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv2-ac">
+                                            Medium
+                                        </span>
+                                        <br>
+                                        <strong>Authentication (AU):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv2-au">
+                                            None
+                                        </span>
+                                        <br>
+
+                                        <strong>Confidentiality (C):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv3-c">
+                                            None
+                                        </span>
+                                        <br>
+                                        <strong>Integrity (I):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv2-i">
+                                            None
+                                        </span>
+                                        <br>
+                                        <strong>Availability (A):
+                                        </strong>
+                                        <span data-testid="vuln-cvssv2-a">
+                                            Partial
+                                        </span>
+                                        <br>
+                                        <strong>Additional Information:
+                                        </strong><br>
+                                        <span data-testid="vuln-cvssv2-additional">
+                                              Victim must voluntarily interact with attack mechanism<br>Allows disruption of service<br>
+                                        </span>
+
+
+                                    </p>
+                                
+                        </div>
+                    </div>
+
+                    <div class="row col-sm-12">
+                        
+                        
+
+                        
+
+                        <div id="p_lt_WebPartZone1_zoneCenter_pageplaceholder_p_lt_WebPartZone1_zoneCenter_VulnerabilityDetail_VulnFormView_VulnHyperlinksPanel">
+				
+
+                            <h3>References to Advisories, Solutions, and Tools</h3>
+                            <p>
+                                By selecting these links, you will be 
+leaving NIST webspace. We have provided these links to other web sites 
+because 
+                    they may have information that would be of interest 
+to you. No inferences should be drawn on account of other sites 
+                    being referenced, or not, from this page. There may 
+be other web sites that are more appropriate for your purpose. 
+                    NIST does not necessarily endorse the views 
+expressed, or concur with the facts presented on these sites. Further, 
+                    NIST does not endorse any commercial products that 
+may be mentioned on these sites. Please address comments about 
+                    this page to <a href="mailto:nvd@nist.gov">nvd@nist.gov</a>.
+                            </p>
+
+                            
+                                    <table class="table table-striped table-condensed table-bordered detail-table" data-testid="vuln-hyperlinks-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Hyperlink</th>
+                                                <th>Resource</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                
+                                    <tr data-testid="vuln-hyperlinks-row-0">
+                                        <td data-testid="vuln-hyperlinks-link-0"><a href="http://www.openwall.com/lists/oss-security/2016/05/13/2" target="_blank" class="external">http://www.openwall.com/lists/oss-security/2016/05/13/2</a></td>
+
+                                        <td data-testid="vuln-hyperlinks-restype-0">
+                                            
+                                                    <span class="badge">Mailing List</span>
+                                                
+                                                    <span class="badge">Patch</span>
+                                                
+                                                    <span class="badge">Third Party Advisory</span>
+                                                
+                                        </td>
+                                    </tr>
+                                
+                                    <tr data-testid="vuln-hyperlinks-row-1">
+                                        <td data-testid="vuln-hyperlinks-link-1"><a href="https://bugzilla.redhat.com/show_bug.cgi?id=1335482" target="_blank" class="external">https://bugzilla.redhat.com/show_bug.cgi?id=1335482</a></td>
+
+                                        <td data-testid="vuln-hyperlinks-restype-1">
+                                            
+                                                    <span class="badge">Issue Tracking</span>
+                                                
+                                                    <span class="badge">Patch</span>
+                                                
+                                        </td>
+                                    </tr>
+                                
+                                    <tr data-testid="vuln-hyperlinks-row-2">
+                                        <td data-testid="vuln-hyperlinks-link-2"><a href="https://github.com/uclouvain/openjpeg/commit/162f6199c0cd3ec1c6c6dc65e41b2faab92b2d91" target="_blank" class="external">https://github.com/uclouvain/openjpeg/commit/162f6199c0cd3ec1c6c6dc65e41b2faab92b2d91</a></td>
+
+                                        <td data-testid="vuln-hyperlinks-restype-2">
+                                            
+                                                    <span class="badge">Issue Tracking</span>
+                                                
+                                                    <span class="badge">Patch</span>
+                                                
+                                                    <span class="badge">Third Party Advisory</span>
+                                                
+                                        </td>
+                                    </tr>
+                                
+                                    <tr data-testid="vuln-hyperlinks-row-3">
+                                        <td data-testid="vuln-hyperlinks-link-3"><a href="https://github.com/uclouvain/openjpeg/issues/774" target="_blank" class="external">https://github.com/uclouvain/openjpeg/issues/774</a></td>
+
+                                        <td data-testid="vuln-hyperlinks-restype-3">
+                                            
+                                                    <span class="badge">Issue Tracking</span>
+                                                
+                                                    <span class="badge">Patch</span>
+                                                
+                                        </td>
+                                    </tr>
+                                
+                                    <tr data-testid="vuln-hyperlinks-row-4">
+                                        <td data-testid="vuln-hyperlinks-link-4"><a href="https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/5FFMOZOF2EI6N2CR23EQ5EATWLQKBMHW/" target="_blank" class="external">https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/5FFMOZOF2EI6N2CR23EQ5EATWLQKBMHW/</a></td>
+
+                                        <td data-testid="vuln-hyperlinks-restype-4">
+                                            
+                                                    <span class="badge">Patch</span>
+                                                
+                                                    <span class="badge">Third Party Advisory</span>
+                                                
+                                        </td>
+                                    </tr>
+                                
+                                    <tr data-testid="vuln-hyperlinks-row-5">
+                                        <td data-testid="vuln-hyperlinks-link-5"><a href="https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/BJM23YERMEC6LCTWBUH7LZURGSLZDFDH/" target="_blank" class="external">https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/BJM23YERMEC6LCTWBUH7LZURGSLZDFDH/</a></td>
+
+                                        <td data-testid="vuln-hyperlinks-restype-5">
+                                            
+                                                    <span class="badge">Patch</span>
+                                                
+                                                    <span class="badge">Third Party Advisory</span>
+                                                
+                                        </td>
+                                    </tr>
+                                
+                                    <tr data-testid="vuln-hyperlinks-row-6">
+                                        <td data-testid="vuln-hyperlinks-link-6"><a href="https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/DFRD35RIPRCGZA5DKAKHZ62LMP2A5UT7/" target="_blank" class="external">https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/DFRD35RIPRCGZA5DKAKHZ62LMP2A5UT7/</a></td>
+
+                                        <td data-testid="vuln-hyperlinks-restype-6">
+                                            
+                                                    <span class="badge">Patch</span>
+                                                
+                                                    <span class="badge">Third Party Advisory</span>
+                                                
+                                        </td>
+                                    </tr>
+                                
+                                    <tr data-testid="vuln-hyperlinks-row-7">
+                                        <td data-testid="vuln-hyperlinks-link-7"><a href="https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/HPMDEUIMHTLKMHELDL4F4HZ7X4Y34JEB/" target="_blank" class="external">https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/HPMDEUIMHTLKMHELDL4F4HZ7X4Y34JEB/</a></td>
+
+                                        <td data-testid="vuln-hyperlinks-restype-7">
+                                            
+                                                    <span class="badge">Patch</span>
+                                                
+                                                    <span class="badge">Third Party Advisory</span>
+                                                
+                                        </td>
+                                    </tr>
+                                
+                                    </tbody>
+                            </table>
+                                
+
+                        
+			</div>
+
+                        
+
+                        <div id="p_lt_WebPartZone1_zoneCenter_pageplaceholder_p_lt_WebPartZone1_zoneCenter_VulnerabilityDetail_VulnFormView_VulnTechnicalDetailsDiv" class="technicalDetails" data-testid="vuln-technical-details-container">
+                            <h3>Technical Details</h3>
+                            <p>
+                                <strong>Vulnerability Type</strong>
+                                <a href="https://nvd.nist.gov/vuln/categories" target="_blank">(View All)</a>
+                            </p>
+                            
+                                    <ul data-testid="vuln-technical-details--1">
+                                
+                                    <li data-testid="vuln-technical-details-0-link">Buffer Errors (<a href="http://cwe.mitre.org/data/definitions/119.html" target="_blank">CWE-119</a>)</li>
+                                </ul>
+                        </div>
+
+                        <div id="p_lt_WebPartZone1_zoneCenter_pageplaceholder_p_lt_WebPartZone1_zoneCenter_VulnerabilityDetail_VulnFormView_VulnConfigurationsDiv" class="configurations" data-testid="vuln-configurations-container">
+                            <h3>Known Affected Software Configurations <small>
+                                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-4796?cpeVersion=2.2#vulnConfigurationsArea">Switch to CPE 2.2</a></small></h3>
+                            <span id="vulnConfigurationsArea"></span>
+                             <strong data-testid="vuln-software-config-1">Configuration 1 </strong>(<small><a href="#toggleConfig1" style="text-decoration: underline" id="toggle-configuration-1" data-toggle-config="config-div-1"> hide </a></small>)<br><div id="config-div-1"><table style="margin-left: 1em;" class="table table-bordered table-hover table-condensed basic"><tbody><tr class="vulnerable"><td><span> <i class="fa fa-bug fa-flip-vertical"></i>&nbsp;</span><b data-testid="vuln-software-cpe-1-0-0">cpe:2.3:a:openjpeg:openjpeg:*:*:*:*:*:*:*:*</b><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a match-testid="vuln-software-cpe-1-0-0" data-cpe-range-toggle="3990770" data-list-depth="1" data-list-cpe23shown="True" data-list-cveid="CVE-2016-4796" style="text-decoration: underline" id="range-3990770">Show Matching CPE(s) <i class="fa fa-caret-down"></i></a><a></a></small><br><span data-list-cpes="list-cpes-3990770"></span></td>
+<td data-testid="vuln-software-cpe-1-0-0-end-range" width="150"><b>Up to (including)<br>2.1.0</b></td></tr></tbody></table></div><br> <strong data-testid="vuln-software-config-2">Configuration 2 </strong>(<small><a href="#toggleConfig2" style="text-decoration: underline" id="toggle-configuration-2" data-toggle-config="config-div-2"> hide </a></small>)<br><div id="config-div-2"><table style="margin-left: 1em;" class="table table-bordered table-hover table-condensed basic"><tbody><tr class="vulnerable"><td colspan="3"><span> <i class="fa fa-bug fa-flip-vertical"></i>&nbsp;</span><b data-testid="vuln-software-cpe-2-0-0">cpe:2.3:o:fedoraproject:fedora:23:*:*:*:*:*:*:*</b><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a match-testid="vuln-software-cpe-2-0-0" data-cpe-list-toggle="3990768" data-list-depth="1" data-list-cpe23shown="True" data-list-cveid="CVE-2016-4796" style="text-decoration: underline" id="match-3990768">Show Matching CPE(s) <i class="fa fa-caret-down"></i></a><a></a></small><br><span data-list-cpes="list-cpes-3990768"></span></td>
+</tr><tr class="vulnerable"><td colspan="3"><span> <i class="fa fa-bug fa-flip-vertical"></i>&nbsp;</span><b data-testid="vuln-software-cpe-2-0-1">cpe:2.3:o:fedoraproject:fedora:24:*:*:*:*:*:*:*</b><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><a match-testid="vuln-software-cpe-2-0-1" data-cpe-list-toggle="3990767" data-list-depth="1" data-list-cpe23shown="True" data-list-cveid="CVE-2016-4796" style="text-decoration: underline" id="match-3990767">Show Matching CPE(s) <i class="fa fa-caret-down"></i></a><a></a></small><br><span data-list-cpes="list-cpes-3990767"></span></td>
+</tr></tbody></table></div><br>
+                            
+                            <br>
+                            <p>
+                                <small data-testid="vuln-configurations-vulnerable-software-message">
+                                    
+                                </small>
+                            </p>
+                        </div>
+
+                        <div id="p_lt_WebPartZone1_zoneCenter_pageplaceholder_p_lt_WebPartZone1_zoneCenter_VulnerabilityDetail_VulnFormView_VulnChangeHistoryDiv" data-testid="vuln-change-history-container">
+                            <p>
+                                </p><h3 id="VulnChangeHistorySection">Change History </h3>
+                                <small>
+                                    1 change record found
+                                    - <a href="#VulnChangeHistorySection" style="text-decoration: underline" id="changeHistoryToggle">show changes</a></small>
+                                
+                            <div class="vuln-change-history-container" style="display: none;">
+                            <h4><strong><span data-testid="vuln-change-history-type-0">Initial Analysis</span> - 
+                            <span data-testid="vuln-change-history-date-0">2/7/2017 2:41:02 PM</span></strong></h4>
+                            <table class="table table-striped table-condensed table-bordered detail-table" data-testid="vuln-change-history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Type</th>
+                                        <th>Old Value</th>
+                                        <th>New Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-testid="vuln-change-history-0">
+                                        <td data-testid="vuln-change-history-0-action">Added</td>
+                                        <td data-testid="vuln-change-history-0-type">CPE Configuration</td>
+                                        <td data-testid="vuln-change-history-0-old"></td>
+                                        <td data-testid="vuln-change-history-0-new"><pre>OR
+     *cpe:2.3:a:openjpeg:openjpeg:2.1.0:*:*:*:*:*:*:* (and previous)</pre></td>
+                                    </tr>
+                                    <tr data-testid="vuln-change-history-1">
+                                        <td data-testid="vuln-change-history-1-action">Added</td>
+                                        <td data-testid="vuln-change-history-1-type">CPE Configuration</td>
+                                        <td data-testid="vuln-change-history-1-old"></td>
+                                        <td data-testid="vuln-change-history-1-new"><pre>OR
+     *cpe:2.3:o:fedoraproject:fedora:23:*:*:*:*:*:*:*
+     *cpe:2.3:o:fedoraproject:fedora:24:*:*:*:*:*:*:*</pre></td>
+                                    </tr>
+                                    <tr data-testid="vuln-change-history-2">
+                                        <td data-testid="vuln-change-history-2-action">Added</td>
+                                        <td data-testid="vuln-change-history-2-type">CVSS V2</td>
+                                        <td data-testid="vuln-change-history-2-old"></td>
+                                        <td data-testid="vuln-change-history-2-new"><pre>(AV:N/AC:M/Au:N/C:N/I:N/A:P)</pre></td>
+                                    </tr>
+                                    <tr data-testid="vuln-change-history-3">
+                                        <td data-testid="vuln-change-history-3-action">Added</td>
+                                        <td data-testid="vuln-change-history-3-type">CVSS V3</td>
+                                        <td data-testid="vuln-change-history-3-old"></td>
+                                        <td data-testid="vuln-change-history-3-new"><pre>AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H</pre></td>
+                                    </tr>
+                                    <tr data-testid="vuln-change-history-4">
+                                        <td data-testid="vuln-change-history-4-action">Added</td>
+                                        <td data-testid="vuln-change-history-4-type">CWE</td>
+                                        <td data-testid="vuln-change-history-4-old"></td>
+                                        <td data-testid="vuln-change-history-4-new"><pre>CWE-119</pre></td>
+                                    </tr>
+                                    <tr data-testid="vuln-change-history-5">
+                                        <td data-testid="vuln-change-history-5-action">Changed</td>
+                                        <td data-testid="vuln-change-history-5-type">Reference Type</td>
+                                        <td data-testid="vuln-change-history-5-old"><pre>http://www.openwall.com/lists/oss-security/2016/05/13/2 No Types Assigned</pre></td>
+                                        <td data-testid="vuln-change-history-5-new"><pre>http://www.openwall.com/lists/oss-security/2016/05/13/2 Third Party Advisory, Mailing List, Patch</pre></td>
+                                    </tr>
+                                    <tr data-testid="vuln-change-history-6">
+                                        <td data-testid="vuln-change-history-6-action">Changed</td>
+                                        <td data-testid="vuln-change-history-6-type">Reference Type</td>
+                                        <td data-testid="vuln-change-history-6-old"><pre>https://bugzilla.redhat.com/show_bug.cgi?id=1335482 No Types Assigned</pre></td>
+                                        <td data-testid="vuln-change-history-6-new"><pre>https://bugzilla.redhat.com/show_bug.cgi?id=1335482 Issue Tracking, Patch</pre></td>
+                                    </tr>
+                                    <tr data-testid="vuln-change-history-7">
+                                        <td data-testid="vuln-change-history-7-action">Changed</td>
+                                        <td data-testid="vuln-change-history-7-type">Reference Type</td>
+                                        <td data-testid="vuln-change-history-7-old"><pre>https://github.com/uclouvain/openjpeg/commit/162f6199c0cd3ec1c6c6dc65e41b2faab92b2d91 No Types Assigned</pre></td>
+                                        <td data-testid="vuln-change-history-7-new"><pre>https://github.com/uclouvain/openjpeg/commit/162f6199c0cd3ec1c6c6dc65e41b2faab92b2d91 Third Party Advisory, Issue Tracking, Patch</pre></td>
+                                    </tr>
+                                    <tr data-testid="vuln-change-history-8">
+                                        <td data-testid="vuln-change-history-8-action">Changed</td>
+                                        <td data-testid="vuln-change-history-8-type">Reference Type</td>
+                                        <td data-testid="vuln-change-history-8-old"><pre>https://github.com/uclouvain/openjpeg/issues/774 No Types Assigned</pre></td>
+                                        <td data-testid="vuln-change-history-8-new"><pre>https://github.com/uclouvain/openjpeg/issues/774 Issue Tracking, Patch</pre></td>
+                                    </tr>
+                                    <tr data-testid="vuln-change-history-9">
+                                        <td data-testid="vuln-change-history-9-action">Changed</td>
+                                        <td data-testid="vuln-change-history-9-type">Reference Type</td>
+                                        <td data-testid="vuln-change-history-9-old"><pre>https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/5FFMOZOF2EI6N2CR23EQ5EATWLQKBMHW/ No Types Assigned</pre></td>
+                                        <td data-testid="vuln-change-history-9-new"><pre>https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/5FFMOZOF2EI6N2CR23EQ5EATWLQKBMHW/ Third Party Advisory, Patch</pre></td>
+                                    </tr>
+                                    <tr data-testid="vuln-change-history-10">
+                                        <td data-testid="vuln-change-history-10-action">Changed</td>
+                                        <td data-testid="vuln-change-history-10-type">Reference Type</td>
+                                        <td data-testid="vuln-change-history-10-old"><pre>https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/BJM23YERMEC6LCTWBUH7LZURGSLZDFDH/ No Types Assigned</pre></td>
+                                        <td data-testid="vuln-change-history-10-new"><pre>https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/BJM23YERMEC6LCTWBUH7LZURGSLZDFDH/ Third Party Advisory, Patch</pre></td>
+                                    </tr>
+                                    <tr data-testid="vuln-change-history-11">
+                                        <td data-testid="vuln-change-history-11-action">Changed</td>
+                                        <td data-testid="vuln-change-history-11-type">Reference Type</td>
+                                        <td data-testid="vuln-change-history-11-old"><pre>https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/DFRD35RIPRCGZA5DKAKHZ62LMP2A5UT7/ No Types Assigned</pre></td>
+                                        <td data-testid="vuln-change-history-11-new"><pre>https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/DFRD35RIPRCGZA5DKAKHZ62LMP2A5UT7/ Third Party Advisory, Patch</pre></td>
+                                    </tr>
+                                    <tr data-testid="vuln-change-history-12">
+                                        <td data-testid="vuln-change-history-12-action">Changed</td>
+                                        <td data-testid="vuln-change-history-12-type">Reference Type</td>
+                                        <td data-testid="vuln-change-history-12-old"><pre>https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/HPMDEUIMHTLKMHELDL4F4HZ7X4Y34JEB/ No Types Assigned</pre></td>
+                                        <td data-testid="vuln-change-history-12-new"><pre>https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/HPMDEUIMHTLKMHELDL4F4HZ7X4Y34JEB/ Third Party Advisory, Patch</pre></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            </div>
+                            <p></p>
+                        </div>
+
+                    </div>
+                </div>
+        
+
+                <div class="col-lg-3 col-md-5 col-sm-12">
+
+                    <div class="bs-callout bs-callout-info">
+                        <h4>Quick Info</h4>
+                        <strong>CVE Dictionary Entry:</strong><br>
+                        <a target="_blank" data-testid="vuln-cve-dictionary-entry" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-4796">CVE-2016-4796</a><br>
+                        <strong>NVD Published Date:</strong><br>
+                        <span data-testid="vuln-published-on">02/03/2017</span><br>
+                        <strong>NVD Last Modified:</strong><br>
+                        <span data-testid="vuln-last-modified-on">02/07/2017</span><br>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+
+
+
+        </td>
+		</tr>
+	</tbody></table>
+
+    <script src="NVD%20-%20CVE-2016-4796_files/vulnDetail.js" type="text/javascript"></script>
+    
+
+</div>
+
+</div>
+    <div id="footer-pusher"></div>
+</div>
+
+<footer id="footer">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <ul class="social-list pull-right">
+                    <li class="field-item service-twitter list-horiz">
+                        <a href="https://twitter.com/USNISTGOV" target="_blank" class="social-btn social-btn--large extlink ext external">
+                            <i class="fa fa-twitter fa-fw"><span class="element-invisible">twitter</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+                    </li>
+                    <li class="field-item service-facebook list-horiz"><a href="https://www.facebook.com/USNISTGOV" target="_blank" class="social-btn social-btn--large extlink ext external">
+                        <i class="fa fa-facebook fa-fw"><span class="element-invisible">facebook</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span></a>
+
+                    </li>
+                    <li class="field-item service-linkedin list-horiz"><a href="https://www.linkedin.com/company/nist" target="_blank" class="social-btn social-btn--large extlink ext external">
+                        <i class="fa fa-linkedin fa-fw"><span class="element-invisible">linkedin</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span></a>
+
+                    </li>
+                    <li class="field-item service-youtube list-horiz"><a href="https://www.youtube.com/user/USNISTGOV" target="_blank" class="social-btn social-btn--large extlink ext external">
+                        <i class="fa fa-youtube fa-fw"><span class="element-invisible">youtube</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span></a>
+
+                    </li>
+                    <li class="field-item service-rss list-horiz"><a href="https://www.nist.gov/news-events/nist-rss-feeds" target="_blank" class="social-btn social-btn--large extlink">
+                        <i class="fa fa-rss fa-fw"><span class="element-invisible">rss</span></i></a>
+
+                    </li>
+                    <li class="field-item service-govdelivery list-horiz last">
+                        <a href="https://public.govdelivery.com/accounts/USNIST/subscriber/new?qsp=USNIST_3" target="_blank" class="social-btn social-btn--large extlink ext">
+                            <i class="fa fa-envelope fa-fw"><span class="element-invisible">govdelivery</span></i><span class="ext"><span class="element-invisible"> (link is external)</span></span>
+                        </a>
+                    </li>
+                </ul>
+                <span class="hidden-xs">
+                    <a title="National Institute of Standards and Technology" rel="home" class="footer-nist-logo">
+                        <img src="NVD%20-%20CVE-2016-4796_files/logo_rev.png" alt="National Institute of Standards and Technology logo">
+                    </a>
+                </span>
+            </div>
+        </div>
+        <div class="row hidden-sm hidden-md hidden-lg">
+            <div class="col-sm-12">
+                <a href="https://www.nist.gov/" title="National Institute of Standards and Technology" rel="home" target="_blank" class="footer-nist-logo">
+                    <img src="NVD%20-%20CVE-2016-4796_files/logo_rev.png" alt="National Institute of Standards and Technology logo">
+                </a>
+            </div>
+        </div>
+
+        <div class="row footer-contact-container">
+            <div class="col-sm-12">
+                <strong>HEADQUARTERS</strong><br>
+                100 Bureau Drive<br>
+                Gaithersburg, MD 20899
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <p>
+                    <a href="mailto:nvd@nist.gov">Webmaster</a> |
+                    <a href="https://www.nist.gov/about-nist/contact-us">Contact Us</a> |
+                    <a href="https://www.nist.gov/about-nist/our-organization" style="display: inline-block;">Our Other Offices</a>
+                </p>
+            </div>
+        </div>
+
+        <div id="footer-nav-menu" class="row" role="navigation">
+            <div class="col-md-8 col-sm-6 col-xs-12 col-xxs-12">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p>
+                            <a href="https://nvd.nist.gov/general">GENERAL</a>
+                        </p>
+                        <p>
+                            <a href="https://nvd.nist.gov/general/nvd-dashboard">NVD Dashboard</a><br>
+                            <a href="https://nvd.nist.gov/general/news">News</a><br>
+                            <a href="https://nvd.nist.gov/general/email-list">Email List</a><br>
+                            <a href="https://nvd.nist.gov/general/faq">FAQ</a><br>
+                            <a href="https://nvd.nist.gov/general/visualizations">Visualizations</a>
+                        </p>
+                        <p>
+                            <a href="https://nvd.nist.gov/vuln">VULNERABILITIES</a>
+                        </p>
+                        <p>
+                            <a href="https://nvd.nist.gov/vuln/search">Search &amp; Statistics</a><br>
+                            <a href="https://nvd.nist.gov/vuln/full-listing">Full Listing</a><br>
+
+                            <a href="https://nvd.nist.gov/vuln/categories">Categories</a><br>
+                            <a href="https://nvd.nist.gov/vuln/data-feeds">Data Feeds</a><br>
+
+                            <a href="https://nvd.nist.gov/vuln/vendor-comments">Vendor Comments</a><br>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <p>
+                            <a href="https://nvd.nist.gov/vuln-metrics/cvss">VULNERABILITY METRICS</a>
+                        </p>
+                        <p>
+                            <a href="https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator">CVSS V3 Calculator</a><br>
+                            <a href="https://nvd.nist.gov/vuln-metrics/cvss/v2-calculator">CVSS V2 Calculator</a><br>
+                        </p>
+                        <p>
+                            <a href="https://nvd.nist.gov/products">PRODUCTS</a>
+                        </p>
+                        <p>
+                            <a href="https://nvd.nist.gov/products/cpe">CPE Dictionary</a><br>
+                            <a href="https://nvd.nist.gov/products/cpe/search">CPE Search</a><br>
+                            <a href="https://nvd.nist.gov/products/cpe/statistics">CPE Statistics</a><br>
+                            <a href="https://nvd.nist.gov/products/swid">SWID</a><br>
+                        </p>
+                        <p>
+                            <a href="https://nvd.nist.gov/config/cce">CONFIGURATIONS (CCE)</a>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <p>
+                            <a href="https://nvd.nist.gov/info">CONTACT NVD</a>
+                        </p>
+                        <p>
+                            <a href="https://nvd.nist.gov/other">OTHER SITES</a>
+                        </p>
+                        <p>
+                            <a href="https://nvd.nist.gov/ncp/repository">Checklist (NCP) Repository</a><br>
+                            <a href="https://nvd.nist.gov/800-53">800-53 Controls</a><br>
+                            <a href="https://csrc.nist.gov/projects/scap-validation-program">SCAP Validated Tools</a><br>
+                            <a href="https://csrc.nist.gov/projects/security-content-automation-protocol">SCAP</a><br>
+                            <a href="https://csrc.nist.gov/projects/united-states-government-configuration-baseline">USGCB</a>
+                        </p>
+                        <p>
+                            <a href="https://nvd.nist.gov/search">SEARCH</a>
+                        </p>
+                        <p>
+                            <a href="https://nvd.nist.gov/vuln/search">Vulnerability Search</a><br>
+                            <a href="https://nvd.nist.gov/products/cpe/search">CPE Search</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-6 col-xs-12 col-xxs-12">
+                    <span class="pull-right text-right">
+                        <strong>Information Technology Laboratory<span class="hidden-xs"> (ITL)</span></strong><br>
+                        <strong>National Vulnerability Database<span class="hidden-xs"> (NVD)</span></strong><br><br>
+                        <a href="https://nvd.nist.gov/general/email-list" target="_blank">Announcement and Discussion Lists</a><br>
+                        <strong>General Questions &amp; Webmaster Contact</strong> <br>
+                        Email:<a href="mailto:nvd@nist.gov" style="display: inline-block;">nvd@nist.gov</a><br><br>
+<strong>Incident Response Assistance and Non-NVD Related Technical Cyber Security Questions:</strong>
+				<p>
+					US-CERT Security Operations Center<br>
+					Email: <a href="mailto:soc@us-cert.gov">soc@us-cert.gov</a><br>
+					Phone: 1-888-282-0870
+				</p>
+                <p>
+                     </p><div style="display: inline-block; text-align: left; margin-left: 0; margin-right: 0;">
+                        <strong style="float:right">Sponsored by</strong><br>
+                        <a href="https://www.dhs.gov/" target="_blank">DHS/NCCIC/US-CERT</a>
+                    </div>
+                    <a style="float: right; width: 68px;">
+                        <img src="NVD%20-%20CVE-2016-4796_files/dhs-logo.png" alt="DHS">
+                    </a>
+
+                        <p></p>
+                    </span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12 footer-bottom-links-container">
+                <p>
+                    <a target="_blank" href="https://www.nist.gov/privacy-policy">Privacy Statement</a> |
+                    <a target="_blank" href="https://www.nist.gov/privacy-policy#privpolicy">Privacy Policy</a> |
+                    <a target="_blank" href="https://www.nist.gov/privacy-policy#secnot">Security Notice</a> |
+                    <a target="_blank" href="https://www.nist.gov/privacy-policy#accesstate">Accessibility Statement</a> |
+                    <a target="_blank" href="https://www.nist.gov/privacy">NIST Privacy Program</a> |
+                    <a target="_blank" href="https://www.nist.gov/no-fear-act-policy">No Fear Act Policy</a>
+                </p>
+                <p>
+                    <a target="_blank" href="https://www.nist.gov/disclaimer">Disclaimer</a> |
+                    <a target="_blank" href="https://www.nist.gov/foia">FOIA</a> |
+                    <a target="_blank" href="https://www.nist.gov/environmental-policy-statement">Environmental Policy Statement</a> |
+                    <a target="_blank" href="https://www.nist.gov/privacy-policy#cookie">Cookie Disclaimer</a> |
+                    <a target="_blank" href="https://www.nist.gov/summary-report-scientific-integrity">Scientific Integrity Summary</a> |
+                    <a target="_blank" href="https://www.nist.gov/nist-information-quality-standards">NIST Information Quality Standards</a>
+                </p>
+                <p>
+                    <a target="_blank" href="https://www.usa.gov/business?source=busa">Business USA</a> |
+                    <a target="_blank" href="https://www.healthcare.gov/">Healthcare.gov</a> |
+                    <a target="_blank" href="https://www.science.gov/">Science.gov</a> |
+                    <a target="_blank" href="https://www.usa.gov/">USA.gov</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+<script type="text/javascript">
+
+     (function() {
+       document.getElementsByTagName('html')[0].setAttribute('lang', 'en');
+       document.getElementsByTagName('html')[0].setAttribute('xml:lang', 'en')
+   })(); 
+</script>
+
+    
+    
+
+<script type="text/javascript">
+//<![CDATA[
+
+var callBackFrameUrl='/WebResource.axd?d=beToSAE3vdsL1QUQUxjWdeXBxtUkNjqBzdyDGbSskAqAwpbqmzAIxVJLRSn3w2JfvaAOGfApWzhCa3CUqVc0rQ2&t=636765319264470882';
+WebForm_InitCallback();
+theForm.oldSubmit = theForm.submit;
+theForm.submit = WebForm_SaveScrollPositionSubmit;
+
+theForm.oldOnSubmit = theForm.onsubmit;
+theForm.onsubmit = WebForm_SaveScrollPositionOnSubmit;
+//]]>
+</script>
+</form>
+
+
+</body></html>

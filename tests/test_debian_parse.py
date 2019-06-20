@@ -54,11 +54,11 @@ class TestDebianParser(unittest.TestCase):
                          {'package': 'gitlab',
                           'version': '11.10.5+dfsg-1'})
         self.assertEqual(debian_parser.pkg_ver_in_line(line_4),
-                        {'package': 'enigmail',
-                         'version': '2.0.11+ds1-1'})
+                         {'package': 'enigmail',
+                          'version': '2.0.11+ds1-1'})
         self.assertEqual(debian_parser.pkg_ver_in_line(line_5),
-                        {'package': 'python3.7',
-                         'version': '3.7.0-7'})
+                         {'package': 'python3.7',
+                          'version': '3.7.0-7'})
 
     def test_cve_file_name(self):
         debian_parser = DebianParser()
