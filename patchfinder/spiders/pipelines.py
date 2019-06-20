@@ -1,9 +1,10 @@
 import json
+import patchfinder.settings as settings
 
 class PatchPipeline(object):
 
     def open_spider(self, spider):
-        self.file = open('patches.json', 'w')
+        self.file = open(settings.PATCHES_JSON, 'w')
 
     def close_spider(self, spider):
         self.file.close()

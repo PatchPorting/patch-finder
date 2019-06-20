@@ -15,9 +15,12 @@ class Provider(object):
         link_components: A list of components in a patch link for this provider
     """
 
-    def __init__(self, link_components, patch_components):
+    patch_components = {r'/commit/': r'/patch/'}
+
+    def __init__(self, link_components, patch_components=None):
         self.link_components = link_components
-        self.patch_components = patch_components
+        if patch_components:
+            self.patch_components = patch_components
 
     def patch_format(self, link):
         for i in self.patch_components:
@@ -65,14 +68,13 @@ def map_entrypoint_name(entrypoint_name):
 
 def get_xpath(url):
     """Given a URL, map it to its Entrypoint object"""
-    if re.match(r'^https://github\.com/.+?/.+?/issues/\d+$', url):
+    if re.match(r'^https://github\.com/', url):
         return ['//div[contains(@class, \'commit-message\')]//a']
 
-    elif re.match(r'^https://cve\.mitre\.org/cgi\-bin/cvename\.cgi\?name=CVE' \
-                  '\-\d+\-\d+', url):
+    elif re.match(r'^https://cve\.mitre\.org/', url):
         return ['//*[@id="GeneratedTable"]/table/tr[7]/td//a']
 
-    elif re.match(r'^https://nvd\.nist\.gov/vuln/detail/CVE\-\d+\-\d+$', url):
+    elif re.match(r'^https://nvd\.nist\.gov/', url):
         return ['//table[@data-testid="vuln-hyperlinks-table"]/tbody//a']
 
     elif re.match(r'^https://security\-tracker\.debian\.org/tracker/CVE\-\d' \
@@ -85,9 +87,15 @@ def get_xpath(url):
     elif re.match(r'^https://lists\.fedoraproject\.org/archives/list/', url):
         return ['//div[contains(@class, \'email-body\')]//a'] 
 
+    elif re.match(r'^https://lists\.debian\.org/', url):
+        return ['//pre/a']
+
     elif re.match(r'^https://bugzilla\.redhat\.com/show_bug\.cgi\?id=', url):
         return ['//pre[contains(@class, \'bz_comment_text\')]//a', 
                 '//table[@id=\'external_bugs_table\']//a']
+
+    elif re.match(r'^https://seclists\.org/', url):
+        return ['//pre/a']
 
     return ['//body//a']
 

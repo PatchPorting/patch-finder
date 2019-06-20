@@ -5,5 +5,6 @@ PATCH_LIMIT = 100
 DEPTH_LIMIT = 1
 PARSE_DEBIAN = True
 DOWNLOAD_DIRECTORY = './cache/'
+PATCHES_JSON = './patches.json'
 REQUEST_META = {'dont_redirect': True,
                 'handle_httpstatus_list': [302]}

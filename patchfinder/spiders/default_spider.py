@@ -30,6 +30,8 @@ class DefaultSpider(scrapy.Spider):
                   r'github\.com/[^/]+/[^/]+/blob/',
                   r'github\.com.+/releases$',
                   r'github\.com.+/releases/.+?/[^/]+$',
+                  #homepages
+                  r'^https?://[^/]+/?$',
                   #fragmented identifiers
                   r'\#.+$']
     deny_domains = settings.DENY_DOMAINS
@@ -86,9 +88,7 @@ class DefaultSpider(scrapy.Spider):
             link = response.urljoin(link.url[0:])
             patch_link = entrypoint.is_patch(link)
             if patch_link:
-                if patch_link not in self.patches:
-                    divided_links['patch_links'].append(patch_link)
-                    self.add_patch(patch_link)
+                divided_links['patch_links'].append(patch_link)
             else:
                 divided_links['links'].append(link)
         return divided_links
@@ -126,10 +126,12 @@ class DefaultSpider(scrapy.Spider):
         links = self.extract_links(response)
         for link in links['patch_links']:
             if len(self.patches) < self.patch_limit:
-                patch = items.Patch()
-                patch['patch_link'] = link
-                patch['reaching_path'] = response.url
-                yield patch
+                if link not in self.patches:
+                    patch = items.Patch()
+                    patch['patch_link'] = link
+                    patch['reaching_path'] = response.url
+                    self.add_patch(link)
+                    yield patch
         for link in links['links']:
             if len(self.patches) < self.patch_limit:
                 priority = self.domain_priority(link)

@@ -61,6 +61,12 @@ class TestEntrypoint(unittest.TestCase):
         xpath = entrypoint.get_xpath(url)
         self.assertEqual(xpath, ['//div[contains(@class, \'email-body\')]//a'])
 
+    def test_debian_lists_url_mapping(self):
+        url = 'https://lists.debian.org/debian-lts-announce/2019/05/msg0003' \
+                '9.html'
+        xpath = entrypoint.get_xpath(url)
+        self.assertEqual(xpath, ['//pre/a'])
+
 
 if __name__ == '__main__':
     unittest.main()
