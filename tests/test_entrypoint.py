@@ -17,8 +17,7 @@ class TestEntrypoint(unittest.TestCase):
         link = 'https://github.com/python/cpython/commit/a4ae828ee416a6' \
                 '6d8c7bf5ee71d653c2cc6a26dd'
         self.assertEqual(github.link_components, ['github\.com',
-                                                  '/(commit|pull)/',
-                                                  '([0-9a-f]{40}|\\d+)$'])
+                                                  '/(commit|pull)/'])
 
     def test_github_match_link(self):
         github = entrypoint.Github()
@@ -66,6 +65,12 @@ class TestEntrypoint(unittest.TestCase):
                 '9.html'
         xpath = entrypoint.get_xpath(url)
         self.assertEqual(xpath, ['//pre/a'])
+
+    def test_seclists_url_mapping(self):
+        url = 'https://seclists.org/oss-sec/2018/q3/179'
+        xpath = entrypoint.get_xpath(url)
+        self.assertEqual(xpath, ['//pre/a'])
+
 
 
 if __name__ == '__main__':

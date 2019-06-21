@@ -1,6 +1,7 @@
 #TODO: figure out a more sophisticated way to construct URLs,
 #      maybe define a method to substitute a %s for multiple strings
 import re
+import patchfinder.utils as utils
 
 class Provider(object):
     """Subclass for a patch Provider
@@ -11,57 +12,75 @@ class Provider(object):
 
     Attributes:
         link_components: A list of components in a patch link for this provider
+        patch_components: A list of components in a patch-formatted link for
+            this provider
+        patch_format_dict: A dictionary for formatting a link into a patch link
     """
 
-    patch_components = {r'/commit/': r'/patch/'}
+    patch_format_dict = {r'/commit/': r'/patch/'}
 
-    def __init__(self, link_components, patch_components=None):
+    def __init__(self,
+                 link_components,
+                 patch_components,
+                 patch_format_dict=None):
         self.link_components = link_components
-        if patch_components:
-            self.patch_components = patch_components
+        self.patch_components = patch_components
+        if patch_format_dict:
+            self.patch_format_dict = patch_format_dict
 
     def patch_format(self, link):
-        for i in self.patch_components:
-            link = re.sub(i, self.patch_components[i], link)
+        """Format link into patch link"""
+        for i in self.patch_format_dict:
+            link = re.sub(i, self.patch_format_dict[i], link)
         return link
+
+    def is_patch_link(self, link):
+        """Check if 'link' is a patch-formatted link"""
+        return utils.match_all(link, self.patch_components)
 
     def match_link(self, link):
         """Checks if 'link' belongs to this provider"""
-        if all(re.search(x, link) for x in self.link_components):
-            return True
-        return False
+        return utils.match_all(link, self.link_components)
+
+    def belongs(self, link):
+        if self.match_link(link):
+            if self.is_patch_link(link):
+                return link
+            else:
+                return self.patch_format(link)
+        return None
 
 
 class Github(Provider):
     """Subclass for GitHub as a Provider"""
 
     def __init__(self):
-        link_components = [r'github\.com', r'/(commit|pull)/', \
-                           r'([0-9a-f]{40}|\d+)$']
-        patch_components = {r'$': r'.patch'}
+        link_components = [r'github\.com', r'/(commit|pull)/']
+        patch_components = [r'\.patch$']
+        patch_format_dict = {r'$': r'.patch'}
         super(Github, self).__init__(link_components=link_components,
-                                     patch_components=patch_components)
+                                     patch_components=patch_components,
+                                     patch_format_dict=patch_format_dict)
 
 
 class Pagure(Provider):
     """Subclass for Pagure as a Provider"""
 
     def __init__(self):
-        name = 'pagure.io'
-        link_components = [r'pagure\.io', r'/[0-9a-f]{9}$']
-        patch_components = {r'$': r'.patch'}
+        link_components = [r'pagure\.io', '/c/']
+        patch_components = [r'\.patch$']
+        patch_format_dict = {r'$': r'.patch'}
         super(Pagure, self).__init__(link_components=link_components,
-                                     patch_components=patch_components)
+                                     patch_components=patch_components,
+                                     patch_format_dict=patch_format_dict)
 
 
 class Gitlab(Provider):
     """Subclass for Gitlab as a Provider"""
 
     def __init__(self):
-        name = 'gitlab.com'
-        link_components = [r'gitlab\.com', r'/commit/', \
-                           r'[0-9a-f]{40}$']
-        patch_components = {r'$': r'.patch'}
+        link_components = [r'gitlab\.com', r'/commit/']
+        patch_components = {r'\.patch$'}
         super(Gitlab, self).__init__(link_components=link_components,
                                      patch_components=patch_components)
 
@@ -70,10 +89,11 @@ class GitKernel(Provider):
     """Subclass for git.kernel.org as a Provider"""
 
     def __init__(self):
-        name = 'git.kernel.org'
-        link_components = [r'git\.kernel\.org', r'/commit/',
-                           r'[0-9a-f]{40}$']
-        super(GitKernel, self).__init__(link_components=link_components)
+        link_components = [r'git\.kernel\.org', r'[0-9a-f]{40}$',
+                           r'/(commit|patch)/']
+        patch_components = [r'/patch/']
+        super(GitKernel, self).__init__(link_components=link_components,
+                                        patch_components=patch_components)
 
 
 #TODO: Make this more sophisticated, maybe use something like getattr
@@ -129,6 +149,7 @@ def is_patch(link):
                       'git.kernel.org']
     for provider_name in provider_names:
         provider = map_entrypoint_name(provider_name)
-        if provider.match_link(link):
-            return provider.patch_format(link)
+        patch_link = provider.belongs(link)
+        if patch_link:
+            return patch_link
     return None

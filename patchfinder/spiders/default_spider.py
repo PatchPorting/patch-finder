@@ -59,11 +59,23 @@ class DefaultSpider(scrapy.Spider):
 
     def start_requests(self):
         for url in self.start_urls:
-            if url.startswith('https://security-tracker.debian.org'):
-                if self.debian:
-                    yield Request(url, callback=self.parse_debian)
-            else:
-                yield Request(url, meta=self.request_meta, callback=self.parse)
+            callback = self.callback(url)
+            yield Request(url, meta=self.request_meta, callback=callback)
+
+
+    def callback(self, url):
+        """Return the callback method for a given URL
+
+        Args:
+            url: Self explanatory
+
+        Returns:
+            A callback method object
+        """
+        callback = self.parse
+        if url.startswith('https://security-tracker.debian.org'):
+            callback = self.parse_debian
+        return callback
 
 
     def extract_links(self, response):
@@ -118,11 +130,12 @@ class DefaultSpider(scrapy.Spider):
     def parse(self, response):
         """The default parse method.
 
-        If a url in start_urls does not need a separate parser, this
-        method is called. The links from the response body are extracted first.
+        If a url does not need a separate parser, this method is called. 
+        The links from the response body are extracted first.
         The patch links are added to the retrieved patches list. The non-patch
         links are crawled. This recursive process goes on till the DEPTH_LIMIT
-        is reached.
+        is reached. If the number of patches found is equal to the patch_limit,
+        no more requests or items are generated.
 
         Args:
             response: The Response object sent by Scrapy.
@@ -131,16 +144,15 @@ class DefaultSpider(scrapy.Spider):
         for link in links['patch_links']:
             if len(self.patches) < self.patch_limit:
                 if link not in self.patches:
-                    patch = items.Patch()
-                    patch['patch_link'] = link
-                    patch['reaching_path'] = response.url
                     self.add_patch(link)
+                    patch = self._create_patch_item(link, response.url)
                     yield patch
         for link in links['links']:
             if len(self.patches) < self.patch_limit:
+                callback = self.callback(link)
                 priority = self.domain_priority(link)
                 yield Request(link, meta=self.request_meta,
-                              callback=self.parse, priority=priority)
+                              callback=callback, priority=priority)
 
 
     #TODO: Handle www. case here. In fact, create a method to return
@@ -156,6 +168,13 @@ class DefaultSpider(scrapy.Spider):
         if domain in self.important_domains:
             return 1
         return 0
+
+
+    def _create_patch_item(self, patch_link, reaching_path):
+        patch = items.Patch()
+        patch['patch_link'] = patch_link
+        patch['reaching_path'] = reaching_path
+        return patch
 
 
     def add_patch(self, patch_link):
