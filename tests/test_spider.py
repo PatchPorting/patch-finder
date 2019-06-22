@@ -8,6 +8,23 @@ class TestSpider(unittest.TestCase):
     def setUp(self):
         self.spider = default_spider.DefaultSpider()
 
+    def tearDown(self):
+        self.spider = default_spider.DefaultSpider()
+
+    def test_extract_links(self):
+        url = 'https://lists.fedoraproject.org/archives/list/package-a' \
+                'nnounce@lists.fedoraproject.org/message/5FFMOZOF2EI6N' \
+                '2CR23EQ5EATWLQKBMHW/'
+        absent_urls = ['https://docs.fedoraproject.org/yum/',
+                       'https://fedoraproject.org/keys',
+                       'https://lists.fedoraproject.org/']
+        present_urls = ['https://bugzilla.redhat.com/show_bug.cgi?id=1317822',
+                        'https://bugzilla.redhat.com/show_bug.cgi?id=1317826']
+        response = fake_response_from_file('./mocks/3.html', url)
+        links = self.spider.extract_links(response)
+        self.assertTrue(all(url not in links['links']) for url in absent_urls)
+        self.assertTrue(all(url in links['links']) for url in present_urls)
+
     def test_parse_response(self):
         self.spider.important_domains.append('github.com')
         response = fake_response_from_file('./mocks/2.html')
@@ -30,7 +47,6 @@ class TestSpider(unittest.TestCase):
         self.assertTrue(found_openwall)
 
     def test_patch_limit_with_parse(self):
-        self.spider.patches = []
         self.spider.patch_limit = 2
         secl_response = fake_response_from_file('./mocks/1.html',
                                                 'https://seclists.org' \
