@@ -73,7 +73,8 @@ class DefaultSpider(scrapy.Spider):
             A callback method object
         """
         callback = self.parse
-        if url.startswith('https://security-tracker.debian.org') and self.debian:
+        if (url.startswith('https://security-tracker.debian.org')
+            and self.debian):
             callback = self.parse_debian
         return callback
 

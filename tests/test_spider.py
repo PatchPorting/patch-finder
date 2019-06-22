@@ -1,5 +1,6 @@
 import unittest
 import patchfinder.spiders.default_spider as default_spider
+import patchfinder.context as context
 from tests import fake_response_from_file
 
 class TestSpider(unittest.TestCase):
@@ -11,10 +12,24 @@ class TestSpider(unittest.TestCase):
     def tearDown(self):
         self.spider = default_spider.DefaultSpider()
 
+    def test_start_requests(self):
+        vuln = context.create_vuln('CVE-2016-4796')
+        self.spider = default_spider.DefaultSpider(vuln=vuln)
+        requests = list(self.spider.start_requests())
+        self.assertEqual(len(vuln.entrypoint_URLs), len(requests))
+
+    def test_add_patch(self):
+        patch_link = 'http://git.savannah.gnu.org/cgit/patch.git/commit/' \
+                '?id=123eaff0d5d1aebe128295959435b9ca5909c26d'
+        self.spider.add_patch(patch_link)
+        self.assertTrue(patch_link in self.spider.patches)
+
     def test_extract_links(self):
         url = 'https://lists.fedoraproject.org/archives/list/package-a' \
                 'nnounce@lists.fedoraproject.org/message/5FFMOZOF2EI6N' \
                 '2CR23EQ5EATWLQKBMHW/'
+        patch_link = 'https://github.com/uclouvain/openjpeg/commit/162' \
+                'f6199c0cd3ec1c6c6dc65e41b2faab92b2d91.patch'
         absent_urls = ['https://docs.fedoraproject.org/yum/',
                        'https://fedoraproject.org/keys',
                        'https://lists.fedoraproject.org/']
@@ -24,6 +39,8 @@ class TestSpider(unittest.TestCase):
         links = self.spider.extract_links(response)
         self.assertTrue(all(url not in links['links']) for url in absent_urls)
         self.assertTrue(all(url in links['links']) for url in present_urls)
+        self.assertEqual(len(links['patch_links']), 1)
+        self.assertEqual(links['patch_links'], [patch_link])
 
     def test_parse_response(self):
         self.spider.important_domains.append('github.com')
@@ -43,7 +60,7 @@ class TestSpider(unittest.TestCase):
             if request.url == openwall_url:
                 found_openwall = 1
             elif request.url == github_url:
-                self.assertTrue(request.priority is 1)
+                self.assertEqual(request.priority, 1)
         self.assertTrue(found_openwall)
 
     def test_patch_limit_with_parse(self):
@@ -54,8 +71,8 @@ class TestSpider(unittest.TestCase):
         nvd_response = fake_response_from_file('./mocks/2.html')
         nvd_requests_and_items = list(self.spider.parse(nvd_response))
         secl_requests_and_items = list(self.spider.parse(secl_response))
-        self.assertTrue(len(secl_requests_and_items) is 1)
-        self.assertTrue(len(self.spider.patches) is 2)
+        self.assertEqual(len(secl_requests_and_items), 1)
+        self.assertEqual(len(self.spider.patches), 2)
 
     def test_no_debian_callback(self):
         self.spider.debian = False

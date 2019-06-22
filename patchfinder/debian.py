@@ -197,6 +197,7 @@ class DebianParser(object):
                                             'reaching_path': \
                                             package['source']})
                 finally:
+                    logging.info("Deleting %s", package['ext_path'])
                     shutil.rmtree(package['ext_path'])
         return patches
 
