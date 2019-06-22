@@ -57,6 +57,20 @@ class TestSpider(unittest.TestCase):
         self.assertTrue(len(secl_requests_and_items) is 1)
         self.assertTrue(len(self.spider.patches) is 2)
 
+    def test_no_debian_callback(self):
+        self.spider.debian = False
+        debian_url = 'https://security-tracker.debian.org/tracker/CVE-2018' \
+                '-1000156'
+        callback = self.spider.callback(debian_url)
+        self.assertEqual(callback.__name__, 'parse')
+
+    def test_debian_callback(self):
+        self.spider.debian = True
+        debian_url = 'https://security-tracker.debian.org/tracker/CVE-2018' \
+                '-1000156'
+        callback = self.spider.callback(debian_url)
+        self.assertEqual(callback.__name__, 'parse_debian')
+
 
 if __name__ == '__main__':
     unittest.main()
