@@ -1,4 +1,4 @@
-#TODO: Introduce some helpful logging here
+import logging
 import os
 import re
 import shutil
@@ -8,6 +8,8 @@ import urllib.request
 import urllib.parse
 import patchfinder.settings as settings
 from bs4 import BeautifulSoup
+
+logger = logging.getLogger(__name__)
 
 class DebianParser(object):
     """Class for parsing utilities relevant to Debian
@@ -42,12 +44,15 @@ class DebianParser(object):
                 be downloaded from url and the existing file will be
                 overwritten.
         """
+        logger.info("Downloading %s as %s...", url, save_as)
         if os.path.isfile(save_as) and not overwrite:
+            logger.info("%s exists, not overwriting", save_as)
             return
         parent_dir = os.path.split(save_as)[0]
         if not os.path.isdir(parent_dir):
             os.makedirs(parent_dir)
         urllib.request.urlretrieve(url, save_as)
+        logger.info("Downloaded %s...", url)
 
 
     def pkg_ver_in_line(self, line):
@@ -77,12 +82,14 @@ class DebianParser(object):
         and version are extracted.
         """
 
+        logger.info("Looking for fixed packages...")
         self.fixed_packages = []
         self.package_paths = []
         self._download_item(self.cve_list_url, self.cve_file)
         vuln_found = 0
         look_for_cve = re.compile(r'^{vuln_id}'.format(vuln_id=self.vuln_id))
         cve_file = open(self.cve_file)
+        logger.info("Looking for %s in %s", self.vuln_id, self.cve_file)
         try:
             for line in cve_file:
                 if vuln_found:
@@ -90,8 +97,13 @@ class DebianParser(object):
                         break
                     pkg_ver = self.pkg_ver_in_line(line)
                     if pkg_ver:
+                        logger.info("Found package %s version %s in %s",
+                                    pkg_ver['package'],
+                                    pkg_ver['version'],
+                                    self.cve_file)
                         self.fixed_packages.append(pkg_ver)
                 elif look_for_cve.match(line):
+                    logger.info("Found %s in %s", self.vuln_id, self.cve_file)
                     vuln_found = 1
         finally:
             cve_file.close()
@@ -110,10 +122,16 @@ class DebianParser(object):
             snapshot_url = 'https://snapshot.debian.org/package/{pkg}/{ver}/' \
                     .format(pkg=package['package'],
                             ver=package['version'])
+            logger.info("Looking for package %s version %s in %s",
+                        package['package'],
+                        package['version'],
+                        snapshot_url)
+
             try:
                 snapshot_html = urllib.request.urlopen(snapshot_url)
             except urllib.error.HTTPError as e:
                 raise Exception("Error opening {url}".format(url=snapshot_url))
+            logger.info("Crawled %s", snapshot_url)
 
             soup = BeautifulSoup(snapshot_html, 'html.parser')
             quoted_package = urllib.parse.quote(package['package'])
@@ -126,11 +144,14 @@ class DebianParser(object):
                     .format(pkg=package['package'],
                             ver=package['version'],
                             url=snapshot_url)
-            pkg_url = 'https://snapshot.debian.org/' + pkg_url['href']
+
+            pkg_url = urllib.parse.urljoin('https://snapshot.debian.org/',
+                                           pkg_url['href'])
             pkg_name = find_pkg.search(pkg_url)
             self._download_item(pkg_url,
                                 os.path.join(settings.DOWNLOAD_DIRECTORY,
                                              pkg_name.group(1)))
+
             self.package_paths.append({'path': \
                                        os.path.join(settings.DOWNLOAD_DIRECTORY,
                                                     pkg_name.group(1)),
@@ -152,19 +173,25 @@ class DebianParser(object):
 
         patches = []
         for package in self.package_paths:
+            logger.info("Looking for patches in %s", package['path'])
             if tarfile.is_tarfile(package['path']):
                 tar = tarfile.open(package['path'])
                 try:
                     if 'debian' in tar.getnames():
+                        logger.info("debian folder found in %s", package['path'])
                         tar.extractall(package['ext_path'])
                 finally:
                     tar.close()
+                logger.info("Contents extracted to %s", package['ext_path'])
                 patch_folder = os.path.join(package['ext_path'], \
                                             'debian/patches/')
                 try:
-                    if not os.path.isdir(patch_folder): continue
+                    if not os.path.isdir(patch_folder):
+                        continue
+                    logger.info("Looking for patches in %s", patch_folder)
                     for f in os.listdir(patch_folder):
                         if f.find(self.vuln_id) is not -1:
+                            logger.info("Patch found: %s", f)
                             patches.append({'patch_link': \
                                             os.path.join(patch_folder, f),
                                             'reaching_path': \
