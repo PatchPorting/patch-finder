@@ -124,6 +124,8 @@ class DefaultSpider(scrapy.Spider):
         for patch in patches:
             if len(self.patches) < self.patch_limit:
                 self.add_patch(patch['patch_link'])
+                patch = _create_patch_item(patch['patch_link'],
+                                           patch['reaching_path'])
                 yield patch
 
 

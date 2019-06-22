@@ -10,9 +10,7 @@ class TestSpider(unittest.TestCase):
 
     def test_parse_response(self):
         self.spider.important_domains.append('github.com')
-        response = fake_response_from_file('./mocks/nvd_cve_2016_4796.html',
-                                           'https://nvd.nist.gov/vuln' \
-                                           '/detail/CVE-2016-4796')
+        response = fake_response_from_file('./mocks/2.html')
         requests_and_items = list(self.spider.parse(response))
 
         patch_link = 'https://github.com/uclouvain/openjpeg/commit/162f619' \
@@ -34,13 +32,10 @@ class TestSpider(unittest.TestCase):
     def test_patch_limit_with_parse(self):
         self.spider.patches = []
         self.spider.patch_limit = 2
-        secl_response = fake_response_from_file('./mocks/seclists_cve_2018_' \
-                                                '10938.html',
+        secl_response = fake_response_from_file('./mocks/1.html',
                                                 'https://seclists.org' \
                                                 '/oss-sec/2018/q3/179')
-        nvd_response = fake_response_from_file('./mocks/nvd_cve_2016_4796.html',
-                                               'https://nvd.nist.gov/vuln' \
-                                               '/detail/CVE-2016-4796')
+        nvd_response = fake_response_from_file('./mocks/2.html')
         nvd_requests_and_items = list(self.spider.parse(nvd_response))
         secl_requests_and_items = list(self.spider.parse(secl_response))
         self.assertTrue(len(secl_requests_and_items) is 1)
