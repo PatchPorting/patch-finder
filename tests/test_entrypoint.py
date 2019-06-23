@@ -31,17 +31,16 @@ class TestEntrypoint(unittest.TestCase):
         self.assertTrue(entrypoint.map_entrypoint_name('github.com'))
         self.assertFalse(entrypoint.map_entrypoint_name('opensuse'))
 
-    def test_is_patch(self):
+    def test_github_is_patch(self):
         link = 'https://github.com/uclouvain/openjpeg/commit/162f6199c' \
                 '0cd3ec1c6c6dc65e41b2faab92b2d91'
         patch_link = entrypoint.is_patch(link)
-        self.assertEqual(patch_link, 'https://github.com/uclouvain/openjpeg/' \
-                         'commit/162f6199c0cd3ec1c6c6dc65e41b2faab92b2d91.pa' \
-                         'tch')
+        self.assertEqual(patch_link, link + '.patch')
+
+    def test_pagure_is_patch(self):
         link = 'https://pagure.io/389-ds-base/c/4d9cc24da'
         patch_link = entrypoint.is_patch(link)
-        self.assertEqual(patch_link, 'https://pagure.io/389-ds-base/c/4d9cc2' \
-                         '4da.patch')
+        self.assertEqual(patch_link, link + '.patch')
 
     def test_mitre_url_mapping(self):
         url = 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-4796'
@@ -70,7 +69,6 @@ class TestEntrypoint(unittest.TestCase):
         url = 'https://seclists.org/oss-sec/2018/q3/179'
         xpath = entrypoint.get_xpath(url)
         self.assertEqual(xpath, ['//pre/a'])
-
 
 
 if __name__ == '__main__':

@@ -43,10 +43,14 @@ class CVE(Vulnerability):
 
     def __init__(self, vuln_id, packages=None):
         super(CVE, self).__init__(vuln_id, packages)
-        self.entrypoint_URLs = ['https://nvd.nist.gov/vuln/detail/{vuln_id}'.format(vuln_id=vuln_id),
-                                'https://cve.mitre.org/cgi-bin/cvename.cgi?name={vuln_id}'.format(vuln_id=vuln_id),
-                                'https://security-tracker.debian.org/tracker/{vuln_id}'.format(vuln_id=vuln_id)
-                                ]
+        self.entrypoint_URLs = [
+            'https://nvd.nist.gov/vuln/detail/{vuln_id}' \
+            .format(vuln_id=vuln_id),
+            'https://cve.mitre.org/cgi-bin/cvename.cgi?name={vuln_id}' \
+            .format(vuln_id=vuln_id),
+            'https://security-tracker.debian.org/tracker/{vuln_id}' \
+            .format(vuln_id=vuln_id)
+        ]
 
 
 def create_vuln(vuln_id, packages=None):

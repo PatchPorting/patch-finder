@@ -210,8 +210,6 @@ class DebianParser(object):
         for patches that are relevant to the vulnerability. A list of patches
         found is returned.
         """
-        if not vuln_id:
-            return []
         self.vuln_id = vuln_id
         self.find_fixed_packages()
         self.retrieve_packages()

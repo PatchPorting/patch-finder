@@ -7,7 +7,8 @@ import patchfinder.settings as settings
 
 def spawn_crawler(args):
     vuln = context.create_vuln(args.vuln_id)
-    if not vuln: return False
+    if not vuln:
+        return False
     process = CrawlerProcess({
         'USER_AGENT': settings.USER_AGENT,
         'ITEM_PIPELINES': {
