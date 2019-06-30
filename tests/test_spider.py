@@ -9,9 +9,6 @@ class TestSpider(unittest.TestCase):
     def setUp(self):
         self.spider = default_spider.DefaultSpider()
 
-    def tearDown(self):
-        self.spider = default_spider.DefaultSpider()
-
     def test_start_requests(self):
         vuln = context.create_vuln('CVE-2016-4796')
         self.spider = default_spider.DefaultSpider(vuln=vuln)

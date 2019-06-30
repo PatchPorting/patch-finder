@@ -1,4 +1,7 @@
+import logging
 import github
+
+logger = logging.getLogger(__name__)
 
 class GithubParser(object):
     """Class for Github as a parser"""
@@ -23,6 +26,13 @@ class GithubParser(object):
             self.found_issues.append(issue_id)
             if issue_id not in self.search_strings:
                 self.add_to_search_strings(issue_id)
+
+    def _search_attributes(self, github_obj):
+        if isinstance(github_obj, github.Issue.Issue):
+            return tuple('title', 'body')
+        elif isinstance(github_obj, github.IssueComment.IssueComment):
+            return tuple('body')
+        return tuple()
 
     def find_issues(self):
         issues = self.repo.get_issues()
