@@ -32,27 +32,18 @@ class DebianParser(object):
     package_paths = []
 
 
-    #TODO: urlretrieve is most probably deprecated, find something else
-    def _download_item(self, url, save_as, overwrite=False):
-        """Download an item
+    def parse(self, vuln_id):
+        """The parse method for Debian
 
-        Args:
-            url: The url of the item
-            save_as: The path to which the item should be saved
-            overwrite: optional argument to overwrite existing file with
-                same name as save_as. If overwrite is True, the file will
-                be downloaded from url and the existing file will be
-                overwritten.
+        The fixed Debian packages w/r/t the given vulnerability are determined
+        and retrieved. The debian/patches folder in these packages is checked
+        for patches that are relevant to the vulnerability. A list of patches
+        found is returned.
         """
-        logger.info("Downloading %s as %s...", url, save_as)
-        if os.path.isfile(save_as) and not overwrite:
-            logger.info("%s exists, not overwriting", save_as)
-            return
-        parent_dir = os.path.split(save_as)[0]
-        if not os.path.isdir(parent_dir):
-            os.makedirs(parent_dir)
-        urllib.request.urlretrieve(url, save_as)
-        logger.info("Downloaded %s...", url)
+        self.vuln_id = vuln_id
+        self.find_fixed_packages()
+        self.retrieve_packages()
+        return self.extract_patches()
 
 
     def pkg_ver_in_line(self, line):
@@ -163,7 +154,7 @@ class DebianParser(object):
                                                     package['version'])})
 
 
-    def extract_patches(self):
+   def extract_patches(self):
         """Extract patches from downloaded packages
 
         If the package is a tar file, all of its contents are extracted.
@@ -202,15 +193,24 @@ class DebianParser(object):
         return patches
 
 
-    def parse(self, vuln_id):
-        """The parse method for Debian
+    #TODO: urlretrieve is most probably deprecated, find something else
+    def _download_item(self, url, save_as, overwrite=False):
+        """Download an item
 
-        The fixed Debian packages w/r/t the given vulnerability are determined
-        and retrieved. The debian/patches folder in these packages is checked
-        for patches that are relevant to the vulnerability. A list of patches
-        found is returned.
+        Args:
+            url: The url of the item
+            save_as: The path to which the item should be saved
+            overwrite: optional argument to overwrite existing file with
+                same name as save_as. If overwrite is True, the file will
+                be downloaded from url and the existing file will be
+                overwritten.
         """
-        self.vuln_id = vuln_id
-        self.find_fixed_packages()
-        self.retrieve_packages()
-        return self.extract_patches()
+        logger.info("Downloading %s as %s...", url, save_as)
+        if os.path.isfile(save_as) and not overwrite:
+            logger.info("%s exists, not overwriting", save_as)
+            return
+        parent_dir = os.path.split(save_as)[0]
+        if not os.path.isdir(parent_dir):
+            os.makedirs(parent_dir)
+        urllib.request.urlretrieve(url, save_as)
+        logger.info("Downloaded %s...", url)
