@@ -25,21 +25,28 @@ class GithubParser(object):
         self._set_repo(repo_name)
 
 
+    def search_in_issue(self, issue):
+        if self.search_in_bodies(issue):
+            return True
+        else:
+            comments = issue.get_comments()
+            for comment in comments:
+                if self.search_in_bodies(comment):
+                    return True
+        return False
+
+
     def find_issues(self):
         issues = self.repo.get_issues()
         found_issues = []
         for issue in issues:
-            comments = issue.get_comments()
-            issue_objs = list(issue).extend(list(comments))
-            for issue_obj in issue_objs:
-                if self.search_in_bodies(issue_obj):
-                    #TODO: PR is pulled twice, find better soln. for this
-                    if issue.pull_request:
-                        pull = issue.as_pull_request()
-                        if pull.merged:
-                            self.add_to_patches(pull.patch_url)
-                    found_issues.append(issue)
-                    break
+            if self.search_in_issue(issue):
+                #TODO: PR is pulled twice, find better soln. for this
+                if issue.pull_request:
+                    pull = issue.as_pull_request()
+                    if pull.merged:
+                        self.add_to_patches(pull.patch_url)
+            found_issues.append(issue)
         self.append_issues(found_issues)
 
 
@@ -68,14 +75,10 @@ class GithubParser(object):
 
     def _search_attributes(self, github_obj):
         if (isinstance(github_obj,
-                       type(github.Issue.Issue))
-            or isinstance(github_obj,
-                          type(github.PullRequest.PullRequest))):
+                       github.Issue.Issue)):
             return ['title', 'body']
         elif (isinstance(github_obj,
-                         type(github.IssueComment.IssueComment))
-              or isinstance(github_obj,
-                        type(github.PullRequestComment.PullRequestComment))):
+                         github.IssueComment.IssueComment)):
             return ['body']
         return []
 

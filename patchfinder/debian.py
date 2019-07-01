@@ -154,7 +154,7 @@ class DebianParser(object):
                                                     package['version'])})
 
 
-   def extract_patches(self):
+    def extract_patches(self):
         """Extract patches from downloaded packages
 
         If the package is a tar file, all of its contents are extracted.
