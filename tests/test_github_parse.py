@@ -12,8 +12,8 @@ class TestGithubParser(unittest.TestCase):
         self.vuln_id = 'CVE-2016-4796'
         self.repo_name = 'uclouvain/openjpeg'
         self.patch_url = 'https://github.com/uclouvain/openjpeg/pull/123.patch'
-        self.body_with_vuln = 'This issue body contains %s' % self.vuln_id
-        self.body_without_vuln = 'This issue body is the body'
+        self.body_with_vuln = 'This body contains %s' % self.vuln_id
+        self.body_without_vuln = 'This body is the body'
 
 
     @mock.patch('github.IssueComment.IssueComment',
