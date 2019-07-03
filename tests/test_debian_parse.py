@@ -1,7 +1,7 @@
 import os.path
 import unittest
 import patchfinder.settings as settings
-from patchfinder.debian import DebianParser
+from patchfinder.parsers import DebianParser
 #TODO: Create more tests
 #TODO: There should be some locally stored packages to test parsing logic on
 #TODO: Individual tests for find_fixed_packages, extract_patches and retrieve_packages

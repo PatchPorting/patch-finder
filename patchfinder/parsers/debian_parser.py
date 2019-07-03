@@ -40,6 +40,7 @@ class DebianParser(object):
         for patches that are relevant to the vulnerability. A list of patches
         found is returned.
         """
+        self._clean()
         self.vuln_id = vuln_id
         self.find_fixed_packages()
         self.retrieve_packages()
@@ -74,8 +75,6 @@ class DebianParser(object):
         """
 
         logger.info("Looking for fixed packages...")
-        self.fixed_packages = []
-        self.package_paths = []
         self._download_item(self.cve_list_url, self.cve_file)
         vuln_found = 0
         look_for_cve = re.compile(r'^{vuln_id}'.format(vuln_id=self.vuln_id))
@@ -191,6 +190,11 @@ class DebianParser(object):
                     logging.info("Deleting %s", package['ext_path'])
                     shutil.rmtree(package['ext_path'])
         return patches
+
+
+    def _clean(self):
+        self.fixed_packages = []
+        self.package_paths = []
 
 
     #TODO: urlretrieve is most probably deprecated, find something else

@@ -3,7 +3,7 @@ from scrapy.http import Request
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 import scrapy
 import re
-from patchfinder.debian import DebianParser
+import patchfinder.parsers as parsers
 import patchfinder.spiders.items as items
 import patchfinder.entrypoint as entrypoint
 import patchfinder.settings as settings
@@ -120,13 +120,13 @@ class DefaultSpider(scrapy.Spider):
         Args:
             response: The Response object sent by Scrapy.
         """
-        debian_parser = DebianParser()
-        patches = debian_parser.parse(self.vuln_id)
+        parser = parsers.DebianParser()
+        patches = parser.parse(self.vuln_id)
         for patch in patches:
             if len(self.patches) < self.patch_limit:
                 self.add_patch(patch['patch_link'])
-                patch = _create_patch_item(patch['patch_link'],
-                                           patch['reaching_path'])
+                patch = self._create_patch_item(patch['patch_link'],
+                                                patch['reaching_path'])
                 yield patch
 
 
