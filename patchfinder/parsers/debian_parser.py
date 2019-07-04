@@ -7,6 +7,7 @@ import urllib.error
 import urllib.request
 import urllib.parse
 import patchfinder.settings as settings
+import patchfinder.utils as utils
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
@@ -26,8 +27,9 @@ class DebianParser(object):
     dsa_list_url = 'https://salsa.debian.org/security-tracker-team/security' \
             '-tracker/raw/master/data/DSA/list'
     cve_file = os.path.join(settings.DOWNLOAD_DIRECTORY, 'debian_cve_list')
-    pkg_ver = re.compile(r'^[\[\]a-z\s]+\- ([a-zA-Z0-9\+\-\.]+) ([a-zA-Z\d\.' \
+    pkg_ver_line = re.compile(r'^[\[\]a-z\s]+\- ([a-zA-Z0-9\+\-\.]+) ([a-zA-Z\d\.' \
                          r'\+\-\~:]+)')
+    file_end_block = re.compile(r'^CVE')
     fixed_packages = []
     package_paths = []
 
@@ -41,24 +43,28 @@ class DebianParser(object):
         found is returned.
         """
         self._clean()
-        self.vuln_id = vuln_id
+        self.set_context(vuln_id)
         self.find_fixed_packages()
         self.retrieve_packages()
         return self.extract_patches()
 
 
-    def pkg_ver_in_line(self, line):
-        """Extracts package and version from a line
+    def set_context(self, vuln_id):
+        self.vuln_id = vuln_id
+        self.file_start_block = re.compile(r'{vuln_id}' \
+                                           .format(vuln_id=vuln_id))
+
+
+    def pkg_ver_in_line(self, matches):
+        """Returns a package version dict from a regex object
 
         Args:
-            line: String from which the package and version are to be
-                extracted
+            matches: matches extracted from the CVE file
 
         Returns:
             a dictionary of the package name and its version
         """
-        matches = self.pkg_ver.search(line)
-        if matches and len(matches.groups()) is 2:
+        if len(matches.groups()) is 2:
             pkg = matches.group(1).strip()
             ver = re.sub(r'^.+:', r'', matches.group(2).strip())
             return {'package': pkg,
@@ -75,28 +81,15 @@ class DebianParser(object):
         """
 
         logger.info("Looking for fixed packages...")
-        self._download_item(self.cve_list_url, self.cve_file)
+        utils.download_item(self.cve_list_url, self.cve_file)
         vuln_found = 0
-        look_for_cve = re.compile(r'^{vuln_id}'.format(vuln_id=self.vuln_id))
-        cve_file = open(self.cve_file)
         logger.info("Looking for %s in %s", self.vuln_id, self.cve_file)
-        try:
-            for line in cve_file:
-                if vuln_found:
-                    if re.match(r'^CVE', line):
-                        break
-                    pkg_ver = self.pkg_ver_in_line(line)
-                    if pkg_ver:
-                        logger.info("Found package %s version %s in %s",
-                                    pkg_ver['package'],
-                                    pkg_ver['version'],
-                                    self.cve_file)
-                        self.fixed_packages.append(pkg_ver)
-                elif look_for_cve.match(line):
-                    logger.info("Found %s in %s", self.vuln_id, self.cve_file)
-                    vuln_found = 1
-        finally:
-            cve_file.close()
+        pkg_vers = utils.parse_raw_file(self.cve_file, self.file_start_block,
+                                        self.file_end_block, self.pkg_ver_line)
+        for pkg_ver in pkg_vers:
+            pkg_ver = self.pkg_ver_in_line(pkg_ver)
+            if pkg_ver:
+                self.fixed_packages.append(pkg_ver)
 
 
     def retrieve_packages(self):
@@ -138,7 +131,7 @@ class DebianParser(object):
             pkg_url = urllib.parse.urljoin('https://snapshot.debian.org/',
                                            pkg_url['href'])
             pkg_name = find_pkg.search(pkg_url)
-            self._download_item(pkg_url,
+            utils.download_item(pkg_url,
                                 os.path.join(settings.DOWNLOAD_DIRECTORY,
                                              pkg_name.group(1)))
 
@@ -195,26 +188,3 @@ class DebianParser(object):
     def _clean(self):
         self.fixed_packages = []
         self.package_paths = []
-
-
-    #TODO: urlretrieve is most probably deprecated, find something else
-    def _download_item(self, url, save_as, overwrite=False):
-        """Download an item
-
-        Args:
-            url: The url of the item
-            save_as: The path to which the item should be saved
-            overwrite: optional argument to overwrite existing file with
-                same name as save_as. If overwrite is True, the file will
-                be downloaded from url and the existing file will be
-                overwritten.
-        """
-        logger.info("Downloading %s as %s...", url, save_as)
-        if os.path.isfile(save_as) and not overwrite:
-            logger.info("%s exists, not overwriting", save_as)
-            return
-        parent_dir = os.path.split(save_as)[0]
-        if not os.path.isdir(parent_dir):
-            os.makedirs(parent_dir)
-        urllib.request.urlretrieve(url, save_as)
-        logger.info("Downloaded %s...", url)

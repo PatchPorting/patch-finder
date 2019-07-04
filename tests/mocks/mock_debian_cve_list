@@ -1,0 +1,36 @@
+CVE-2019-12802 (In radare2 through 3.5.1, the rcc_context function of libr/egg/egg_lan ...)
+	- radare2 <unfixed> (bug #930510)
+	[buster] - radare2 <no-dsa> (Minor issue)
+	[stretch] - radare2 <no-dsa> (Minor issue)
+	[jessie] - radare2 <no-dsa> (Minor issue)
+	NOTE: https://github.com/radare/radare2/issues/14296
+CVE-2019-12801 (out/out.GroupMgr.php in SeedDMS 5.1.11 has Stored XSS by making a new  ...)
+	TODO: check
+CVE-2019-12800
+	RESERVED
+CVE-2019-12819 (An issue was discovered in the Linux kernel before 5.0. The function _ ...)
+	- linux 4.19.37-1
+	[stretch] - linux 4.9.168-1
+	[jessie] - linux 3.16.68-1
+	NOTE: https://git.kernel.org/linus/6ff7b060535e87c2ae14dd8548512abfdda528fb
+CVE-2016-4796 (Heap-based buffer overflow in the color_cmyk_to_rgb in common/color.c  ...)
+	- openjpeg2 2.1.1-1
+	[jessie] - openjpeg2 <not-affected> (Vulnerable code not yet present in 2.1.0)
+	- openjpeg <removed>
+	[jessie] - openjpeg <not-affected> (Vulnerable code not present)
+	[wheezy] - openjpeg <not-affected> (Vulnerable code not present)
+	NOTE: https://github.com/uclouvain/openjpeg/commit/162f6199c0cd3ec1c6c6dc65e41b2faab92b2d91
+CVE-2016-3610 (Unspecified vulnerability in Oracle Java SE 8u92 and Java SE Embedded  ...)
+	{DSA-3641-1 DLA-579-1}
+	- openjdk-8 8u102-b14-1
+	[experimental] - openjdk-7 7u111-2.6.7-1
+	- openjdk-7 <removed>
+CVE-2019-12795 (daemon/gvfsdaemon.c in gvfsd from GNOME gvfs before 1.38.3, 1.40.x bef ...)
+	- gvfs 1.38.1-5 (bug #930376)
+	NOTE: https://gitlab.gnome.org/GNOME/gvfs/commit/70dbfc68a79faac49bd3423e079cb6902522082a (master)
+	NOTE: https://gitlab.gnome.org/GNOME/gvfs/commit/d8c9138bf240975848b1c54db648ec4cd516a48f (gnome-3-32)
+	NOTE: https://gitlab.gnome.org/GNOME/gvfs/commit/e3808a1b4042761055b1d975333a8243d67b8bfe (gnome-3-30)
+CVE-2018-20842
+	RESERVED
+CVE-2018-20841 (HooToo TripMate Titan HT-TM05 and HT-05 routers with firmware 2.000.02 ...)
+	NOT-FOR-US: HooToo TripMate Titan HT-TM05 and HT-05 routers

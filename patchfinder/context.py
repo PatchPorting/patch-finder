@@ -1,6 +1,22 @@
-from collections import deque
+import os
 import re
 import patchfinder.entrypoint as entrypoint
+import patchfinder.utils as utils
+import patchfinder.settings as settings
+
+
+class Context(object):
+    """Base class for the run-time context of the patch-finder"""
+
+    runnable_vulns = []
+
+    def __init__(self, vuln):
+        self.input_vuln = vuln
+
+    def translate_vuln(self):
+        self.input_vuln.translate()
+        self.runnable_vulns = self.input_vuln.equivalent_cves
+
 
 class Patch(object):
     """Base class for Patch
@@ -37,7 +53,6 @@ class Vulnerability(object):
         self.patches.append(patch)
 
 
-#TODO: Remove entrypoints from here, instead add a spider_name attribute
 class CVE(Vulnerability):
     """Subclass for CVE"""
 
@@ -51,6 +66,33 @@ class CVE(Vulnerability):
             'https://security-tracker.debian.org/tracker/{vuln_id}' \
             .format(vuln_id=vuln_id)
         ]
+
+
+class DSA(Vulnerability):
+    """Subclass for Debian Security Advisory (DSA)"""
+
+    dsa_list_url = 'https://salsa.debian.org/security-tracker-team/security' \
+            '-tracker/raw/master/data/DSA/list'
+    dsa_file = os.path.join(settings.DOWNLOAD_DIRECTORY, 'dsa_list')
+    cve_line = re.compile(r'^\s+\{(.+)\}')
+    end_block = re.compile(r'^\s+\[')
+
+    def __init__(self, vuln_id, packages=None):
+        super(DSA, self).__init__(vuln_id, packages)
+        self.start_block = re.compile(r'^\[.+\] {vuln_id}' \
+                                      .format(vuln_id=vuln_id))
+        self.entrypoint_URLs = []
+        self.equivalent_cves = []
+
+    def translate(self):
+        utils.download_item(self.dsa_list_url, self.dsa_file)
+        cves = list(utils.parse_raw_file(self.dsa_file,
+                                         self.start_block,
+                                         self.end_block,
+                                         self.cve_line))
+        if cves:
+            cves = cves[0].group(1).split()
+            self.equivalent_cves = cves
 
 
 def create_vuln(vuln_id, packages=None):

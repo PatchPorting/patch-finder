@@ -54,9 +54,7 @@ class TestGithubParser(unittest.TestCase):
         self.mock_issue.as_pull_request.assert_called_once()
 
 
-    @mock.patch('github.PullRequest.PullRequest',
-                spec=github.PullRequest.PullRequest)
-    def test_patch_from_issue_with_no_pull(self, mock_pull):
+    def test_patch_from_issue_with_no_pull(self):
         self.mock_issue.pull_request = False
         self.assertFalse(self.parser.patch_from_issue(self.mock_issue))
         self.mock_issue.as_pull_request.assert_not_called()
