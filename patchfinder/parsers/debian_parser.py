@@ -22,16 +22,18 @@ class DebianParser(object):
             vulnerability
     """
 
-    cve_list_url = 'https://salsa.debian.org/security-tracker-team/security' \
-            '-tracker/raw/master/data/CVE/list'
-    dsa_list_url = 'https://salsa.debian.org/security-tracker-team/security' \
-            '-tracker/raw/master/data/DSA/list'
-    cve_file = os.path.join(settings.DOWNLOAD_DIRECTORY, 'debian_cve_list')
-    pkg_ver_line = re.compile(r'^[\[\]a-z\s]+\- ([a-zA-Z0-9\+\-\.]+) ([a-zA-Z\d\.' \
-                         r'\+\-\~:]+)')
-    file_end_block = re.compile(r'^CVE')
-    fixed_packages = []
-    package_paths = []
+    def __init__(self):
+        self.cve_list_url = 'https://salsa.debian.org/security-tracker-team' \
+                '/security-tracker/raw/master/data/CVE/list'
+        self.dsa_list_url = 'https://salsa.debian.org/security-tracker-team' \
+                '/security-tracker/raw/master/data/DSA/list'
+        self.cve_file = os.path.join(settings.DOWNLOAD_DIRECTORY,
+                                     'debian_cve_list')
+        self.pkg_ver_line = re.compile(r'^[\[\]a-z\s]+\- ([a-zA-Z0-9\+\-\.]+)' \
+                                       r' ([a-zA-Z\d\.\+\-\~:]+)')
+        self.file_end_block = re.compile(r'^CVE')
+        self.fixed_packages = []
+        self.package_paths = []
 
 
     def parse(self, vuln_id):
