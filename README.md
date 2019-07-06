@@ -1,4 +1,6 @@
 # patch-finder
+[![Build Status](https://travis-ci.com/jajajasalu2/patch-finder.svg?branch=master)](https://travis-ci.com/jajajasalu2/patch-finder)
+
 A tool to find security patches from across the web.
 
 ## Usage
