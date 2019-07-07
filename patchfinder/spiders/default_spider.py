@@ -47,7 +47,7 @@ class DefaultSpider(scrapy.Spider):
         self.name = 'default_spider'
         if 'vuln' in kwargs:
             self.vuln_id = kwargs.get('vuln').vuln_id
-            self.start_urls = kwargs.get('vuln').entrypoint_URLs
+            self.start_urls = kwargs.get('vuln').entrypoint_urls
         else:
             self.vuln_id = None
             self.start_urls = []
@@ -133,7 +133,7 @@ class DefaultSpider(scrapy.Spider):
     def parse(self, response):
         """The default parse method.
 
-        If a url does not need a separate parser, this method is called. 
+        If a url does not need a separate parser, this method is called.
         The links from the response body are extracted first.
         The patch links are added to the retrieved patches list. The non-patch
         links are crawled. This recursive process goes on till the DEPTH_LIMIT

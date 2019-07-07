@@ -1,9 +1,11 @@
 import argparse
+import logging
 from scrapy.crawler import CrawlerProcess
 import patchfinder.spiders.default_spider as default_spider
 import patchfinder.context as context
 import patchfinder.settings as settings
 
+logger = logging.getLogger(__name__)
 
 def spawn_crawler(args):
     vuln = context.create_vuln(args.vuln_id)
@@ -52,6 +54,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     spawn_return = spawn_crawler(args)
     if spawn_return:
-        print('Crawling completed.')
+        logger.info('Crawling completed.')
     else:
-        print('Can\'t recognize that vulnerability.')
+        logger.error('Can\'t recognize that vulnerability.')

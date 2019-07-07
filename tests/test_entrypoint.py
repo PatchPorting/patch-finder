@@ -8,9 +8,9 @@ class TestEntrypoint(unittest.TestCase):
     def test_entrypoint_init(self):
         vuln = context.create_vuln('CVE-2018-20406')
         self.assertTrue('https://nvd.nist.gov/vuln/detail/CVE-2018-20406' \
-                        in vuln.entrypoint_URLs)
+                        in vuln.entrypoint_urls)
         self.assertTrue('https://cve.mitre.org/cgi-bin/cvename.cgi?' \
-                          'name=CVE-2018-20406' in vuln.entrypoint_URLs)
+                          'name=CVE-2018-20406' in vuln.entrypoint_urls)
 
     def test_github_init(self):
         github = entrypoint.Github()

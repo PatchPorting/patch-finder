@@ -13,7 +13,7 @@ class TestSpider(unittest.TestCase):
         vuln = context.create_vuln('CVE-2016-4796')
         self.spider = default_spider.DefaultSpider(vuln=vuln)
         requests = list(self.spider.start_requests())
-        self.assertEqual(len(vuln.entrypoint_URLs), len(requests))
+        self.assertEqual(len(vuln.entrypoint_urls), len(requests))
 
     def test_add_patch(self):
         patch_link = 'http://git.savannah.gnu.org/cgit/patch.git/commit/' \
