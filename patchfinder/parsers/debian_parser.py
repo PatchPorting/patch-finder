@@ -90,8 +90,10 @@ class DebianParser(object):
         logger.info("Looking for fixed packages...")
         utils.download_item(self.cve_list_url, self.cve_file)
         logger.info("Looking for %s in %s", self.vuln_id, self.cve_file)
-        pkg_vers = utils.parse_raw_file(self.cve_file, self.file_start_block,
-                                        self.file_end_block, self.pkg_ver_line)
+        pkg_vers = utils.parse_file_by_block(self.cve_file,
+                                             self.file_start_block,
+                                             self.file_end_block,
+                                             self.pkg_ver_line)
         for pkg_ver in pkg_vers:
             pkg_ver = self.pkg_ver_in_line(pkg_ver)
             if pkg_ver:

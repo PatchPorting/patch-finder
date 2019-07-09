@@ -1,0 +1,29 @@
+[08 Jul 2019] DSA-4477-1 zeromq3 - security update
+	{CVE-2019-13132}
+	[stretch] - zeromq3 4.2.1-4+deb9u2
+	[buster] - zeromq3 4.3.1-4+deb10u1
+[05 Jul 2019] DSA-4476-1 python-django - security update
+	{CVE-2019-6975 CVE-2019-12308 CVE-2019-12781}
+	[stretch] - python-django 1:1.10.7-2+deb9u5
+[01 Jul 2019] DSA-4475-1 openssl - security update
+	{CVE-2019-1543}
+	[stretch] - openssl 1.1.0k-1~deb9u1
+[01 Jul 2019] DSA-4474-1 firefox-esr - security update
+	{CVE-2019-11708}
+	[stretch] - firefox-esr 60.7.2esr-1~deb9u1
+[28 Jun 2019] DSA-4473-1 rdesktop - security update
+	[stretch] - rdesktop 1.8.6-2~deb9u1
+[28 Jun 2019] DSA-4472-1 expat - security update
+	{CVE-2018-20843}
+	[stretch] - expat 2.2.0-2+deb9u2
+[24 Jun 2019] DSA-4471-1 thunderbird - security update
+	{CVE-2019-11707 CVE-2019-11708}
+	[stretch] - thunderbird 1:60.7.2-1~deb9u1
+[18 Jun 2019] DSA-4467-2 vim - regression update
+	[stretch] - vim 2:8.0.0197-4+deb9u3
+[23 Jun 2019] DSA-4470-1 pdns - security update
+	{CVE-2019-10162 CVE-2019-10163}
+	[stretch] - pdns 4.0.3-1+deb9u5
+[22 Jun 2019] DSA-4469-1 libvirt - security update
+	{CVE-2019-10161 CVE-2019-10167}
+	[stretch] - libvirt 3.0.0-4+deb9u4

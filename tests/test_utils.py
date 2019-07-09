@@ -9,15 +9,15 @@ class TestUtils(unittest.TestCase):
     """Test Class for the utils modules"""
 
 
-    def test_parse_raw_file_with_debian_params(self):
+    def test_parse_file_by_block_debian(self):
         vuln_id = 'CVE-2016-4796'
         file_name = './tests/mocks/mock_debian_cve_list'
         debian_parser = DebianParser()
         debian_parser.set_context(vuln_id)
-        matches = utils.parse_raw_file(file_name,
-                                       debian_parser.file_start_block,
-                                       debian_parser.file_end_block,
-                                       debian_parser.pkg_ver_line)
+        matches = utils.parse_file_by_block(file_name,
+                                            debian_parser.file_start_block,
+                                            debian_parser.file_end_block,
+                                            debian_parser.pkg_ver_line)
         match = next(matches)
         self.assertTrue(match.group(1), 'openjpeg2')
         self.assertTrue(match.group(2), '2.1.1-1')

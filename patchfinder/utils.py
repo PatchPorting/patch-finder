@@ -21,7 +21,22 @@ def match_any(string, patterns):
     return False
 
 
-def parse_raw_file(file_name, start_block, end_block, search_params):
+def write_response_to_file(response, save_as):
+    """Write the response body to a file.
+
+    Args:
+        response: The response object.
+        save_as: The path to which the item should be saved
+    """
+    body = response.body
+    f = open(save_as, 'w')
+    try:
+        f.write(body.decode('utf-8'))
+    finally:
+        f.close()
+
+
+def parse_file_by_block(file_name, start_block, end_block, search_params):
     f = open(file_name)
     try:
         block_found = False
@@ -38,7 +53,7 @@ def parse_raw_file(file_name, start_block, end_block, search_params):
         f.close()
 
 
-def parse_web_page(url, tag, **search_params):
+def parse_web_page(url, tag, **kwargs):
     try:
         html = urllib.request.urlopen(url)
     except urllib.error.HTTPError as e:
@@ -47,7 +62,7 @@ def parse_web_page(url, tag, **search_params):
     soup = BeautifulSoup(html, 'html.parser')
 
     #currently returns only one item, use find_all for multiple
-    search_results = soup.find(tag, **search_params)
+    search_results = soup.find(tag, **kwargs)
     return search_results
 
 
