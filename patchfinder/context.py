@@ -55,19 +55,31 @@ class UnparsableVulnerability(Vulnerability):
         equivalent_vulns: A list of equivalent vulnerabilities that can be
             used by the default spider.
         allowed_keys: A set of allowed keys for initialization
+        parse_mode: The content type returned by base_url's response
     """
 
-    def __init__(self, vuln_id, packages, base_url, **kwargs):
-        entrypoint_urls = []
+    def __init__(self, vuln_id, packages, base_url, parse_mode,
+                 entrypoint_urls=None, **kwargs):
         self.base_url = base_url
         self.equivalent_vulns = []
-        self.allowed_keys = {'file_name', 'start_block', 'end_block',
-                             'search_params', 'xpaths', 'key_list'}
+        self.parse_mode = parse_mode
+        self.allowed_keys = {'start_block', 'end_block', 'search_params',
+                             'as_per_block', 'xpaths', 'key_list'}
+        if not entrypoint_urls:
+            entrypoint_urls = []
         self.__dict__.update((k, v) for k, v in kwargs.items() \
                              if k in self.allowed_keys)
         super(UnparsableVulnerability, self).__init__(vuln_id,
                                                       entrypoint_urls,
                                                       packages)
+
+    def translate(self):
+        # Translate vuln
+        pass
+
+    def clean_data(self):
+        # Clean data scraped by VulnSpider as needed
+        pass
 
 
 class CVE(Vulnerability):
@@ -91,16 +103,16 @@ class DSA(UnparsableVulnerability):
     def __init__(self, vuln_id, packages=None):
         base_url = 'https://salsa.debian.org/security-tracker-team/' \
                 'security-tracker/raw/master/data/DSA/list'
-        file_name = os.path.join(settings.DOWNLOAD_DIRECTORY, 'dsa_list')
-        start_block = re.compile(r'^\[.+\] {vuln_id}' \
-                                      .format(vuln_id=vuln_id))
+        start_block = re.compile(r'^\[.+\] {vuln_id}'.format(vuln_id=vuln_id))
         end_block = re.compile(r'^\s+\[')
         search_params = re.compile(r'^\s+\{(.+)\}')
-        super(DSA, self).__init__(vuln_id, packages, base_url,
-                                  file_name=file_name,
+        as_per_block = True
+        parse_mode = 'plain'
+        super(DSA, self).__init__(vuln_id, packages, base_url, parse_mode,
                                   start_block=start_block,
                                   end_block=end_block,
-                                  search_params=search_params)
+                                  search_params=search_params,
+                                  as_per_block=as_per_block)
 
 
 class RHSA(UnparsableVulnerability):
@@ -110,17 +122,17 @@ class RHSA(UnparsableVulnerability):
         base_url = 'https://access.redhat.com/labs/securitydataapi/' \
             'cve.json?advisory={vuln_id}'.format(vuln_id=vuln_id)
         key_list = ['CVE']
-        super(RHSA, self).__init__(vuln_id,
-                                   packages,
-                                   base_url,
+        parse_mode = 'json'
+        super(RHSA, self).__init__(vuln_id, packages, base_url, parse_mode,
                                    key_list=key_list)
 
 
 def create_vuln(vuln_id, packages=None):
+    vuln = None
     if re.match(r'^CVE\-\d+\-\d+$', vuln_id, re.I):
-        return CVE(vuln_id, packages)
+        vuln = CVE(vuln_id, packages)
     elif re.match(r'^DSA\-\d{3,}\-\d+$', vuln_id, re.I):
-        return DSA(vuln_id, packages)
+        vuln = DSA(vuln_id, packages)
     elif re.match(r'^RHSA:\d+\-\d+$', vuln_id, re.I):
-        return RHSA(vuln_id, packages)
-    return None
+        vuln = RHSA(vuln_id, packages)
+    return vuln
