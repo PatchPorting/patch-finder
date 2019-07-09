@@ -2,16 +2,16 @@ import unittest
 import patchfinder.context as context
 import patchfinder.settings as settings
 
-class TestVulnerability(unittest.TestCase):
-    """Test Class for Vulnerability"""
+class TestContext(unittest.TestCase):
+    """Test Class for the context module"""
 
     def test_cve_init(self):
         vuln_id = 'CVE-2019-1010'
         vuln = context.CVE(vuln_id)
         self.assertEqual(vuln.vuln_id, vuln_id)
-        vuln = context.CVE(vuln_id, {'upstream': ['graphicsmagick', \
+        vuln = context.CVE(vuln_id, {'upstream': ['graphicsmagick',
                                                           'Imagemagick']})
-        self.assertEqual(vuln.packages, {'upstream': ['graphicsmagick', \
+        self.assertEqual(vuln.packages, {'upstream': ['graphicsmagick',
                                                       'Imagemagick']})
 
     def test_create_vuln(self):
