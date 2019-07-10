@@ -49,7 +49,7 @@ class VulnSpider(scrapy.Spider):
         sources such as Debian's CVE/DSA list would require.
         """
         file_name = settings.TEMP_FILE
-        utils.write_response_to_file(response, file_name)
+        utils.write_response_to_file(response, file_name, overwrite=True)
         equivalent_vulns = []
         if self.vuln.as_per_block:
             equivalent_vulns = utils.parse_file_by_block(file_name,
@@ -60,6 +60,10 @@ class VulnSpider(scrapy.Spider):
             'equivalent_vulns': equivalent_vulns
         }
 
-
     def parse_json(self, response):
-        pass
+        response = utils.json_response_to_xml(response)
+        for xpath in self.vuln.xpaths:
+            equivalent_vulns = response.xpath(xpath)
+            yield {
+                'equivalent_vulns': equivalent_vulns
+            }
