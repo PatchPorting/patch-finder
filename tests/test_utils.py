@@ -4,6 +4,7 @@ import unittest
 import unittest.mock as mock
 import patchfinder.utils as utils
 from patchfinder.parsers import DebianParser
+from tests import fake_response_from_file
 
 
 class TestUtils(unittest.TestCase):
@@ -99,3 +100,18 @@ class TestUtils(unittest.TestCase):
         tar_file = './tests/mocks/openjpeg2_2.1.1-1.debian.tar.xz'
         self.assertTrue(utils.member_in_tarfile(tar_file, 'debian'))
         self.assertFalse(utils.member_in_tarfile(tar_file, 'deb'))
+
+    @mock.patch('patchfinder.utils.dicttoxml.dicttoxml')
+    @mock.patch('patchfinder.utils.json.loads')
+    def test_json_response_to_xml(self, mock_json_loads, mock_dicttoxml):
+        xml = b'<foo>bar</foo>'
+        dictionary = {'foo': 'bar'}
+        mock_dicttoxml.return_value = xml
+        mock_json_loads.return_value = dictionary
+        response = fake_response_from_file('./mocks/mock_file')
+        prev_body = response.body
+        response = utils.json_response_to_xml(response)
+
+        mock_json_loads.assert_called_with(prev_body)
+        mock_dicttoxml.assert_called_with(dictionary)
+        self.assertEqual(response.body, xml)
