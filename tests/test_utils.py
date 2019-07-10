@@ -5,6 +5,7 @@ import unittest.mock as mock
 import patchfinder.utils as utils
 from patchfinder.parsers import DebianParser
 
+
 class TestUtils(unittest.TestCase):
     """Test Class for the utils modules"""
 
@@ -30,6 +31,35 @@ class TestUtils(unittest.TestCase):
         regex = re.compile(r'/show_bug\.cgi\?id=\d{7}$')
         search_results = utils.parse_web_page(url, 'a', href=regex)
         self.assertEqual(search_results['href'], href)
+
+
+    def test_parse_dict(self):
+        dictionary = {
+            'CVE-2016-4796': {
+                'scope': 'remote',
+                'debianbug': 652378,
+                'description': 'foo bar',
+                'releases': {
+                    'stretch': 'foo bar',
+                    'jessie': 'foo bar',
+                    'sid': 'foo bar'
+                }
+            },
+            'CVE-2018-20406': {
+                'scope': 'remote',
+                'description': 'foo bar'
+            },
+            'CVE-2019-10017': {
+                'releases': {
+                    'buster': 'foo bar',
+                    'wheezy': 'foo bar'
+                }
+            }
+        }
+        key_list = [r'^CVE', r'^releases$', r'.*']
+        expected_results = ['stretch', 'jessie', 'sid', 'buster', 'wheezy']
+        search_results = utils.parse_dict(dictionary, key_list, True)
+        self.assertEqual(search_results, expected_results)
 
 
     @mock.patch('patchfinder.utils.urllib.request')
