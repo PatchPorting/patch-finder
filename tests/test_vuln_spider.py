@@ -36,6 +36,16 @@ class TestVulnSpider(unittest.TestCase):
         request = next(self.spider.start_requests())
         self.assertEqual(request.url, self.spider.vuln.base_url)
 
+    def test_parse_html(self):
+        vulns = ['CVE-2016-4796', 'CVE-2018-20406', 'CVE-2019-10017']
+        self.spider.vuln.parse_mode = 'html'
+        self.spider.vuln.xpaths = ["//div[contains(@class, 'references')]" \
+                                   "//ul//li/text()"]
+        response = fake_response_from_file('./mocks/2.html')
+        item = next(self.spider.parse_html(response))
+        for vuln in vulns:
+            self.assertIn(vuln, item['equivalent_vulns'])
+
     @mock.patch('patchfinder.spiders.vuln_spider.utils.parse_file_by_block')
     @mock.patch('patchfinder.spiders.vuln_spider.utils.write_response_to_file')
     def test_parse_plain_as_per_block(self,
