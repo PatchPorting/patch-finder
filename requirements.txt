@@ -9,6 +9,7 @@ constantly==15.1.0
 cryptography==2.7
 cssselect==1.0.3
 Deprecated==1.2.5
+dicttoxml==1.7.4
 hyperlink==19.0.0
 idna==2.8
 incremental==17.5.0
