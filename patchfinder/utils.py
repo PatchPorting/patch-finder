@@ -1,6 +1,8 @@
 import os
 import re
 import logging
+import dicttoxml
+import json
 import tarfile
 import urllib.request
 import urllib.error
@@ -21,19 +23,27 @@ def match_any(string, patterns):
     return False
 
 
-def write_response_to_file(response, save_as):
+def write_response_to_file(response, save_as, overwrite=False):
     """Write the response body to a file.
 
     Args:
         response: The response object.
         save_as: The path to which the item should be saved
     """
+    if os.path.isfile(save_as) and not overwrite:
+        return
     body = response.body
     f = open(save_as, 'w')
     try:
         f.write(body.decode('utf-8'))
     finally:
         f.close()
+
+
+def json_response_to_xml(response):
+    dictionary = json.loads(response.body)
+    xml = dicttoxml.dicttoxml(dictionary)
+    return response.replace(body=xml)
 
 
 def parse_file_by_block(file_name, start_block, end_block, search_params):
@@ -79,13 +89,9 @@ def parse_dict(dictionary, key_list, get_key):
             else:
                 search_results.append(dictionary[key])
         else:
-            subdict_results = parse_dict(dictionary[key],
-                                         key_list[1:],
-                                         get_key)
-            if subdict_results:
-                search_results.extend(parse_dict(dictionary[key],
-                                                 key_list[1:],
-                                                 get_key))
+            search_results.extend(parse_dict(dictionary[key],
+                                             key_list[1:],
+                                             get_key))
     return search_results
 
 
