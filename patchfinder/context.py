@@ -64,7 +64,7 @@ class UnparsableVulnerability(Vulnerability):
         self.equivalent_vulns = []
         self.parse_mode = parse_mode
         self.allowed_keys = {'start_block', 'end_block', 'search_params',
-                             'as_per_block', 'xpaths', 'key_list'}
+                             'as_per_block', 'xpaths'}
         if not entrypoint_urls:
             entrypoint_urls = []
         self.__dict__.update((k, v) for k, v in kwargs.items() \
@@ -121,10 +121,10 @@ class RHSA(UnparsableVulnerability):
     def __init__(self, vuln_id, packages=None):
         base_url = 'https://access.redhat.com/labs/securitydataapi/' \
             'cve.json?advisory={vuln_id}'.format(vuln_id=vuln_id)
-        key_list = ['CVE']
+        xpaths = ['//cve/text()']
         parse_mode = 'json'
         super(RHSA, self).__init__(vuln_id, packages, base_url, parse_mode,
-                                   key_list=key_list)
+                                   xpaths=xpaths)
 
 
 def create_vuln(vuln_id, packages=None):
