@@ -133,6 +133,6 @@ def create_vuln(vuln_id, packages=None):
         vuln = CVE(vuln_id, packages)
     elif re.match(r'^DSA\-\d{3,}\-\d+$', vuln_id, re.I):
         vuln = DSA(vuln_id, packages)
-    elif re.match(r'^RHSA:\d+\-\d+$', vuln_id, re.I):
+    elif re.match(r'^RHSA\-\d+:\d+$', vuln_id, re.I):
         vuln = RHSA(vuln_id, packages)
     return vuln
