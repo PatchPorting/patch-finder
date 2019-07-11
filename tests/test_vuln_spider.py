@@ -56,7 +56,7 @@ class TestVulnSpider(unittest.TestCase):
         self.spider.vuln.end_block = None
         self.spider.vuln.search_params = None
         equivalent_vulns = ['CVE-2019-11707 CVE-2019-11708']
-        mock_parse_file_method.return_value = equivalent_vulns
+        mock_parse_file_method.return_value = [equivalent_vulns]
         response = fake_response_from_file('./mocks/mock_debian_dsa_list')
         item = next(self.spider.parse_plain(response))
         mock_write_response_method.assert_called_once()

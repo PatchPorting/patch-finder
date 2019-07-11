@@ -71,9 +71,9 @@ class DebianParser(object):
         Returns:
             a dictionary of the package name and its version
         """
-        if len(matches.groups()) is 2:
-            pkg = matches.group(1).strip()
-            ver = re.sub(r'^.+:', r'', matches.group(2).strip())
+        if len(matches) is 2:
+            pkg = matches[0].strip()
+            ver = re.sub(r'^.+:', r'', matches[1].strip())
             return {'package': pkg,
                     'version': ver}
         return None

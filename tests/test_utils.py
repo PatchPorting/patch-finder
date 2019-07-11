@@ -20,10 +20,7 @@ class TestUtils(unittest.TestCase):
                                             debian_parser.file_start_block,
                                             debian_parser.file_end_block,
                                             debian_parser.pkg_ver_line)
-        match = next(matches)
-        self.assertTrue(match.group(1), 'openjpeg2')
-        self.assertTrue(match.group(2), '2.1.1-1')
-        self.assertEqual(len(match.groups()), 2)
+        self.assertEqual(next(matches), ['openjpeg2', '2.1.1-1'])
 
 
     def test_parse_web_page(self):

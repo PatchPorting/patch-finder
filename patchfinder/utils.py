@@ -56,7 +56,7 @@ def parse_file_by_block(file_name, start_block, end_block, search_params):
                     break
                 search_results = search_params.search(line)
                 if search_results:
-                    yield search_results
+                    yield list(search_results.groups())
             elif start_block.match(line):
                 block_found = True
     finally:
