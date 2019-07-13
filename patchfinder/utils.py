@@ -23,7 +23,7 @@ def match_any(string, patterns):
     return False
 
 
-def write_response_to_file(response, save_as, overwrite=False):
+def write_response_to_file(response, save_as, overwrite=True):
     """Write the response body to a file.
 
     Args:
@@ -51,6 +51,7 @@ def parse_file_by_block(file_name, start_block, end_block, search_params):
     try:
         block_found = False
         for line in f:
+            line = line.rstrip()
             if block_found:
                 if end_block.match(line):
                     break

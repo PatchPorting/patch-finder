@@ -11,6 +11,18 @@ class TestUtils(unittest.TestCase):
     """Test Class for the utils modules"""
 
 
+    @mock.patch('patchfinder.utils.open', new_callable=mock.mock_open)
+    def test_write_response_to_file(self, mock_file):
+        response = fake_response_from_file('./mocks/mock_file')
+        body = response.body.decode('utf-8')
+        save_as = 'foo'
+        utils.write_response_to_file(response, save_as)
+        mock_file.assert_called_with(save_as, 'w')
+        handle = mock_file()
+        handle.write.assert_called_with(body)
+        handle.close.assert_called_once()
+
+
     def test_parse_file_by_block_debian(self):
         vuln_id = 'CVE-2016-4796'
         file_name = './tests/mocks/mock_debian_cve_list'

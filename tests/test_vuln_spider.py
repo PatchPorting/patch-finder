@@ -46,6 +46,21 @@ class TestVulnSpider(unittest.TestCase):
         for vuln in vulns:
             self.assertIn(vuln, item['equivalent_vulns'])
 
+    @mock.patch('patchfinder.spiders.vuln_spider.utils.json_response_to_xml')
+    def test_parse_json(self, mock_json_to_xml):
+        vulns = ['CVE-2015-5370', 'CVE-2016-2110']
+        self.spider.vuln.xpaths = ['//cve/text()']
+        response = fake_response_from_file('./mocks/mock_json.json')
+        xml = b'<cve>CVE-2015-5370</cve><severity>critical</severity>' \
+                b'<cve>CVE-2016-2110</cve><severity>moderate</severity>'
+        mock_json_to_xml.return_value = response.replace(body=xml)
+
+        item = next(self.spider.parse_json(response))
+        mock_json_to_xml.assert_called_with(response)
+        for vuln in vulns:
+            self.assertIn(vuln, item['equivalent_vulns'])
+
+
     @mock.patch('patchfinder.spiders.vuln_spider.utils.parse_file_by_block')
     @mock.patch('patchfinder.spiders.vuln_spider.utils.write_response_to_file')
     def test_parse_plain_as_per_block(self,
