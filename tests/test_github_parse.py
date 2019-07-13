@@ -3,21 +3,20 @@ import unittest.mock as mock
 import github
 from patchfinder.parsers import GithubParser
 
+
 class TestGithubParser(unittest.TestCase):
     """Test Class for GithubParser"""
 
-
     @classmethod
     def setUpClass(self):
-        self.vuln_id = 'CVE-2016-4796'
-        self.repo_name = 'uclouvain/openjpeg'
-        self.patch_url = 'https://github.com/uclouvain/openjpeg/pull/123.patch'
+        self.vuln_id = "CVE-2016-4796"
+        self.repo_name = "uclouvain/openjpeg"
+        self.patch_url = "https://github.com/uclouvain/openjpeg/pull/123.patch"
 
-
-    @mock.patch('github.Issue.Issue',
-                spec=github.Issue.Issue)
-    @mock.patch('patchfinder.parsers.github_parser.github.Github',
-                spec=github.Github)
+    @mock.patch("github.Issue.Issue", spec=github.Issue.Issue)
+    @mock.patch(
+        "patchfinder.parsers.github_parser.github.Github", spec=github.Github
+    )
     def setUp(self, mock_github, mock_issue):
         self.parser = GithubParser()
         self.parser.set_context(self.vuln_id, self.repo_name)
@@ -25,27 +24,27 @@ class TestGithubParser(unittest.TestCase):
         self.mock_issue = mock_issue
         self.mock_issue.number = 123
 
-
     def test_set_context(self):
         self.assertIsInstance(self.parser.github, github.Github)
         self.assertIn(self.vuln_id, self.parser.search_strings)
         self.parser.github.get_repo.assert_called_with(self.repo_name)
 
-
-    @mock.patch('github.PullRequest.PullRequest',
-                spec=github.PullRequest.PullRequest)
+    @mock.patch(
+        "github.PullRequest.PullRequest", spec=github.PullRequest.PullRequest
+    )
     def test_patch_from_issue_with_merged_pull(self, mock_pull):
         mock_pull.merged = True
         mock_pull.patch_url = self.patch_url
         self.mock_issue.pull_request = True
         self.mock_issue.as_pull_request.return_value = mock_pull
-        self.assertEqual(self.parser.patch_from_issue(self.mock_issue),
-                         self.patch_url)
+        self.assertEqual(
+            self.parser.patch_from_issue(self.mock_issue), self.patch_url
+        )
         self.mock_issue.as_pull_request.assert_called_once()
 
-
-    @mock.patch('github.PullRequest.PullRequest',
-                spec=github.PullRequest.PullRequest)
+    @mock.patch(
+        "github.PullRequest.PullRequest", spec=github.PullRequest.PullRequest
+    )
     def test_patch_from_issue_with_unmerged_pull(self, mock_pull):
         mock_pull.merged = False
         self.mock_issue.pull_request = True
@@ -53,15 +52,14 @@ class TestGithubParser(unittest.TestCase):
         self.assertFalse(self.parser.patch_from_issue(self.mock_issue))
         self.mock_issue.as_pull_request.assert_called_once()
 
-
     def test_patch_from_issue_with_no_pull(self):
         self.mock_issue.pull_request = False
         self.assertFalse(self.parser.patch_from_issue(self.mock_issue))
         self.mock_issue.as_pull_request.assert_not_called()
 
-
-    @mock.patch('github.PullRequest.PullRequest',
-                spec=github.PullRequest.PullRequest)
+    @mock.patch(
+        "github.PullRequest.PullRequest", spec=github.PullRequest.PullRequest
+    )
     def test_find_issues(self, mock_pull):
         self.mock_issue.pull_request = True
         mock_pull.merged = True

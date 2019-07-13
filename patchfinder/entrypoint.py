@@ -1,7 +1,8 @@
-#TODO: figure out a more sophisticated way to construct URLs,
+# TODO: figure out a more sophisticated way to construct URLs,
 #      maybe define a method to substitute a %s for multiple strings
 import re
 import patchfinder.utils as utils
+
 
 class Provider(object):
     """Subclass for a patch Provider
@@ -17,12 +18,11 @@ class Provider(object):
         patch_format_dict: A dictionary for formatting a link into a patch link
     """
 
-    patch_format_dict = {r'/commit/': r'/patch/'}
+    patch_format_dict = {r"/commit/": r"/patch/"}
 
-    def __init__(self,
-                 link_components,
-                 patch_components,
-                 patch_format_dict=None):
+    def __init__(
+        self, link_components, patch_components, patch_format_dict=None
+    ):
         self.link_components = link_components
         self.patch_components = patch_components
         if patch_format_dict:
@@ -55,98 +55,110 @@ class Github(Provider):
     """Subclass for GitHub as a Provider"""
 
     def __init__(self):
-        link_components = [r'github\.com', r'/(commit|pull)/']
-        patch_components = [r'\.patch$']
-        patch_format_dict = {r'$': r'.patch'}
-        super(Github, self).__init__(link_components=link_components,
-                                     patch_components=patch_components,
-                                     patch_format_dict=patch_format_dict)
+        link_components = [r"github\.com", r"/(commit|pull)/"]
+        patch_components = [r"\.patch$"]
+        patch_format_dict = {r"$": r".patch"}
+        super(Github, self).__init__(
+            link_components=link_components,
+            patch_components=patch_components,
+            patch_format_dict=patch_format_dict,
+        )
 
 
 class Pagure(Provider):
     """Subclass for Pagure as a Provider"""
 
     def __init__(self):
-        link_components = [r'pagure\.io', '/c/']
-        patch_components = [r'\.patch$']
-        patch_format_dict = {r'$': r'.patch'}
-        super(Pagure, self).__init__(link_components=link_components,
-                                     patch_components=patch_components,
-                                     patch_format_dict=patch_format_dict)
+        link_components = [r"pagure\.io", "/c/"]
+        patch_components = [r"\.patch$"]
+        patch_format_dict = {r"$": r".patch"}
+        super(Pagure, self).__init__(
+            link_components=link_components,
+            patch_components=patch_components,
+            patch_format_dict=patch_format_dict,
+        )
 
 
 class Gitlab(Provider):
     """Subclass for Gitlab as a Provider"""
 
     def __init__(self):
-        link_components = [r'gitlab\.com', r'/commit/']
-        patch_components = {r'\.patch$'}
-        super(Gitlab, self).__init__(link_components=link_components,
-                                     patch_components=patch_components)
+        link_components = [r"gitlab\.com", r"/commit/"]
+        patch_components = {r"\.patch$"}
+        super(Gitlab, self).__init__(
+            link_components=link_components, patch_components=patch_components
+        )
 
 
 class GitKernel(Provider):
     """Subclass for git.kernel.org as a Provider"""
 
     def __init__(self):
-        link_components = [r'git\.kernel\.org', r'[0-9a-f]{40}$',
-                           r'/(commit|patch)/']
-        patch_components = [r'/patch/']
-        super(GitKernel, self).__init__(link_components=link_components,
-                                        patch_components=patch_components)
+        link_components = [
+            r"git\.kernel\.org",
+            r"[0-9a-f]{40}$",
+            r"/(commit|patch)/",
+        ]
+        patch_components = [r"/patch/"]
+        super(GitKernel, self).__init__(
+            link_components=link_components, patch_components=patch_components
+        )
 
 
-#TODO: Make this more sophisticated, maybe use something like getattr
+# TODO: Make this more sophisticated, maybe use something like getattr
 def map_entrypoint_name(entrypoint_name):
     """given an entrypoint name return its corresponding Entrypoint object"""
-    if entrypoint_name == 'github.com':
+    if entrypoint_name == "github.com":
         return Github()
-    elif entrypoint_name == 'pagure.io':
+    elif entrypoint_name == "pagure.io":
         return Pagure()
-    elif entrypoint_name == 'gitlab.com':
+    elif entrypoint_name == "gitlab.com":
         return Gitlab()
-    elif entrypoint_name == 'git.kernel.org':
+    elif entrypoint_name == "git.kernel.org":
         return GitKernel()
     return None
 
 
 def get_xpath(url):
     """Given a URL, map it to its Entrypoint object"""
-    if re.match(r'^https://github\.com/', url):
-        return ['//div[contains(@class, \'commit-message\')]//a']
+    if re.match(r"^https://github\.com/", url):
+        return ["//div[contains(@class, 'commit-message')]//a"]
 
-    elif re.match(r'^https://cve\.mitre\.org/', url):
+    elif re.match(r"^https://cve\.mitre\.org/", url):
         return ['//*[@id="GeneratedTable"]/table/tr[7]/td//a']
 
-    elif re.match(r'^https://nvd\.nist\.gov/', url):
+    elif re.match(r"^https://nvd\.nist\.gov/", url):
         return ['//table[@data-testid="vuln-hyperlinks-table"]/tbody//a']
 
-    elif re.match(r'^https://security\-tracker\.debian\.org/tracker/CVE\-\d' \
-                  r'+\-\d+$', url):
-        return ['//pre/a']
+    elif re.match(
+        r"^https://security\-tracker\.debian\.org/tracker/CVE\-\d" r"+\-\d+$",
+        url,
+    ):
+        return ["//pre/a"]
 
-    elif re.match(r'^https://www.openwall\.com/lists/oss\-security', url):
-        return ['//pre/a']
+    elif re.match(r"^https://www.openwall\.com/lists/oss\-security", url):
+        return ["//pre/a"]
 
-    elif re.match(r'^https://lists\.fedoraproject\.org/archives/list/', url):
-        return ['//div[contains(@class, \'email-body\')]//a']
+    elif re.match(r"^https://lists\.fedoraproject\.org/archives/list/", url):
+        return ["//div[contains(@class, 'email-body')]//a"]
 
-    elif re.match(r'^https://lists\.debian\.org/', url):
-        return ['//pre/a']
+    elif re.match(r"^https://lists\.debian\.org/", url):
+        return ["//pre/a"]
 
-    elif re.match(r'^https://bugzilla\.redhat\.com/show_bug\.cgi\?id=', url):
-        return ['//pre[contains(@class, \'bz_comment_text\')]//a',
-                '//table[@id=\'external_bugs_table\']//a']
+    elif re.match(r"^https://bugzilla\.redhat\.com/show_bug\.cgi\?id=", url):
+        return [
+            "//pre[contains(@class, 'bz_comment_text')]//a",
+            "//table[@id='external_bugs_table']//a",
+        ]
 
-    elif re.match(r'^https://seclists\.org/', url):
-        return ['//pre/a']
+    elif re.match(r"^https://seclists\.org/", url):
+        return ["//pre/a"]
 
-    return ['//body//a']
+    return ["//body//a"]
 
 
 def is_patch(link):
-    provider_names = ['github.com', 'pagure.io', 'gitlab.com',
-                      'git.kernel.org']
+    provider_names = ["github.com", "pagure.io", "gitlab.com", "git.kernel.org"]
     for provider_name in provider_names:
         provider = map_entrypoint_name(provider_name)
         patch_link = provider.belongs(link)

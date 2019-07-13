@@ -33,9 +33,9 @@ def write_response_to_file(response, save_as, overwrite=True):
     if os.path.isfile(save_as) and not overwrite:
         return
     body = response.body
-    f = open(save_as, 'w')
+    f = open(save_as, "w")
     try:
-        f.write(body.decode('utf-8'))
+        f.write(body.decode("utf-8"))
     finally:
         f.close()
 
@@ -70,9 +70,9 @@ def parse_web_page(url, tag, **kwargs):
     except urllib.error.HTTPError as e:
         raise Exception("Error opening {url}".format(url=url))
     logger.info("Crawled %s", url)
-    soup = BeautifulSoup(html, 'html.parser')
+    soup = BeautifulSoup(html, "html.parser")
 
-    #currently returns only one item, use find_all for multiple
+    # currently returns only one item, use find_all for multiple
     search_results = soup.find(tag, **kwargs)
     return search_results
 
@@ -90,9 +90,9 @@ def parse_dict(dictionary, key_list, get_key):
             else:
                 search_results.append(dictionary[key])
         else:
-            search_results.extend(parse_dict(dictionary[key],
-                                             key_list[1:],
-                                             get_key))
+            search_results.extend(
+                parse_dict(dictionary[key], key_list[1:], get_key)
+            )
     return search_results
 
 
@@ -138,7 +138,7 @@ def member_in_tarfile(tar_file, member):
     return False
 
 
-#NOTE: This method could use a recursive and regex based search
+# NOTE: This method could use a recursive and regex based search
 def find_in_directory(directory, file_name):
     """Look for a file in a directory
 

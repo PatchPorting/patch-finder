@@ -8,6 +8,7 @@ import patchfinder.spiders.items as items
 import patchfinder.entrypoint as entrypoint
 import patchfinder.settings as settings
 
+
 class DefaultSpider(scrapy.Spider):
     """Scrapy Spider to extract patches
 
@@ -26,42 +27,46 @@ class DefaultSpider(scrapy.Spider):
         debian: Boolean value to call the Debian parser
     """
 
-    deny_pages = [r'github\.com/[^/]+/[^/]+$',
-                  r'github\.com/[^/]+/[^/]+/blob/',
-                  r'github\.com.+/releases$',
-                  r'github\.com.+/releases/.+?/[^/]+$',
-                  #homepages
-                  r'^https?://[^/]+/?$',
-                  #fragmented identifiers
-                  r'\#.+$']
+    deny_pages = [
+        r"github\.com/[^/]+/[^/]+$",
+        r"github\.com/[^/]+/[^/]+/blob/",
+        r"github\.com.+/releases$",
+        r"github\.com.+/releases/.+?/[^/]+$",
+        # homepages
+        r"^https?://[^/]+/?$",
+        # fragmented identifiers
+        r"\#.+$",
+    ]
     deny_domains = settings.DENY_DOMAINS
     important_domains = settings.IMPORTANT_DOMAINS
     patch_limit = settings.PATCH_LIMIT
     debian = settings.PARSE_DEBIAN
     request_meta = settings.REQUEST_META
-    allowed_keys = {'deny_domains', 'important_domains', 'patch_limit',
-                    'debian'}
-
+    allowed_keys = {
+        "deny_domains",
+        "important_domains",
+        "patch_limit",
+        "debian",
+    }
 
     def __init__(self, *args, **kwargs):
-        self.name = 'default_spider'
-        if 'vuln' in kwargs:
-            self.vuln_id = kwargs.get('vuln').vuln_id
-            self.start_urls = kwargs.get('vuln').entrypoint_urls
+        self.name = "default_spider"
+        if "vuln" in kwargs:
+            self.vuln_id = kwargs.get("vuln").vuln_id
+            self.start_urls = kwargs.get("vuln").entrypoint_urls
         else:
             self.vuln_id = None
             self.start_urls = []
         self.patches = []
-        self.__dict__.update((k, v) for k, v in kwargs.items() \
-                             if k in self.allowed_keys)
+        self.__dict__.update(
+            (k, v) for k, v in kwargs.items() if k in self.allowed_keys
+        )
         super(DefaultSpider, self).__init__(*args, **kwargs)
-
 
     def start_requests(self):
         for url in self.start_urls:
             callback = self.callback(url)
             yield Request(url, meta=self.request_meta, callback=callback)
-
 
     def callback(self, url):
         """Return the callback method for a given URL
@@ -73,11 +78,12 @@ class DefaultSpider(scrapy.Spider):
             A callback method object
         """
         callback = self.parse
-        if (url.startswith('https://security-tracker.debian.org')
-            and self.debian):
+        if (
+            url.startswith("https://security-tracker.debian.org")
+            and self.debian
+        ):
             callback = self.parse_debian
         return callback
-
 
     def extract_links(self, response):
         """Extract links from a response and divide them into patch links
@@ -94,22 +100,21 @@ class DefaultSpider(scrapy.Spider):
         Returns:
             A dictionary of links divided into patch and non-patch links.
         """
-        divided_links = {'patch_links': [],
-                         'links': []}
+        divided_links = {"patch_links": [], "links": []}
         xpaths = entrypoint.get_xpath(response.url)
-        links = LxmlLinkExtractor(deny=self.deny_pages,
-                                  deny_domains=self.deny_domains,
-                                  restrict_xpaths=xpaths) \
-                                          .extract_links(response)
+        links = LxmlLinkExtractor(
+            deny=self.deny_pages,
+            deny_domains=self.deny_domains,
+            restrict_xpaths=xpaths,
+        ).extract_links(response)
         for link in links:
             link = response.urljoin(link.url[0:])
             patch_link = entrypoint.is_patch(link)
             if patch_link:
-                divided_links['patch_links'].append(patch_link)
+                divided_links["patch_links"].append(patch_link)
             else:
-                divided_links['links'].append(link)
+                divided_links["links"].append(link)
         return divided_links
-
 
     def parse_debian(self, response):
         """The parse method for Debian.
@@ -124,11 +129,11 @@ class DefaultSpider(scrapy.Spider):
         patches = parser.parse(self.vuln_id)
         for patch in patches:
             if len(self.patches) < self.patch_limit:
-                self.add_patch(patch['patch_link'])
-                patch = self._create_patch_item(patch['patch_link'],
-                                                patch['reaching_path'])
+                self.add_patch(patch["patch_link"])
+                patch = self._create_patch_item(
+                    patch["patch_link"], patch["reaching_path"]
+                )
                 yield patch
-
 
     def parse(self, response):
         """The default parse method.
@@ -144,21 +149,24 @@ class DefaultSpider(scrapy.Spider):
             response: The Response object sent by Scrapy.
         """
         links = self.extract_links(response)
-        for link in links['patch_links']:
+        for link in links["patch_links"]:
             if len(self.patches) < self.patch_limit:
                 if link not in self.patches:
                     self.add_patch(link)
                     patch = self._create_patch_item(link, response.url)
                     yield patch
-        for link in links['links']:
+        for link in links["links"]:
             if len(self.patches) < self.patch_limit:
                 callback = self.callback(link)
                 priority = self.domain_priority(link)
-                yield Request(link, meta=self.request_meta,
-                              callback=callback, priority=priority)
+                yield Request(
+                    link,
+                    meta=self.request_meta,
+                    callback=callback,
+                    priority=priority,
+                )
 
-
-    #TODO: Handle www. case here. In fact, create a method to return
+    # TODO: Handle www. case here. In fact, create a method to return
     #      domain name such that all corner cases are handled.
     def domain_priority(self, url):
         """Returns a priority for a url
@@ -172,13 +180,11 @@ class DefaultSpider(scrapy.Spider):
             return 1
         return 0
 
-
     def _create_patch_item(self, patch_link, reaching_path):
         patch = items.Patch()
-        patch['patch_link'] = patch_link
-        patch['reaching_path'] = reaching_path
+        patch["patch_link"] = patch_link
+        patch["reaching_path"] = reaching_path
         return patch
-
 
     def add_patch(self, patch_link):
         self.patches.append(patch_link)

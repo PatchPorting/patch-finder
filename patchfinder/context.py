@@ -58,20 +58,33 @@ class UnparsableVulnerability(Vulnerability):
         parse_mode: The content type returned by base_url's response
     """
 
-    def __init__(self, vuln_id, packages, base_url, parse_mode,
-                 entrypoint_urls=None, **kwargs):
+    def __init__(
+        self,
+        vuln_id,
+        packages,
+        base_url,
+        parse_mode,
+        entrypoint_urls=None,
+        **kwargs
+    ):
         self.base_url = base_url
         self.equivalent_vulns = []
         self.parse_mode = parse_mode
-        self.allowed_keys = {'start_block', 'end_block', 'search_params',
-                             'as_per_block', 'xpaths'}
+        self.allowed_keys = {
+            "start_block",
+            "end_block",
+            "search_params",
+            "as_per_block",
+            "xpaths",
+        }
         if not entrypoint_urls:
             entrypoint_urls = []
-        self.__dict__.update((k, v) for k, v in kwargs.items() \
-                             if k in self.allowed_keys)
-        super(UnparsableVulnerability, self).__init__(vuln_id,
-                                                      entrypoint_urls,
-                                                      packages)
+        self.__dict__.update(
+            (k, v) for k, v in kwargs.items() if k in self.allowed_keys
+        )
+        super(UnparsableVulnerability, self).__init__(
+            vuln_id, entrypoint_urls, packages
+        )
 
     def translate(self):
         # Translate vuln
@@ -87,12 +100,15 @@ class CVE(Vulnerability):
 
     def __init__(self, vuln_id, packages=None):
         entrypoint_urls = [
-            'https://nvd.nist.gov/vuln/detail/{vuln_id}' \
-            .format(vuln_id=vuln_id),
-            'https://cve.mitre.org/cgi-bin/cvename.cgi?name={vuln_id}' \
-            .format(vuln_id=vuln_id),
-            'https://security-tracker.debian.org/tracker/{vuln_id}' \
-            .format(vuln_id=vuln_id)
+            "https://nvd.nist.gov/vuln/detail/{vuln_id}".format(
+                vuln_id=vuln_id
+            ),
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name={vuln_id}".format(
+                vuln_id=vuln_id
+            ),
+            "https://security-tracker.debian.org/tracker/{vuln_id}".format(
+                vuln_id=vuln_id
+            ),
         ]
         super(CVE, self).__init__(vuln_id, entrypoint_urls, packages)
 
@@ -101,38 +117,48 @@ class DSA(UnparsableVulnerability):
     """Subclass for Debian Security Advisory (DSA)"""
 
     def __init__(self, vuln_id, packages=None):
-        base_url = 'https://salsa.debian.org/security-tracker-team/' \
-                'security-tracker/raw/master/data/DSA/list'
-        start_block = re.compile(r'^\[.+\] {vuln_id}'.format(vuln_id=vuln_id))
-        end_block = re.compile(r'^\s+\[')
-        search_params = re.compile(r'^\s+\{(.+)\}')
+        base_url = (
+            "https://salsa.debian.org/security-tracker-team/"
+            "security-tracker/raw/master/data/DSA/list"
+        )
+        start_block = re.compile(r"^\[.+\] {vuln_id}".format(vuln_id=vuln_id))
+        end_block = re.compile(r"^\s+\[")
+        search_params = re.compile(r"^\s+\{(.+)\}")
         as_per_block = True
-        parse_mode = 'plain'
-        super(DSA, self).__init__(vuln_id, packages, base_url, parse_mode,
-                                  start_block=start_block,
-                                  end_block=end_block,
-                                  search_params=search_params,
-                                  as_per_block=as_per_block)
+        parse_mode = "plain"
+        super(DSA, self).__init__(
+            vuln_id,
+            packages,
+            base_url,
+            parse_mode,
+            start_block=start_block,
+            end_block=end_block,
+            search_params=search_params,
+            as_per_block=as_per_block,
+        )
 
 
 class RHSA(UnparsableVulnerability):
     """Subclass for Redhat Security Advisory (RHSA)"""
 
     def __init__(self, vuln_id, packages=None):
-        base_url = 'https://access.redhat.com/labs/securitydataapi/' \
-            'cve.json?advisory={vuln_id}'.format(vuln_id=vuln_id)
-        xpaths = ['//cve/text()']
-        parse_mode = 'json'
-        super(RHSA, self).__init__(vuln_id, packages, base_url, parse_mode,
-                                   xpaths=xpaths)
+        base_url = (
+            "https://access.redhat.com/labs/securitydataapi/"
+            "cve.json?advisory={vuln_id}".format(vuln_id=vuln_id)
+        )
+        xpaths = ["//cve/text()"]
+        parse_mode = "json"
+        super(RHSA, self).__init__(
+            vuln_id, packages, base_url, parse_mode, xpaths=xpaths
+        )
 
 
 def create_vuln(vuln_id, packages=None):
     vuln = None
-    if re.match(r'^CVE\-\d+\-\d+$', vuln_id, re.I):
+    if re.match(r"^CVE\-\d+\-\d+$", vuln_id, re.I):
         vuln = CVE(vuln_id, packages)
-    elif re.match(r'^DSA\-\d{3,}\-\d+$', vuln_id, re.I):
+    elif re.match(r"^DSA\-\d{3,}\-\d+$", vuln_id, re.I):
         vuln = DSA(vuln_id, packages)
-    elif re.match(r'^RHSA\-\d+:\d+$', vuln_id, re.I):
+    elif re.match(r"^RHSA\-\d+:\d+$", vuln_id, re.I):
         vuln = RHSA(vuln_id, packages)
     return vuln
