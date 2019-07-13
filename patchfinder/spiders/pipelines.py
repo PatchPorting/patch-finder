@@ -3,9 +3,12 @@ from scrapy.exporters import JsonItemExporter
 import patchfinder.settings as settings
 
 
-class PatchPipeline(object):
+class JsonItemPipeline(object):
+
+    file_name = settings.TEMP_FILE
+
     def open_spider(self, spider):
-        self.file = open(settings.PATCHES_JSON, "wb")
+        self.file = open(self.file_name, "wb")
         self.exporter = JsonItemExporter(self.file)
         self.exporter.start_exporting()
 
@@ -16,3 +19,13 @@ class PatchPipeline(object):
     def process_item(self, item, spider):
         self.exporter.export_item(item)
         return item
+
+
+class PatchPipeline(JsonItemPipeline):
+
+    file_name = settings.PATCHES_JSON
+
+
+class VulnPipeline(JsonItemPipeline):
+
+    file_name = settings.VULN_JSON
