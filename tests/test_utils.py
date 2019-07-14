@@ -61,7 +61,7 @@ class TestUtils(unittest.TestCase):
         key_list = [r"^CVE", r"^releases$", r".*"]
         expected_results = ["stretch", "jessie", "sid", "buster", "wheezy"]
         search_results = utils.parse_dict(dictionary, key_list, True)
-        self.assertEqual(search_results, expected_results)
+        self.assertEqual(set(search_results), set(expected_results))
 
     @mock.patch("patchfinder.utils.urllib.request")
     @mock.patch("patchfinder.utils.os")
