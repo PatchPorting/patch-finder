@@ -76,7 +76,6 @@ class TestVulnSpider(unittest.TestCase):
         mock_parse_file_method.return_value = [equivalent_vulns]
         response = fake_response_from_file("./mocks/mock_debian_dsa_list")
         item = next(self.spider.parse_plain(response))
-        mock_write_response_method.assert_called_once()
         mock_parse_file_method.assert_called_with(
             settings.TEMP_FILE,
             self.spider.vuln.start_block,

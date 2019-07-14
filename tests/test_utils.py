@@ -86,7 +86,6 @@ class TestUtils(unittest.TestCase):
         utils.download_item(file_url, file_name)
         mock_os.path.isfile.assert_called_with(file_name)
         mock_os.path.split.assert_called_with(file_name)
-        mock_os.makedirs.assert_called_once()
         mock_urllib_request.urlretrieve.assert_called_with(file_url, file_name)
 
     def test_find_in_directory(self):
