@@ -11,3 +11,6 @@ TEMP_FILE = os.path.join(DOWNLOAD_DIRECTORY, "temp_file")
 VULN_JSON = "./vulns.json"
 PATCHES_JSON = "./patches.json"
 REQUEST_META = {"dont_redirect": True, "handle_httpstatus_list": [302]}
+EXTENSIONS = {'scrapy.extensions.telnet.TelnetConsole': None,
+              'scrapy.extensions.corestats.CoreStats': None,
+              'scrapy.extensions.memusage.MemoryUsage': None}

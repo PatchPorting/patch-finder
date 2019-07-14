@@ -14,7 +14,7 @@ def spawn_crawler(args):
     if not vuln:
         return False
     if args.map_vuln:
-        process = CrawlerProcess({"USER_AGENT": settings.USER_AGENT})
+        process = CrawlerProcess(settings)
         process.crawl(vuln_spider.VulnSpider, vuln=vuln)
         process.start()
     else:

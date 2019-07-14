@@ -2,7 +2,6 @@ from urllib.parse import urlparse
 from scrapy.http import Request
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 import scrapy
-import re
 import patchfinder.parsers as parsers
 import patchfinder.spiders.items as items
 import patchfinder.entrypoint as entrypoint
