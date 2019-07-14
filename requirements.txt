@@ -1,4 +1,4 @@
 beautifulsoup4==4.7.1
 dicttoxml==1.7.4
-PyGithub==1.43.7
+PyGithub==1.43
 Scrapy==1.6.0
