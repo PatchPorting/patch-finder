@@ -40,7 +40,6 @@ class TestGithubParser(unittest.TestCase):
         self.assertEqual(
             self.parser.patch_from_issue(self.mock_issue), self.patch_url
         )
-        self.mock_issue.as_pull_request.assert_called_once()
 
     @mock.patch(
         "github.PullRequest.PullRequest", spec=github.PullRequest.PullRequest
@@ -50,7 +49,6 @@ class TestGithubParser(unittest.TestCase):
         self.mock_issue.pull_request = True
         self.mock_issue.as_pull_request.return_value = mock_pull
         self.assertFalse(self.parser.patch_from_issue(self.mock_issue))
-        self.mock_issue.as_pull_request.assert_called_once()
 
     def test_patch_from_issue_with_no_pull(self):
         self.mock_issue.pull_request = False
@@ -71,4 +69,3 @@ class TestGithubParser(unittest.TestCase):
         self.parser.find_issues()
         self.assertTrue(self.parser.patches)
         self.assertTrue(self.parser.found_issues)
-        self.mock_issue.as_pull_request.assert_called_once()
