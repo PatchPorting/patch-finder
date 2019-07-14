@@ -13,4 +13,5 @@ PATCHES_JSON = "./patches.json"
 REQUEST_META = {"dont_redirect": True, "handle_httpstatus_list": [302]}
 EXTENSIONS = {'scrapy.extensions.telnet.TelnetConsole': None,
               'scrapy.extensions.corestats.CoreStats': None,
-              'scrapy.extensions.memusage.MemoryUsage': None}
+              'scrapy.extensions.memusage.MemoryUsage': None,
+              'scrapy.extensions.logstats.LogStats': None}

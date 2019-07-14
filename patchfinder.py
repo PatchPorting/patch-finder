@@ -14,7 +14,8 @@ def spawn_crawler(args):
     if not vuln:
         return False
     if args.map_vuln:
-        process = CrawlerProcess(settings)
+        process = CrawlerProcess({"USER_AGENT": settings.USER_AGENT,
+                                  "EXTENSIONS": settings.EXTENSIONS})
         process.crawl(vuln_spider.VulnSpider, vuln=vuln)
         process.start()
     else:
@@ -26,6 +27,7 @@ def spawn_crawler(args):
                 },
                 "DEPTH_LIMIT": args.depth,
                 "LOG_ENABLED": args.log,
+                "EXTENSIONS": settings.EXTENSIONS
             }
         )
         process.crawl(
@@ -34,7 +36,7 @@ def spawn_crawler(args):
             patch_limit=args.patch_limit,
             important_domains=args.imp_domains,
             deny_domains=args.deny_domains,
-            debian=args.debian,
+            debian=args.debian
         )
         process.start()
     return True
