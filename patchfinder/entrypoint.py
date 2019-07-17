@@ -120,41 +120,58 @@ def map_entrypoint_name(entrypoint_name):
 
 
 def get_xpath(url):
-    """Given a URL, map it to its Entrypoint object"""
+    """Given a URL, return a list of relevant xpaths
+
+    Args:
+        url: The URL to return the xpaths of
+
+    Returns:
+        A list of relevant xpaths to be used by the crawler
+    """
+
+    xpaths = ["//body//a"]
+
     if re.match(r"^https://github\.com/", url):
-        return ["//div[contains(@class, 'commit-message')]//a"]
+        xpaths = ["//div[contains(@class, 'commit-message')]//a"]
 
     elif re.match(r"^https://cve\.mitre\.org/", url):
-        return ['//*[@id="GeneratedTable"]/table/tr[7]/td//a']
+        xpaths = ['//*[@id="GeneratedTable"]/table/tr[7]/td//a']
 
     elif re.match(r"^https://nvd\.nist\.gov/", url):
-        return ['//table[@data-testid="vuln-hyperlinks-table"]/tbody//a']
+        xpaths = ['//table[@data-testid="vuln-hyperlinks-table"]/tbody//a']
 
     elif re.match(
         r"^https://security\-tracker\.debian\.org/tracker/CVE\-\d" r"+\-\d+$",
         url,
     ):
-        return ["//pre/a"]
+        xpaths = ["//pre/a"]
 
     elif re.match(r"^https://www.openwall\.com/lists/oss\-security", url):
-        return ["//pre/a"]
+        xpaths = ["//pre/a"]
 
     elif re.match(r"^https://lists\.fedoraproject\.org/archives/list/", url):
-        return ["//div[contains(@class, 'email-body')]//a"]
+        xpaths = ["//div[contains(@class, 'email-body')]//a"]
 
     elif re.match(r"^https://lists\.debian\.org/", url):
-        return ["//pre/a"]
+        xpaths = ["//pre/a"]
 
     elif re.match(r"^https://bugzilla\.redhat\.com/show_bug\.cgi\?id=", url):
-        return [
+        xpaths = [
             "//pre[contains(@class, 'bz_comment_text')]//a",
             "//table[@id='external_bugs_table']//a",
         ]
 
     elif re.match(r"^https://seclists\.org/", url):
-        return ["//pre/a"]
+        xpaths = ["//pre/a"]
 
-    return ["//body//a"]
+    elif re.match(
+        r"^https://access\.redhat\.com/labs/securitydataapi/"
+        "cve.json?advisory=",
+        url,
+    ):
+        xpaths = ["//cve/text()"]
+
+    return xpaths
 
 
 def is_patch(link):

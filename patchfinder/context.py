@@ -1,29 +1,4 @@
-import os
 import re
-import patchfinder.utils as utils
-import patchfinder.settings as settings
-
-
-class Context(object):
-    """Base class for the run-time context of the patch-finder
-
-    Attributes:
-        input_vuln: Self explanatory
-        runnable_vulns: A list of vulnerabilities equivalent to the
-            input vuln that can be used in the crawling process
-    """
-
-    def __init__(self, vuln):
-        self.input_vuln = vuln
-        self.runnable_vulns = []
-
-    def translate_vuln(self):
-        pass
-
-    def run_crawlers(self):
-        # init crawler process for each runnable vuln
-        # and run crawler processes
-        pass
 
 
 class Vulnerability(object):
@@ -63,8 +38,8 @@ class UnparsableVulnerability(Vulnerability):
         vuln_id,
         packages,
         base_url,
-        parse_mode,
         entrypoint_urls=None,
+        parse_mode=None,
         **kwargs
     ):
         self.base_url = base_url
@@ -86,12 +61,8 @@ class UnparsableVulnerability(Vulnerability):
             vuln_id, entrypoint_urls, packages
         )
 
-    def translate(self):
-        # Translate vuln
-        pass
-
-    def clean_data(self):
-        # Clean data scraped by VulnSpider as needed
+    def clean_data(self, data):
+        # Clean data scraped as needed
         pass
 
 
@@ -125,17 +96,21 @@ class DSA(UnparsableVulnerability):
         end_block = re.compile(r"^\s+\[")
         search_params = re.compile(r"^\s+\{(.+)\}")
         as_per_block = True
-        parse_mode = "plain"
         super(DSA, self).__init__(
             vuln_id,
             packages,
             base_url,
-            parse_mode,
             start_block=start_block,
             end_block=end_block,
             search_params=search_params,
             as_per_block=as_per_block,
         )
+
+    def clean_data(self, data):
+        cleaned_data = []
+        for vulns in data:
+            cleaned_data.extend(vulns.split())
+        return cleaned_data
 
 
 class RHSA(UnparsableVulnerability):
@@ -147,10 +122,7 @@ class RHSA(UnparsableVulnerability):
             "cve.json?advisory={vuln_id}".format(vuln_id=vuln_id)
         )
         xpaths = ["//cve/text()"]
-        parse_mode = "json"
-        super(RHSA, self).__init__(
-            vuln_id, packages, base_url, parse_mode, xpaths=xpaths
-        )
+        super(RHSA, self).__init__(vuln_id, packages, base_url, xpaths=xpaths)
 
 
 def create_vuln(vuln_id, packages=None):
