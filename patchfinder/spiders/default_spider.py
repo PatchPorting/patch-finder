@@ -1,3 +1,4 @@
+import logging
 from urllib.parse import urlparse
 from scrapy.http import Request
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
@@ -6,6 +7,9 @@ import patchfinder.parsers as parsers
 import patchfinder.spiders.items as items
 import patchfinder.entrypoint as entrypoint
 import patchfinder.settings as settings
+import patchfinder.utils as utils
+
+logger = logging.getLogger(__name__)
 
 
 class DefaultSpider(scrapy.Spider):
@@ -50,13 +54,12 @@ class DefaultSpider(scrapy.Spider):
 
     def __init__(self, *args, **kwargs):
         self.name = "default_spider"
-        if "vuln" in kwargs:
-            self.vuln_id = kwargs.get("vuln").vuln_id
-            self.start_urls = kwargs.get("vuln").entrypoint_urls
-        else:
-            self.vuln_id = None
-            self.start_urls = []
         self.patches = []
+        self._last_scrape = []
+        self._current_callback = None
+        if "vuln" in kwargs:
+            self.vuln = kwargs.get("vuln")
+            self.start_urls = kwargs.get("vuln").entrypoint_urls
         self.__dict__.update(
             (k, v) for k, v in kwargs.items() if k in self.allowed_keys
         )
@@ -64,14 +67,46 @@ class DefaultSpider(scrapy.Spider):
 
     def start_requests(self):
         for url in self.start_urls:
-            callback = self.callback(url)
-            yield Request(url, meta=self.request_meta, callback=callback)
+            self._callback(url)
+            yield Request(
+                url, meta=self.request_meta, callback=self._current_callback
+            )
 
-    def callback(self, url):
-        """Return the callback method for a given URL
+    def set_context(self, vuln):
+        self.vuln = vuln
+        self.start_urls = vuln.entrypoint_urls
+
+    def _callback(self, url, parse_by_content=False, parse_mode=None):
+        """Set the callback method based on a URL
+
+        The callback method can be based on the content-type of the response of
+        the URL or on the URL itself, i.e., certain URLs can warrant using a
+        different parse method altogether. Calling this method sets the current
+        callback method of the class. If the callback is to be based on the
+        content-type, and there is no given "parse mode", then a request for
+        the headers of the URL is yielded. This parse mode must be recognizable
+        as a content-type.
 
         Args:
-            url: Self explanatory
+            url: The URL for which the callback method is to be determined
+            parse_by_content: If True, the callback is determined based on the
+                content-type of the URL's response
+            parse_mode: If exists and parse_by_content is True, the callback
+                is determined based on it in context of content-type.
+        """
+        if parse_by_content:
+            if parse_mode:
+                self._callback_by_content(parse_mode)
+            else:
+                yield Request(url, callback=self._parse_headers, method="HEAD")
+        else:
+            self._callback_by_url(url)
+
+    def _callback_by_url(self, url):
+        """Set the current callback method for a given URL
+
+        Args:
+            url: The URL for which the callback method is to be determined
 
         Returns:
             A callback method object
@@ -82,9 +117,27 @@ class DefaultSpider(scrapy.Spider):
             and self.debian
         ):
             callback = self.parse_debian
-        return callback
+        self._current_callback = callback
 
-    def extract_links(self, response):
+    def _callback_by_content(self, content_type):
+        """Set the current callback method for a given content-type
+
+        Args:
+            content_type: The content-type for which the callback method
+                is to be determined.
+        """
+        callback = None
+        if isinstance(content_type, bytes):
+            content_type = content_type.decode()
+        if content_type.startswith("text/html"):
+            callback = self.parse_html
+        elif content_type.startswith("application/json"):
+            callback = self.parse_json
+        elif content_type.startswith("text/plain"):
+            callback = self.parse_plain
+        self._current_callback = callback
+
+    def extract_links(self, response, divide=True):
         """Extract links from a response and divide them into patch links
         and non-patch links.
 
@@ -99,21 +152,15 @@ class DefaultSpider(scrapy.Spider):
         Returns:
             A dictionary of links divided into patch and non-patch links.
         """
-        divided_links = {"patch_links": [], "links": []}
         xpaths = entrypoint.get_xpath(response.url)
         links = LxmlLinkExtractor(
             deny=self.deny_pages,
             deny_domains=self.deny_domains,
             restrict_xpaths=xpaths,
         ).extract_links(response)
-        for link in links:
-            link = response.urljoin(link.url[0:])
-            patch_link = entrypoint.is_patch(link)
-            if patch_link:
-                divided_links["patch_links"].append(patch_link)
-            else:
-                divided_links["links"].append(link)
-        return divided_links
+        if divide:
+            return self._divide_links(response, links)
+        return links
 
     def parse_debian(self, response):
         """The parse method for Debian.
@@ -125,10 +172,10 @@ class DefaultSpider(scrapy.Spider):
             response: The Response object sent by Scrapy.
         """
         parser = parsers.DebianParser()
-        patches = parser.parse(self.vuln_id)
+        patches = parser.parse(self.vuln.vuln_id)
         for patch in patches:
             if len(self.patches) < self.patch_limit:
-                self.add_patch(patch["patch_link"])
+                self._add_patch(patch["patch_link"])
                 patch = self._create_patch_item(
                     patch["patch_link"], patch["reaching_path"]
                 )
@@ -151,28 +198,99 @@ class DefaultSpider(scrapy.Spider):
         for link in links["patch_links"]:
             if len(self.patches) < self.patch_limit:
                 if link not in self.patches:
-                    self.add_patch(link)
+                    self._add_patch(link)
                     patch = self._create_patch_item(link, response.url)
                     yield patch
         for link in links["links"]:
             if len(self.patches) < self.patch_limit:
-                callback = self.callback(link)
-                priority = self.domain_priority(link)
+                self._callback(link)
+                priority = self._domain_priority(link)
                 yield Request(
                     link,
                     meta=self.request_meta,
-                    callback=callback,
+                    callback=self._current_callback,
                     priority=priority,
                 )
 
+    def parse_html(self, response):
+        """Parse an HTML response
+
+        The HTML response is parsed as per the necessary xpath(s).
+
+        Args:
+            response: A response object
+        """
+        xpaths = entrypoint.get_xpath(response.url)
+        data = []
+        for xpath in xpaths:
+            data.extend(response.xpath(xpath).extract())
+        self._last_scrape = data
+        return self._last_scrape
+
+    def parse_json(self, response):
+        """Parse a JSON response
+
+        The response is converted to XML and then parsed as per the necessary
+        xpath(s).
+
+        Args:
+            response: The Response object
+        """
+        response = utils.json_response_to_xml(response)
+        xpaths = entrypoint.get_xpath(response.url)
+        data = []
+        for xpath in xpaths:
+            data.extend(response.xpath(xpath).extract())
+        self._last_scrape = data
+        return self._last_scrape
+
+    def parse_plain(self, response):
+        """Parse a plain text response
+
+        The plain text response can be parsed as per block as well, which some
+        sources such as Debian's CVE/DSA list would require.
+        """
+        file_name = settings.TEMP_FILE
+        utils.write_response_to_file(response, file_name, overwrite=True)
+        data = []
+        if self.vuln.as_per_block:
+            data.extend(
+                utils.parse_file_by_block(
+                    file_name,
+                    self.vuln.start_block,
+                    self.vuln.end_block,
+                    self.vuln.search_params,
+                )
+            )
+        self._last_scrape = data
+        return self._last_scrape
+
+    def _parse_headers(self, response):
+        content_type = response.headers["Content-Type"]
+        self._callback_by_content(content_type)
+
+    def _divide_links(self, response, links):
+        divided_links = {"patch_links":[], "links":[]}
+        for link in links:
+            link = response.urljoin(link.url[0:])
+            patch_link = entrypoint.is_patch(link)
+            if patch_link:
+                divided_links["patch_links"].append(patch_link)
+            else:
+                divided_links["links"].append(link)
+        return divided_links
+
     # TODO: Handle www. case here. In fact, create a method to return
     #      domain name such that all corner cases are handled.
-    def domain_priority(self, url):
+    def _domain_priority(self, url):
         """Returns a priority for a url
 
         The URL's domain is checked for in the important domains list. If found,
         a relatively higher priority is returned, i.e. 1. Else a relatively
         lower priority i.e. 0 is returned.
+
+        Args:
+            url: The URL for which the priority is to be determined
         """
         domain = urlparse(url).hostname
         if domain in self.important_domains:
@@ -185,5 +303,5 @@ class DefaultSpider(scrapy.Spider):
         patch["reaching_path"] = reaching_path
         return patch
 
-    def add_patch(self, patch_link):
+    def _add_patch(self, patch_link):
         self.patches.append(patch_link)

@@ -2,7 +2,6 @@ import argparse
 import logging
 from scrapy.crawler import CrawlerProcess
 import patchfinder.spiders.default_spider as default_spider
-import patchfinder.spiders.vuln_spider as vuln_spider
 import patchfinder.context as context
 import patchfinder.settings as settings
 
@@ -13,32 +12,32 @@ def spawn_crawler(args):
     vuln = context.create_vuln(args.vuln_id)
     if not vuln:
         return False
-    if args.map_vuln:
-        process = CrawlerProcess({"USER_AGENT": settings.USER_AGENT,
-                                  "EXTENSIONS": settings.EXTENSIONS})
-        process.crawl(vuln_spider.VulnSpider, vuln=vuln)
-        process.start()
-    else:
-        process = CrawlerProcess(
-            {
-                "USER_AGENT": settings.USER_AGENT,
-                "ITEM_PIPELINES": {
-                    "patchfinder.spiders.pipelines.PatchPipeline": 300
-                },
-                "DEPTH_LIMIT": args.depth,
-                "LOG_ENABLED": args.log,
-                "EXTENSIONS": settings.EXTENSIONS
-            }
-        )
-        process.crawl(
-            default_spider.DefaultSpider,
-            vuln=vuln,
-            patch_limit=args.patch_limit,
-            important_domains=args.imp_domains,
-            deny_domains=args.deny_domains,
-            debian=args.debian
-        )
-        process.start()
+    # if args.map_vuln:
+        # process = CrawlerProcess({"USER_AGENT": settings.USER_AGENT,
+                                  # "EXTENSIONS": settings.EXTENSIONS})
+        # process.crawl(vuln_spider.VulnSpider, vuln=vuln)
+        # process.start()
+    # else:
+    process = CrawlerProcess(
+        {
+            "USER_AGENT": settings.USER_AGENT,
+            "ITEM_PIPELINES": {
+                "patchfinder.spiders.pipelines.PatchPipeline": 300
+            },
+            "DEPTH_LIMIT": args.depth,
+            "LOG_ENABLED": args.log,
+            "EXTENSIONS": settings.EXTENSIONS
+        }
+    )
+    process.crawl(
+        default_spider.DefaultSpider,
+        vuln=vuln,
+        patch_limit=args.patch_limit,
+        important_domains=args.imp_domains,
+        deny_domains=args.deny_domains,
+        debian=args.debian
+    )
+    process.start()
     return True
 
 
@@ -47,14 +46,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "vuln_id", help="The vulnerability ID to find patches for"
     )
-    parser.add_argument(
-        "-m",
-        "--map-vuln",
-        dest="map_vuln",
-        action="store_true",
-        default=False,
-        help="Map vuln ID to parsable vulnerabilities",
-    )
+    # parser.add_argument(
+        # "-m",
+        # "--map-vuln",
+        # dest="map_vuln",
+        # action="store_true",
+        # default=False,
+        # help="Map vuln ID to parsable vulnerabilities",
+    # )
     parser.add_argument(
         "-d",
         "--depth",

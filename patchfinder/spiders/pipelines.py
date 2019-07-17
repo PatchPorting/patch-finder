@@ -23,8 +23,3 @@ class JsonItemPipeline(object):
 class PatchPipeline(JsonItemPipeline):
 
     file_name = settings.PATCHES_JSON
-
-
-class VulnPipeline(JsonItemPipeline):
-
-    file_name = settings.VULN_JSON
