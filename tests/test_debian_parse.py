@@ -47,7 +47,6 @@ class TestDebianParser(unittest.TestCase):
         mock_page_parse.return_value = {"href": href}
 
         self.parser.retrieve_packages()
-        mock_page_parse.assert_called_once()
         mock_download_method.assert_called_with(pkg_url, pkg_path)
         self.assertIn(
             {"path": pkg_path, "source": pkg_url, "ext_path": pkg_ext_path},

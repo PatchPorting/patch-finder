@@ -8,7 +8,6 @@ DEPTH_LIMIT = 1
 PARSE_DEBIAN = True
 DOWNLOAD_DIRECTORY = "./cache/"
 TEMP_FILE = os.path.join(DOWNLOAD_DIRECTORY, "temp_file")
-VULN_JSON = "./vulns.json"
 PATCHES_JSON = "./patches.json"
 REQUEST_META = {"dont_redirect": True, "handle_httpstatus_list": [302]}
 EXTENSIONS = {'scrapy.extensions.telnet.TelnetConsole': None,
