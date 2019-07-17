@@ -1,4 +1,3 @@
-import json
 from scrapy.exporters import JsonItemExporter
 import patchfinder.settings as settings
 

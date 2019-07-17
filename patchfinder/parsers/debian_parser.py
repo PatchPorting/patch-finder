@@ -1,7 +1,6 @@
 import logging
 import os
 import re
-import shutil
 import tarfile
 import urllib.parse
 import patchfinder.settings as settings
@@ -123,14 +122,14 @@ class DebianParser(object):
                     pkg=urllib.parse.quote(pkg), ver=urllib.parse.quote(ver)
                 )
             )
+
             pkg_url = utils.parse_web_page(snapshot_url, "a", href=find_pkg)
             if not pkg_url:
                 continue
-
             pkg_url = urllib.parse.urljoin(
                 "https://snapshot.debian.org/", pkg_url["href"]
             )
-            pkg_name = pkg_url.search(find_pkg).group(1)
+            pkg_name = find_pkg.search(pkg_url).group(1)
             pkg_path = os.path.join(settings.DOWNLOAD_DIRECTORY, pkg_name)
             pkg_ext_path = os.path.join(
                 settings.DOWNLOAD_DIRECTORY, pkg + "_" + ver
@@ -144,36 +143,26 @@ class DebianParser(object):
     def extract_patches(self):
         """Extract patches from downloaded packages
 
-        If the package is a tar file, all of its contents are extracted.
-        The existence of a debian/patches folder is checked in the folder.
-        If found, the relevant patches are determined w/r/t the vuln id.
+        Relevant patches are searched for in the tarball.
         """
 
         for package in self.package_paths:
             pkg_path = package["path"]
-            pkg_ext_path = package["ext_path"]
             pkg_source = package["source"]
             logger.info("Looking for patches in %s", pkg_path)
             if tarfile.is_tarfile(pkg_path):
-                if not utils.member_in_tarfile(pkg_path, "debian"):
-                    continue
-                tarfile.extractall(pkg_path, pkg_ext_path)
-
-                logger.info("Contents extracted to %s", pkg_ext_path)
-
-                patch_directory = os.path.join(pkg_ext_path, "debian/patches/")
-                try:
-                    files = utils.find_in_directory(
-                        patch_directory, self.vuln_id
-                    )
-                finally:
-                    logger.info("Deleting %s", pkg_ext_path)
-                    shutil.rmtree(pkg_ext_path)
-
-                for f in files:
-                    self.patches.append(
-                        {"patch_link": f, "reaching_path": pkg_source}
-                    )
+                tar = tarfile.open(pkg_path)
+                for member in tar.getmembers():
+                    if (
+                        member.name.endswith(".patch")
+                        and member.name.find(self.vuln_id) is not -1
+                    ):
+                        self.patches.append(
+                            {
+                                "patch_link": member.name,
+                                "reaching_path": pkg_source,
+                            }
+                        )
 
     def _clean(self):
         self.fixed_packages = []
