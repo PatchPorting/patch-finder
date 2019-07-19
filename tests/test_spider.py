@@ -2,6 +2,7 @@ import unittest
 import unittest.mock as mock
 import patchfinder.spiders.default_spider as default_spider
 import patchfinder.context as context
+import patchfinder.settings as settings
 from tests import fake_response_from_file
 
 
@@ -11,13 +12,36 @@ class TestSpider(unittest.TestCase):
     def setUp(self):
         self.spider = default_spider.DefaultSpider()
 
-    def test_start_requests(self):
+    def test_start_requests_with_parsable_vuln(self):
+        """Start requests for a parsable vulnerability.
+
+        For a parsable vulnerability, the spider should generate as
+        many requests as the entrypoint URLs for the vulnerability.
+        """
         vuln = context.create_vuln("CVE-2016-4796")
         self.spider.set_context(vuln)
         requests = list(self.spider.start_requests())
-        self.assertEqual(len(vuln.entrypoint_urls), len(requests))
+        self.assertEqual(len(requests), len(vuln.entrypoint_urls))
 
-    def test_extract_links(self):
+    def test_start_requests_with_unparsable_vuln(self):
+        """Start requests for an unparsable vulnerability.
+
+        For an unparsable vulnerability, the spider should generate only
+        one request, i.e. for the base URL of the vulnerability.
+        """
+        vuln = context.create_vuln("DSA-4431-1")
+        self.spider.set_context(vuln)
+        requests = list(self.spider.start_requests())
+        self.assertEqual(len(requests), 1)
+        self.assertEqual(requests[0].url, vuln.base_url)
+
+    def test_extract_links_and_divide(self):
+        """Links should be extracted from a response.
+
+        By the default settings, certain URLs present in the selected mock file
+        should be absent from the extracted links, certain URLs should be in the
+        extracted links, and any patch links in the mock file should be found.
+        """
         url = (
             "https://lists.fedoraproject.org/archives/list/package-a"
             "nnounce@lists.fedoraproject.org/message/5FFMOZOF2EI6N"
@@ -45,7 +69,8 @@ class TestSpider(unittest.TestCase):
 
     def test_parse_response(self):
         self.spider.important_domains.append("github.com")
-        response = fake_response_from_file("./mocks/2.html")
+        response = fake_response_from_file("./mocks/2.html",
+                                           meta=settings.PATCH_FIND_META)
         requests_and_items = list(self.spider.parse(response))
 
         patch_link = (

@@ -46,7 +46,9 @@ class DefaultSpider(scrapy.Spider):
     patch_limit = settings.PATCH_LIMIT
     debian = settings.PARSE_DEBIAN
     request_meta = settings.REQUEST_META
-    allowed_keys = {
+    _patch_find_meta = settings.PATCH_FIND_META
+    _normal_meta = settings.NORMAL_META
+    _allowed_keys = {
         "deny_domains",
         "important_domains",
         "patch_limit",
@@ -56,11 +58,10 @@ class DefaultSpider(scrapy.Spider):
     def __init__(self, *args, **kwargs):
         self.name = "default_spider"
         self.patches = []
-        self._last_scrape = []
         if "vuln" in kwargs:
             self.vuln = kwargs.get("vuln")
         self.__dict__.update(
-            (k, v) for k, v in kwargs.items() if k in self.allowed_keys
+            (k, v) for k, v in kwargs.items() if k in self._allowed_keys
         )
         super(DefaultSpider, self).__init__(*args, **kwargs)
 
@@ -70,87 +71,34 @@ class DefaultSpider(scrapy.Spider):
                 self.vuln.base_url,
                 callback=self.determine_aliases,
                 method="HEAD",
+                meta=self._normal_meta,
             )
         else:
             for url in self.vuln.entrypoint_urls:
-                yield Request(url, callback=self._parse_headers, method="HEAD")
+                yield Request(
+                    url,
+                    callback=self._parse_headers,
+                    method="HEAD",
+                    meta=self._patch_find_meta,
+                )
 
     def set_context(self, vuln):
         self.vuln = vuln
 
     def determine_aliases(self, response):
+        """Determine aliases for a vulnerability.
+
+        Aliases for a vulnerability are determined by scraping the data from the
+        response. The given response is for the base URL of the vulnerability.
+        Aliases which are parsable are set in the spider's instance. Aliases
+        which are unparsable are run through the method themselves to
+        determine their parsable vulnerabilities. Once a complete set of
+        parsable aliases is found, the process ends.
+
+        Args:
+            response: Response object for the vulnerability's base URL.
+        """
         pass
-
-    def _callback(self, resource, parse_by_content=False, parse_mode=None):
-        """Determine the callback method based on a URL
-
-        The callback method can be based on the content-type of the response of
-        the URL or on the URL itself, i.e., certain URLs can warrant using a
-        different parse method altogether. Calling this method sets the current
-        callback method of the class. If the callback is to be based on the
-        content-type, and there is no given "parse mode", then a request for
-        the headers of the URL is yielded. This parse mode must be recognizable
-        as a content-type.
-
-        Args:
-            resource: The resource for which the callback method is to be
-                determined. The resource can be a scrapy Response or a URL.
-            parse_by_content: If True, the callback is determined based on the
-                content-type of the URL's response
-            parse_mode: If exists and parse_by_content is True, the callback
-                is determined based on it in context of content-type.
-
-        Returns:
-            A callback method object
-        """
-        callback = None
-        if parse_by_content and isinstance(resource, Response):
-            callback = self._callback_by_content(
-                resource.headers["Content-Type"]
-            )
-        elif parse_by_content and parse_mode:
-            callback = self._callback_by_content(parse_mode)
-        else:
-            callback = self._callback_by_url(resource)
-        return callback
-
-    def _callback_by_url(self, url):
-        """Set the current callback method for a given URL
-
-        Args:
-            url: The URL for which the callback method is to be determined
-
-        Returns:
-            A callback method object
-        """
-        callback = self.parse
-        if (
-            url.startswith("https://security-tracker.debian.org")
-            and self.debian
-        ):
-            callback = self.parse_debian
-        return callback
-
-    def _callback_by_content(self, content_type):
-        """Set the current callback method for a given content-type
-
-        Args:
-            content_type: The content-type for which the callback method
-                is to be determined.
-
-        Returns:
-            A callback method object
-        """
-        callback = None
-        if isinstance(content_type, bytes):
-            content_type = content_type.decode()
-        if content_type.startswith("text/html"):
-            callback = self.parse_html
-        elif content_type.startswith("application/json"):
-            callback = self.parse_json
-        elif content_type.startswith("text/plain"):
-            callback = self.parse_plain
-        return callback
 
     def extract_links(self, response, divide=True):
         """Extract links from a response and divide them into patch links
@@ -197,13 +145,60 @@ class DefaultSpider(scrapy.Spider):
                 yield patch
 
     def parse(self, response):
-        """The default parse method.
+        """Default parse method.
 
-        If a url does not need a separate parser, this method is called.
+        The response is parsed as per the necessary xpath(s).
+
+        Args:
+            response: A response object
+        """
+        items_and_requests = self._generate_items_and_requests(response)
+        for item_or_request in items_and_requests:
+            yield item_or_request
+
+    def parse_json(self, response):
+        """Parse a JSON response
+
+        The response is converted to XML and then parsed as per the necessary
+        xpath(s).
+
+        Args:
+            response: The Response object
+        """
+        response = utils.json_response_to_xml(response)
+        items_and_requests = self._generate_items_and_requests(response)
+        for item_or_request in items_and_requests:
+            yield item_or_request
+
+    def _generate_items_and_requests(self, response):
+        """Generate items and requests for a given response.
+
+        If the find_patches argument is passed in the response's metadata, i.e.,
+        if the spider is to be used as a patch finder, the patches and requests
+        for the response are generated. Else, the necessary data is scraped from
+        the response and generated.
+
+        Args:
+            response: A Response object.
+        """
+        if response.meta.get("find_patches"):
+            patches_and_requests = self._patches_and_requests(response)
+            for patch_or_request in patches_and_requests:
+                yield patch_or_request
+        else:
+            data = []
+            xpaths = entrypoint.get_xpath(response.url)
+            for xpath in xpaths:
+                data.extend(response.xpath(xpath).extract())
+            yield data
+
+    def _patches_and_requests(self, response):
+        """Extract patch links and links to crawl from a response.
+
         The links from the response body are extracted first.
-        The patch links are added to the retrieved patches list. The non-patch
-        links are crawled. This recursive process goes on till the DEPTH_LIMIT
-        is reached. If the number of patches found is equal to the patch_limit,
+        The patch links are added to the retrieved patches list.
+        Corresponding items and requests are generated from these links.
+        If the number of patches found is equal to the patch_limit,
         no more requests or items are generated.
 
         Args:
@@ -218,64 +213,82 @@ class DefaultSpider(scrapy.Spider):
                     yield patch
         for link in links["links"]:
             if len(self.patches) < self.patch_limit:
-                callback = self._callback(link)
                 priority = self._domain_priority(link)
                 yield Request(
                     link,
                     meta=self.request_meta,
-                    callback=callback,
+                    callback=self._parse_headers,
                     priority=priority,
                 )
 
-    def parse_html(self, response):
-        """Parse an HTML response
+    def _callback(self, resource, parse_by_content=False, parse_mode=None):
+        """Determine the callback method based on a URL
 
-        The HTML response is parsed as per the necessary xpath(s).
-
-        Args:
-            response: A response object
-        """
-        xpaths = entrypoint.get_xpath(response.url)
-        data = []
-        for xpath in xpaths:
-            data.extend(response.xpath(xpath).extract())
-        yield data
-
-    def parse_json(self, response):
-        """Parse a JSON response
-
-        The response is converted to XML and then parsed as per the necessary
-        xpath(s).
+        The callback method can be based on the content-type of the response of
+        the URL or on the URL itself, i.e., certain URLs can warrant using a
+        different parse method altogether. Calling this method sets the current
+        callback method of the class. If the callback is to be based on the
+        content-type, and there is no given "parse mode", then a request for
+        the headers of the URL is yielded. This parse mode must be recognizable
+        as a content-type.
 
         Args:
-            response: The Response object
-        """
-        response = utils.json_response_to_xml(response)
-        xpaths = entrypoint.get_xpath(response.url)
-        data = []
-        for xpath in xpaths:
-            data.extend(response.xpath(xpath).extract())
-        yield data
+            resource: The resource for which the callback method is to be
+                determined. The resource can be a scrapy Response or a URL.
+            parse_by_content: If True, the callback is determined based on the
+                content-type of the URL's response
+            parse_mode: If exists and parse_by_content is True, the callback
+                is determined based on it in context of content-type.
 
-    def parse_plain(self, response):
-        """Parse a plain text response
-
-        The plain text response can be parsed as per block as well, which some
-        sources such as Debian's CVE/DSA list would require.
+        Returns:
+            A callback method object
         """
-        file_name = settings.TEMP_FILE
-        utils.write_response_to_file(response, file_name, overwrite=True)
-        data = []
-        if self.vuln.as_per_block:
-            data.extend(
-                utils.parse_file_by_block(
-                    file_name,
-                    self.vuln.start_block,
-                    self.vuln.end_block,
-                    self.vuln.search_params,
-                )
+        callback = None
+        if parse_by_content and isinstance(resource, Response):
+            callback = self._callback_by_content(
+                resource.headers["Content-Type"]
             )
-        yield data
+        elif parse_by_content and parse_mode:
+            callback = self._callback_by_content(parse_mode)
+        else:
+            callback = self._callback_by_url(resource)
+        return callback
+
+    def _callback_by_url(self, url):
+        """Set the current callback method for a given URL
+
+        Args:
+            url: The URL for which the callback method is to be determined
+
+        Returns:
+            A callback method object
+        """
+        callback = None
+        if (
+            url.startswith("https://security-tracker.debian.org")
+            and self.debian
+        ):
+            callback = self.parse_debian
+        return callback
+
+    def _callback_by_content(self, content_type):
+        """Set the current callback method for a given content-type
+
+        Args:
+            content_type: The content-type for which the callback method
+                is to be determined.
+
+        Returns:
+            A callback method object
+        """
+        callback = None
+        if isinstance(content_type, bytes):
+            content_type = content_type.decode()
+        if content_type.startswith("application/json"):
+            callback = self.parse_json
+        else:
+            callback = self.parse
+        return callback
 
     def _parse_headers(self, response):
         """Determine the callback for the response and generate a GET request

@@ -1,8 +1,9 @@
 import os
+import patchfinder.settings as settings
 from scrapy.http import HtmlResponse, Request
 
 
-def fake_response_from_file(file_name, url=None):
+def fake_response_from_file(file_name, url=None, meta=settings.REQUEST_META):
     """
     Create a Scrapy fake HTTP response from a HTML file
 
@@ -17,7 +18,7 @@ def fake_response_from_file(file_name, url=None):
     if not url:
         url = "http://www.example.com"
 
-    request = Request(url=url)
+    request = Request(url=url, meta=meta)
     if not file_name[0] == "/":
         mocks_dir = os.path.dirname(os.path.realpath(__file__))
         file_path = os.path.join(mocks_dir, file_name)
