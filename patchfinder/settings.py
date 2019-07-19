@@ -10,7 +10,13 @@ DOWNLOAD_DIRECTORY = "./cache/"
 TEMP_FILE = os.path.join(DOWNLOAD_DIRECTORY, "temp_file")
 PATCHES_JSON = "./patches.json"
 REQUEST_META = {"dont_redirect": True, "handle_httpstatus_list": [302]}
-EXTENSIONS = {'scrapy.extensions.telnet.TelnetConsole': None,
-              'scrapy.extensions.corestats.CoreStats': None,
-              'scrapy.extensions.memusage.MemoryUsage': None,
-              'scrapy.extensions.logstats.LogStats': None}
+PATCH_FIND_META = dict(REQUEST_META)
+PATCH_FIND_META["find_patches"] = True
+NORMAL_META = dict(REQUEST_META)
+NORMAL_META["find_patches"] = False
+EXTENSIONS = {
+    "scrapy.extensions.telnet.TelnetConsole": None,
+    "scrapy.extensions.corestats.CoreStats": None,
+    "scrapy.extensions.memusage.MemoryUsage": None,
+    "scrapy.extensions.logstats.LogStats": None,
+}
