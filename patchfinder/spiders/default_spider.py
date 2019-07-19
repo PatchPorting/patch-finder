@@ -70,15 +70,13 @@ class DefaultSpider(scrapy.Spider):
             yield Request(
                 self.vuln.base_url,
                 callback=self.determine_aliases,
-                method="HEAD",
                 meta=self._normal_meta,
             )
         else:
             for url in self.vuln.entrypoint_urls:
                 yield Request(
                     url,
-                    callback=self._parse_headers,
-                    method="HEAD",
+                    callback=self.parse,
                     meta=self._patch_find_meta,
                 )
 
@@ -145,6 +143,15 @@ class DefaultSpider(scrapy.Spider):
                 yield patch
 
     def parse(self, response):
+        parse_callable = self._callback_by_content(
+            response.headers["Content-Type"]
+        )
+        if parse_callable:
+            items_and_requests = parse_callable(response)
+            for item_or_request in items_and_requests:
+                yield item_or_request
+
+    def parse_default(self, response):
         """Default parse method.
 
         The response is parsed as per the necessary xpath(s).
@@ -217,7 +224,7 @@ class DefaultSpider(scrapy.Spider):
                 yield Request(
                     link,
                     meta=self.request_meta,
-                    callback=self._parse_headers,
+                    callback=self.parse,
                     priority=priority,
                 )
 
@@ -287,23 +294,8 @@ class DefaultSpider(scrapy.Spider):
         if content_type.startswith("application/json"):
             callback = self.parse_json
         else:
-            callback = self.parse
+            callback = self.parse_default
         return callback
-
-    def _parse_headers(self, response):
-        """Determine the callback for the response and generate a GET request
-        for it
-
-        Args:
-            response: A Response object sent by Scrapy
-
-        Yields:
-            A GET Request for the given response's request
-        """
-        content_type = response.headers["Content-Type"]
-        callback = self._callback_by_content(content_type)
-        if callback:
-            yield response.request.replace(callback=callback, method="GET")
 
     def _divide_links(self, response, links):
         """Divide links into patch links and non patch links

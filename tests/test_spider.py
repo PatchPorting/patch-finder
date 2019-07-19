@@ -71,7 +71,7 @@ class TestSpider(unittest.TestCase):
         self.spider.important_domains.append("github.com")
         response = fake_response_from_file("./mocks/2.html",
                                            meta=settings.PATCH_FIND_META)
-        requests_and_items = list(self.spider.parse(response))
+        requests_and_items = list(self.spider.parse_default(response))
 
         patch_link = (
             "https://github.com/uclouvain/openjpeg/commit/162f619"
