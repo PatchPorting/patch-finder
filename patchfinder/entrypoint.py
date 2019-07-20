@@ -166,7 +166,7 @@ def get_xpath(url):
 
     elif re.match(
         r"^https://access\.redhat\.com/labs/securitydataapi/"
-        "cve.json?advisory=",
+        r"cve.json\?advisory=",
         url,
     ):
         xpaths = ["//cve/text()"]
