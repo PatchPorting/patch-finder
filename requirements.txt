@@ -1,5 +1,6 @@
 beautifulsoup4==4.7.1
 dicttoxml==1.7.4
+scrapy-inline-requests
 PyGithub==1.43
 Scrapy==1.6.0
 attrs>=17.4
