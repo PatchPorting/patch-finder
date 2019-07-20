@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 from scrapy.http import Request, Response
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 import scrapy
+from inline_requests import inline_requests
 import patchfinder.context as context
 import patchfinder.parsers as parsers
 import patchfinder.spiders.items as items
@@ -60,6 +61,7 @@ class DefaultSpider(scrapy.Spider):
         self.patches = []
         if "vuln" in kwargs:
             self.vuln = kwargs.get("vuln")
+            self.vulns = set()
         self.__dict__.update(
             (k, v) for k, v in kwargs.items() if k in self._allowed_keys
         )
@@ -75,14 +77,13 @@ class DefaultSpider(scrapy.Spider):
         else:
             for url in self.vuln.entrypoint_urls:
                 yield Request(
-                    url,
-                    callback=self.parse,
-                    meta=self._patch_find_meta,
+                    url, callback=self.parse, meta=self._patch_find_meta
                 )
 
     def set_context(self, vuln):
         self.vuln = vuln
 
+    @inline_requests
     def determine_aliases(self, response):
         """Determine aliases for a vulnerability.
 
@@ -96,7 +97,29 @@ class DefaultSpider(scrapy.Spider):
         Args:
             response: Response object for the vulnerability's base URL.
         """
-        pass
+        vulns = set([self.vuln])
+        processed_vulns = set()
+        while True:
+            if not vulns:
+                break
+            temp_aliases = set()
+            for vuln in vulns:
+                if vuln.vuln_id in processed_vulns:
+                    continue
+                if vuln.vuln_id is self.vuln.vuln_id:
+                    vuln_response = response
+                else:
+                    vuln_response = yield Request(vuln.base_url)
+                processed_vulns.add(vuln.vuln_id)
+                aliases = self.parse(vuln_response)
+                for alias in aliases:
+                    alias = context.create_vuln(alias)
+                    if isinstance(alias, context.UnparsableVulnerability):
+                        temp_aliases.add(alias)
+                    else:
+                        logger.info("Alias discovered: %s", alias.vuln_id)
+                        self.vulns.add(alias)
+            vulns = temp_aliases
 
     def extract_links(self, response, divide=True):
         """Extract links from a response and divide them into patch links
@@ -193,11 +216,11 @@ class DefaultSpider(scrapy.Spider):
             for patch_or_request in patches_and_requests:
                 yield patch_or_request
         else:
-            data = []
             xpaths = entrypoint.get_xpath(response.url)
             for xpath in xpaths:
-                data.extend(response.xpath(xpath).extract())
-            yield data
+                scraped_items = response.xpath(xpath).extract()
+                for item in scraped_items:
+                    yield item
 
     def _patches_and_requests(self, response):
         """Extract patch links and links to crawl from a response.
