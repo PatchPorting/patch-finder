@@ -1,6 +1,6 @@
 import logging
 from urllib.parse import urlparse
-from scrapy.http import Request, Response
+from scrapy.http import Request
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 import scrapy
 from inline_requests import inline_requests
@@ -170,9 +170,7 @@ class DefaultSpider(scrapy.Spider):
                 yield patch
 
     def parse(self, response):
-        parse_callable = self._callback_by_content(
-            response.headers["Content-Type"]
-        )
+        parse_callable = self._callback(response)
         if parse_callable:
             yield from parse_callable(response)
 
@@ -254,40 +252,27 @@ class DefaultSpider(scrapy.Spider):
                     priority=priority,
                 )
 
-    def _callback(self, resource, parse_by_content=False, parse_mode=None):
+    def _callback(self, response):
         """Determine the callback method based on a URL
 
         The callback method can be based on the content-type of the response of
         the URL or on the URL itself, i.e., certain URLs can warrant using a
-        different parse method altogether. Calling this method sets the current
-        callback method of the class. If the callback is to be based on the
-        content-type, and there is no given "parse mode", then a request for
-        the headers of the URL is yielded. This parse mode must be recognizable
-        as a content-type.
+        different parse method altogether. This method determines the callback
+        for a given response.
 
         Args:
-            resource: The resource for which the callback method is to be
-                determined. The resource can be a scrapy Response or a URL.
-            parse_by_content: If True, the callback is determined based on the
-                content-type of the URL's response
-            parse_mode: If exists and parse_by_content is True, the callback
-                is determined based on it in context of content-type.
+            response: The response for which the callback method is to be
+                determined.
 
         Returns:
             A callback method object
         """
-        callback = None
-        if parse_by_content and isinstance(resource, Response):
-            callback = self._callback_by_content(
-                resource.headers["Content-Type"]
-            )
-        elif parse_by_content and parse_mode:
-            callback = self._callback_by_content(parse_mode)
-        else:
-            callback = self._callback_by_url(resource)
+        callback = self._callback_by_url(response)
+        if not callback:
+            callback = self._callback_by_content(response)
         return callback
 
-    def _callback_by_url(self, url):
+    def _callback_by_url(self, response):
         """Set the current callback method for a given URL
 
         Args:
@@ -297,6 +282,7 @@ class DefaultSpider(scrapy.Spider):
             A callback method object
         """
         callback = None
+        url = response.url
         if (
             url.startswith("https://security-tracker.debian.org")
             and self.debian
@@ -304,19 +290,17 @@ class DefaultSpider(scrapy.Spider):
             callback = self.parse_debian
         return callback
 
-    def _callback_by_content(self, content_type):
+    def _callback_by_content(self, response):
         """Set the current callback method for a given content-type
 
         Args:
-            content_type: The content-type for which the callback method
-                is to be determined.
+            response: A Response object.
 
         Returns:
             A callback method object
         """
         callback = None
-        if isinstance(content_type, bytes):
-            content_type = content_type.decode()
+        content_type = response.headers["Content-Type"].decode()
         if content_type.startswith("application/json"):
             callback = self.parse_json
         else:
