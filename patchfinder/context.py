@@ -16,6 +16,9 @@ class Vulnerability(object):
         self.entrypoint_urls = entrypoint_urls
         self.packages = packages
 
+    def _rectify_vuln(self, vuln_id):
+        return vuln_id.replace(" ", "-")
+
 
 class UnparsableVulnerability(Vulnerability):
     """Subclass for an unparsable vulnerability
@@ -69,6 +72,7 @@ class CVE(Vulnerability):
     """Subclass for CVE"""
 
     def __init__(self, vuln_id, packages=None):
+        vuln_id = self._rectify_vuln(vuln_id)
         entrypoint_urls = [
             "https://nvd.nist.gov/vuln/detail/{vuln_id}".format(
                 vuln_id=vuln_id
@@ -87,6 +91,7 @@ class DSA(UnparsableVulnerability):
     """Subclass for Debian Security Advisory (DSA)"""
 
     def __init__(self, vuln_id, packages=None):
+        vuln_id = self._rectify_vuln(vuln_id)
         base_url = "https://security-tracker.debian.org/tracker/{vuln_id}".format(
             vuln_id=vuln_id
         )
@@ -97,11 +102,24 @@ class RHSA(UnparsableVulnerability):
     """Subclass for Redhat Security Advisory (RHSA)"""
 
     def __init__(self, vuln_id, packages=None):
+        vuln_id = self._rectify_vuln(vuln_id)
         base_url = (
             "https://access.redhat.com/labs/securitydataapi/"
             "cve.json?advisory={vuln_id}".format(vuln_id=vuln_id)
         )
         super(RHSA, self).__init__(vuln_id, packages, base_url)
+
+
+class GLSA(UnparsableVulnerability):
+    """Subclass for Gentoo Linux Security Advisory (GLSA)"""
+
+    def __init__(self, vuln_id, packages=None):
+        vuln_id = self._rectify_vuln(vuln_id)
+        base_url = (
+            "https://gitweb.gentoo.org/data/glsa.git/plain/"
+            "{vuln_id}.xml".format(vuln_id=vuln_id.lower())
+        )
+        super(GLSA, self).__init__(vuln_id, packages, base_url)
 
 
 def create_vuln(vuln_id, packages=None):
@@ -112,4 +130,6 @@ def create_vuln(vuln_id, packages=None):
         vuln = DSA(vuln_id, packages)
     elif re.match(r"^RHSA\-\d+:\d+$", vuln_id, re.I):
         vuln = RHSA(vuln_id, packages)
+    elif re.match(r"^GLSA( |\-)\d+-\d+$", vuln_id, re.I):
+        vuln = GLSA(vuln_id, packages)
     return vuln

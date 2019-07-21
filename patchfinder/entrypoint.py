@@ -177,6 +177,13 @@ def get_xpath(url):
     ):
         xpaths = ["//cve/text()"]
 
+    elif re.match(
+        r"^https://gitweb\.gentoo\.org/data/glsa\.git/plain/"
+        r"glsa\-\d+\-\d+\.xml$",
+        url,
+    ):
+        xpaths = ["//references//uri/text()"]
+
     return xpaths
 
 
