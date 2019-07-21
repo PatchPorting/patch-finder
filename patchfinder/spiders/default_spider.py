@@ -92,7 +92,8 @@ class DefaultSpider(scrapy.Spider):
         Aliases which are parsable are set in the spider's instance. Aliases
         which are unparsable are run through the method themselves to
         determine their parsable vulnerabilities. Once a complete set of
-        parsable aliases is found, the process ends.
+        parsable aliases is found, requests for the aliases' entrypoints is
+        generated.
 
         Args:
             response: Response object for the vulnerability's base URL.
@@ -114,12 +115,15 @@ class DefaultSpider(scrapy.Spider):
                 aliases = self.parse(vuln_response)
                 for alias in aliases:
                     alias = context.create_vuln(alias)
+                    if not alias:
+                        continue
                     if isinstance(alias, context.UnparsableVulnerability):
                         temp_aliases.add(alias)
                     else:
                         logger.info("Alias discovered: %s", alias.vuln_id)
                         self.vulns.add(alias)
             vulns = temp_aliases
+        yield from self._generate_requests_for_vulns()
 
     def extract_links(self, response, divide=True):
         """Extract links from a response and divide them into patch links
@@ -170,9 +174,7 @@ class DefaultSpider(scrapy.Spider):
             response.headers["Content-Type"]
         )
         if parse_callable:
-            items_and_requests = parse_callable(response)
-            for item_or_request in items_and_requests:
-                yield item_or_request
+            yield from parse_callable(response)
 
     def parse_default(self, response):
         """Default parse method.
@@ -182,9 +184,7 @@ class DefaultSpider(scrapy.Spider):
         Args:
             response: A response object
         """
-        items_and_requests = self._generate_items_and_requests(response)
-        for item_or_request in items_and_requests:
-            yield item_or_request
+        yield from self._generate_items_and_requests(response)
 
     def parse_json(self, response):
         """Parse a JSON response
@@ -196,9 +196,14 @@ class DefaultSpider(scrapy.Spider):
             response: The Response object
         """
         response = utils.json_response_to_xml(response)
-        items_and_requests = self._generate_items_and_requests(response)
-        for item_or_request in items_and_requests:
-            yield item_or_request
+        yield from self._generate_items_and_requests(response)
+
+    def _generate_requests_for_vulns(self):
+        for vuln in self.vulns:
+            for url in vuln.entrypoint_urls:
+                yield Request(
+                    url, callback=self.parse, meta=self._patch_find_meta
+                )
 
     def _generate_items_and_requests(self, response):
         """Generate items and requests for a given response.
@@ -212,9 +217,7 @@ class DefaultSpider(scrapy.Spider):
             response: A Response object.
         """
         if response.meta.get("find_patches"):
-            patches_and_requests = self._patches_and_requests(response)
-            for patch_or_request in patches_and_requests:
-                yield patch_or_request
+            yield from self._patches_and_requests(response)
         else:
             xpaths = entrypoint.get_xpath(response.url)
             for xpath in xpaths:
@@ -246,7 +249,7 @@ class DefaultSpider(scrapy.Spider):
                 priority = self._domain_priority(link)
                 yield Request(
                     link,
-                    meta=self.request_meta,
+                    meta=self._patch_find_meta,
                     callback=self.parse,
                     priority=priority,
                 )
