@@ -17,6 +17,9 @@ class TestSpider(unittest.TestCase):
 
         For a parsable vulnerability, the spider should generate as
         many requests as the entrypoint URLs for the vulnerability.
+
+        Tests:
+            patchfinder.spiders.default_spider.DefaultSpider.start_requests
         """
         vuln = context.create_vuln("CVE-2016-4796")
         self.spider.set_context(vuln)
@@ -28,6 +31,9 @@ class TestSpider(unittest.TestCase):
 
         For an unparsable vulnerability, the spider should generate only
         one request, i.e. for the base URL of the vulnerability.
+
+        Tests:
+            patchfinder.spiders.default_spider.DefaultSpider.start_requests
         """
         vuln = context.create_vuln("DSA-4431-1")
         self.spider.set_context(vuln)
@@ -35,12 +41,16 @@ class TestSpider(unittest.TestCase):
         self.assertEqual(len(requests), 1)
         self.assertEqual(requests[0].url, vuln.base_url)
 
-    def test_extract_links_and_divide(self):
-        """Links should be extracted from a response.
+    def test_parse_response_to_find_patches(self):
+        """Upon parsing a response, the yielded items and requests should
+        conform to the spider's settings.
 
         By the default settings, certain URLs present in the selected mock file
         should be absent from the extracted links, certain URLs should be in the
         extracted links, and any patch links in the mock file should be found.
+
+        Tests:
+            patchfinder.spiders.default_spider.DefaultSpider.parse
         """
         url = (
             "https://lists.fedoraproject.org/archives/list/package-a"
@@ -60,36 +70,16 @@ class TestSpider(unittest.TestCase):
             "https://bugzilla.redhat.com/show_bug.cgi?id=1317822",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1317826",
         ]
-        response = fake_response_from_file("./mocks/3.html", url)
-        links = self.spider.extract_links(response)
-        self.assertTrue(all(url not in links["links"]) for url in absent_urls)
-        self.assertTrue(all(url in links["links"]) for url in present_urls)
-        self.assertEqual(len(links["patch_links"]), 1)
-        self.assertEqual(links["patch_links"], [patch_link])
-
-    def test_parse_response(self):
-        self.spider.important_domains.append("github.com")
-        response = fake_response_from_file("./mocks/2.html",
-                                           meta=settings.PATCH_FIND_META)
-        requests_and_items = list(self.spider.parse_default(response))
-
-        patch_link = (
-            "https://github.com/uclouvain/openjpeg/commit/162f619"
-            "9c0cd3ec1c6c6dc65e41b2faab92b2d91.patch"
+        response = fake_response_from_file(
+            "./mocks/3.html", url, meta=settings.PATCH_FIND_META
         )
-        github_url = "https://github.com/uclouvain/openjpeg/issues/774"
-        openwall_url = "http://www.openwall.com/lists/oss-security/2016/05/13/2"
-
-        patch_item = requests_and_items.pop(0)
-        self.assertEqual(patch_item["patch_link"], patch_link)
-        found_openwall = 0
-
-        for request in requests_and_items:
-            if request.url == openwall_url:
-                found_openwall = 1
-            elif request.url == github_url:
-                self.assertEqual(request.priority, 1)
-        self.assertTrue(found_openwall)
+        response.headers["Content-Type"] = b"text/html"
+        requests_and_items = self.spider.parse(response)
+        patch_item = next(requests_and_items)
+        req_urls = [request.url for request in requests_and_items]
+        self.assertEqual(patch_item['patch_link'], patch_link)
+        self.assertTrue(all(url not in req_urls) for url in absent_urls)
+        self.assertTrue(all(url in req_urls) for url in present_urls)
 
     @unittest.skip("Redo this")
     def test_patch_limit_with_parse(self):
@@ -127,24 +117,6 @@ class TestSpider(unittest.TestCase):
         item = next(self.spider.parse_json(response))
         for vuln in vulns:
             self.assertIn(vuln, item)
-
-    @unittest.skip("Redo this")
-    @mock.patch("patchfinder.spiders.default_spider.utils.parse_file_by_block")
-    @mock.patch(
-        "patchfinder.spiders.default_spider.utils.write_response_to_file"
-    )
-    def test_parse_plain_as_per_block(
-        self, mock_write_response_method, mock_parse_file_method
-    ):
-        self.spider.vuln.as_per_block = True
-        self.spider.vuln.start_block = None
-        self.spider.vuln.end_block = None
-        self.spider.vuln.search_params = None
-        vulns = ["CVE-2019-11707 CVE-2019-11708"]
-        mock_parse_file_method.return_value = [equivalent_vulns]
-        response = fake_response_from_file("./mocks/mock_debian_dsa_list")
-        item = next(self.spider.parse_plain(response))
-        self.assertEqual(item, equivalent_vulns)
 
     @unittest.skip("Redo this")
     def test_no_debian_callback(self):

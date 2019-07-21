@@ -125,31 +125,6 @@ class DefaultSpider(scrapy.Spider):
             vulns = temp_aliases
         yield from self._generate_requests_for_vulns()
 
-    def extract_links(self, response, divide=True):
-        """Extract links from a response and divide them into patch links
-        and non-patch links.
-
-        Links are extracted from the Response body. These are extracted from
-        the relevant xpath of the page. Links of domains in the deny_domains
-        list are ignored. The extracted links are then divided into patch links
-        and non-patch links.
-
-        Args:
-            response: The Response object used to extract links from.
-
-        Returns:
-            A dictionary of links divided into patch and non-patch links.
-        """
-        xpaths = entrypoint.get_xpath(response.url)
-        links = LxmlLinkExtractor(
-            deny=self.deny_pages,
-            deny_domains=self.deny_domains,
-            restrict_xpaths=xpaths,
-        ).extract_links(response)
-        if divide:
-            return self._divide_links(response, links)
-        return links
-
     def parse_debian(self, response):
         """The parse method for Debian.
 
@@ -235,7 +210,7 @@ class DefaultSpider(scrapy.Spider):
         Args:
             response: The Response object sent by Scrapy.
         """
-        links = self.extract_links(response)
+        links = self._extract_links(response)
         for link in links["patch_links"]:
             if len(self.patches) < self.patch_limit:
                 if link not in self.patches:
@@ -306,6 +281,31 @@ class DefaultSpider(scrapy.Spider):
         else:
             callback = self.parse_default
         return callback
+
+    def _extract_links(self, response, divide=True):
+        """Extract links from a response and divide them into patch links
+        and non-patch links.
+
+        Links are extracted from the Response body. These are extracted from
+        the relevant xpath of the page. Links of domains in the deny_domains
+        list are ignored. The extracted links are then divided into patch links
+        and non-patch links.
+
+        Args:
+            response: The Response object used to extract links from.
+
+        Returns:
+            A dictionary of links divided into patch and non-patch links.
+        """
+        xpaths = entrypoint.get_xpath(response.url)
+        links = LxmlLinkExtractor(
+            deny=self.deny_pages,
+            deny_domains=self.deny_domains,
+            restrict_xpaths=xpaths,
+        ).extract_links(response)
+        if divide:
+            return self._divide_links(response, links)
+        return links
 
     def _divide_links(self, response, links):
         """Divide links into patch links and non patch links
