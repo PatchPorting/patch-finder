@@ -141,10 +141,16 @@ def get_xpath(url):
         xpaths = ['//table[@data-testid="vuln-hyperlinks-table"]/tbody//a']
 
     elif re.match(
-        r"^https://security\-tracker\.debian\.org/tracker/CVE\-\d" r"+\-\d+$",
-        url,
+        r"^https://security\-tracker\.debian\.org/tracker/CVE\-\d+\-\d+$", url
     ):
         xpaths = ["//pre/a"]
+
+    elif re.match(
+        r"^https://security\-tracker\.debian\.org/tracker/DSA\-\d+\-\d+$", url
+    ):
+        xpaths = [
+            "//table//td//b[text()='References']/following::td[1]//a/text()"
+        ]
 
     elif re.match(r"^https://www.openwall\.com/lists/oss\-security", url):
         xpaths = ["//pre/a"]

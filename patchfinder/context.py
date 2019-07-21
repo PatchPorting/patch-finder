@@ -50,7 +50,6 @@ class UnparsableVulnerability(Vulnerability):
             "end_block",
             "search_params",
             "as_per_block",
-            "xpaths",
         }
         if not entrypoint_urls:
             entrypoint_urls = []
@@ -88,29 +87,10 @@ class DSA(UnparsableVulnerability):
     """Subclass for Debian Security Advisory (DSA)"""
 
     def __init__(self, vuln_id, packages=None):
-        base_url = (
-            "https://salsa.debian.org/security-tracker-team/"
-            "security-tracker/raw/master/data/DSA/list"
+        base_url = "https://security-tracker.debian.org/tracker/{vuln_id}".format(
+            vuln_id=vuln_id
         )
-        start_block = re.compile(r"^\[.+\] {vuln_id}".format(vuln_id=vuln_id))
-        end_block = re.compile(r"^\s+\[")
-        search_params = re.compile(r"^\s+\{(.+)\}")
-        as_per_block = True
-        super(DSA, self).__init__(
-            vuln_id,
-            packages,
-            base_url,
-            start_block=start_block,
-            end_block=end_block,
-            search_params=search_params,
-            as_per_block=as_per_block,
-        )
-
-    def clean_data(self, data):
-        cleaned_data = []
-        for vulns in data:
-            cleaned_data.extend(vulns.split())
-        return cleaned_data
+        super(DSA, self).__init__(vuln_id, packages, base_url)
 
 
 class RHSA(UnparsableVulnerability):
@@ -121,8 +101,7 @@ class RHSA(UnparsableVulnerability):
             "https://access.redhat.com/labs/securitydataapi/"
             "cve.json?advisory={vuln_id}".format(vuln_id=vuln_id)
         )
-        xpaths = ["//cve/text()"]
-        super(RHSA, self).__init__(vuln_id, packages, base_url, xpaths=xpaths)
+        super(RHSA, self).__init__(vuln_id, packages, base_url)
 
 
 def create_vuln(vuln_id, packages=None):
