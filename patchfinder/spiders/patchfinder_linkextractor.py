@@ -2,7 +2,6 @@ from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 from scrapy.utils.python import unique as unique_list
 from scrapy.utils.response import get_base_url
 import patchfinder.entrypoint as entrypoint
-import re
 
 
 class PatchfinderLinkExtractor(LxmlLinkExtractor):
