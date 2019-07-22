@@ -61,14 +61,14 @@ class DefaultSpider(scrapy.Spider):
         self.patches = []
         if "vuln" in kwargs:
             self.vuln = kwargs.get("vuln")
-            self.vulns = set()
+            self.cves = set()
         self.__dict__.update(
             (k, v) for k, v in kwargs.items() if k in self._allowed_keys
         )
         super(DefaultSpider, self).__init__(*args, **kwargs)
 
     def start_requests(self):
-        if isinstance(self.vuln, context.UnparsableVulnerability):
+        if isinstance(self.vuln, context.GenericVulnerability):
             yield Request(
                 self.vuln.base_url,
                 callback=self.determine_aliases,
@@ -116,14 +116,14 @@ class DefaultSpider(scrapy.Spider):
                 processed_vulns.add(vuln.vuln_id)
                 aliases = self.parse(vuln_response)
                 for alias in aliases:
-                    alias = context.create_vuln(alias)
-                    if not alias or alias.vuln_id in processed_vulns:
+                    if alias in processed_vulns:
                         continue
-                    if isinstance(alias, context.UnparsableVulnerability):
+                    alias = context.create_vuln(alias)
+                    if isinstance(alias, context.GenericVulnerability):
                         temp_aliases.add(alias)
                     else:
                         logger.info("Alias discovered: %s", alias.vuln_id)
-                        self.vulns.add(alias)
+                        self.cves.add(alias)
                         processed_vulns.add(alias.vuln_id)
             vulns = temp_aliases
         yield from self._generate_requests_for_vulns()
@@ -175,7 +175,7 @@ class DefaultSpider(scrapy.Spider):
         yield from self._generate_items_and_requests(response)
 
     def _generate_requests_for_vulns(self):
-        for vuln in self.vulns:
+        for vuln in self.cves:
             for url in vuln.entrypoint_urls:
                 yield Request(
                     url, callback=self.parse, meta=self._patch_find_meta

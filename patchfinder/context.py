@@ -20,7 +20,7 @@ class Vulnerability(object):
         return vuln_id.replace(" ", "-")
 
 
-class UnparsableVulnerability(Vulnerability):
+class GenericVulnerability(Vulnerability):
     """Subclass for an unparsable vulnerability
 
     This vulnerability cannot be used by the default spider.
@@ -59,7 +59,7 @@ class UnparsableVulnerability(Vulnerability):
         self.__dict__.update(
             (k, v) for k, v in kwargs.items() if k in self.allowed_keys
         )
-        super(UnparsableVulnerability, self).__init__(
+        super(GenericVulnerability, self).__init__(
             vuln_id, entrypoint_urls, packages
         )
 
@@ -87,7 +87,7 @@ class CVE(Vulnerability):
         super(CVE, self).__init__(vuln_id, entrypoint_urls, packages)
 
 
-class DSA(UnparsableVulnerability):
+class DSA(GenericVulnerability):
     """Subclass for Debian Security Advisory (DSA)"""
 
     def __init__(self, vuln_id, packages=None):
@@ -98,7 +98,7 @@ class DSA(UnparsableVulnerability):
         super(DSA, self).__init__(vuln_id, packages, base_url)
 
 
-class RHSA(UnparsableVulnerability):
+class RHSA(GenericVulnerability):
     """Subclass for Redhat Security Advisory (RHSA)"""
 
     def __init__(self, vuln_id, packages=None):
@@ -110,7 +110,7 @@ class RHSA(UnparsableVulnerability):
         super(RHSA, self).__init__(vuln_id, packages, base_url)
 
 
-class GLSA(UnparsableVulnerability):
+class GLSA(GenericVulnerability):
     """Subclass for Gentoo Linux Security Advisory (GLSA)"""
 
     def __init__(self, vuln_id, packages=None):
