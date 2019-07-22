@@ -83,6 +83,8 @@ class DefaultSpider(scrapy.Spider):
     def set_context(self, vuln):
         self.vuln = vuln
 
+    # TODO: (critical) Yielding requests from here propagates the depth to
+    #       further requests. This could be resolved by using scrapy signals.
     @inline_requests
     def determine_aliases(self, response):
         """Determine aliases for a vulnerability.
@@ -115,13 +117,14 @@ class DefaultSpider(scrapy.Spider):
                 aliases = self.parse(vuln_response)
                 for alias in aliases:
                     alias = context.create_vuln(alias)
-                    if not alias:
+                    if not alias or alias.vuln_id in processed_vulns:
                         continue
                     if isinstance(alias, context.UnparsableVulnerability):
                         temp_aliases.add(alias)
                     else:
                         logger.info("Alias discovered: %s", alias.vuln_id)
                         self.vulns.add(alias)
+                        processed_vulns.add(alias.vuln_id)
             vulns = temp_aliases
         yield from self._generate_requests_for_vulns()
 
@@ -261,6 +264,7 @@ class DefaultSpider(scrapy.Spider):
         if (
             url.startswith("https://security-tracker.debian.org")
             and self.debian
+            and response.meta.get("find_patches")
         ):
             callback = self.parse_debian
         return callback
