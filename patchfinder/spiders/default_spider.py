@@ -262,9 +262,9 @@ class DefaultSpider(scrapy.Spider):
         callback = None
         url = response.url
         if (
-            url.startswith("https://security-tracker.debian.org")
-            and self.debian
-            and response.meta.get("find_patches")
+                url.startswith("https://security-tracker.debian.org")
+                and self.debian
+                and response.meta.get("find_patches")
         ):
             callback = self.parse_debian
         return callback

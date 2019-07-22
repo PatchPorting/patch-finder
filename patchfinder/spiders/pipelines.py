@@ -3,7 +3,6 @@ import patchfinder.settings as settings
 
 
 class JsonItemPipeline(object):
-
     file_name = settings.TEMP_FILE
 
     def open_spider(self, spider):
@@ -21,5 +20,4 @@ class JsonItemPipeline(object):
 
 
 class PatchPipeline(JsonItemPipeline):
-
     file_name = settings.PATCHES_JSON

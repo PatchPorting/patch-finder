@@ -1,6 +1,5 @@
 import unittest
 import patchfinder.context as context
-import patchfinder.settings as settings
 
 
 class TestContext(unittest.TestCase):

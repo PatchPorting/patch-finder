@@ -57,9 +57,9 @@ class TestDebianParser(unittest.TestCase):
     @mock.patch("patchfinder.parsers.debian_parser.tarfile", spec=tarfile)
     @mock.patch("patchfinder.parsers.debian_parser.os", spec=os)
     def test_extract_patches(
-        self,
-        mock_os,
-        mock_tarfile,
+            self,
+            mock_os,
+            mock_tarfile,
     ):
         path = "foo"
         source = "bar"

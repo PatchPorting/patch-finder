@@ -154,8 +154,8 @@ class DebianParser(object):
                 tar = tarfile.open(pkg_path)
                 for member in tar.getmembers():
                     if (
-                        member.name.endswith(".patch")
-                        and member.name.find(self.vuln_id) is not -1
+                            member.name.endswith(".patch")
+                            and member.name.find(self.vuln_id) is not -1
                     ):
                         self.patches.append(
                             {

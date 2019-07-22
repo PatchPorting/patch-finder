@@ -37,13 +37,13 @@ class UnparsableVulnerability(Vulnerability):
     """
 
     def __init__(
-        self,
-        vuln_id,
-        packages,
-        base_url,
-        entrypoint_urls=None,
-        parse_mode=None,
-        **kwargs
+            self,
+            vuln_id,
+            packages,
+            base_url,
+            entrypoint_urls=None,
+            parse_mode=None,
+            **kwargs
     ):
         self.base_url = base_url
         self.equivalent_vulns = []

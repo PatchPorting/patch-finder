@@ -21,7 +21,7 @@ class Provider(object):
     patch_format_dict = {r"/commit/": r"/patch/"}
 
     def __init__(
-        self, link_components, patch_components, patch_format_dict=None
+            self, link_components, patch_components, patch_format_dict=None
     ):
         self.link_components = link_components
         self.patch_components = patch_components
@@ -141,12 +141,12 @@ def get_xpath(url):
         xpaths = ['//table[@data-testid="vuln-hyperlinks-table"]/tbody//a']
 
     elif re.match(
-        r"^https://security\-tracker\.debian\.org/tracker/CVE\-\d+\-\d+$", url
+            r"^https://security\-tracker\.debian\.org/tracker/CVE\-\d+\-\d+$", url
     ):
         xpaths = ["//pre/a"]
 
     elif re.match(
-        r"^https://security\-tracker\.debian\.org/tracker/DSA\-\d+\-\d+$", url
+            r"^https://security\-tracker\.debian\.org/tracker/DSA\-\d+\-\d+$", url
     ):
         xpaths = [
             "//table//td//b[text()='References']/following::td[1]//a/text()"
@@ -171,16 +171,16 @@ def get_xpath(url):
         xpaths = ["//pre/a"]
 
     elif re.match(
-        r"^https://access\.redhat\.com/labs/securitydataapi/"
-        r"cve.json\?advisory=",
-        url,
+            r"^https://access\.redhat\.com/labs/securitydataapi/"
+            r"cve.json\?advisory=",
+            url,
     ):
         xpaths = ["//cve/text()"]
 
     elif re.match(
-        r"^https://gitweb\.gentoo\.org/data/glsa\.git/plain/"
-        r"glsa\-\d+\-\d+\.xml$",
-        url,
+            r"^https://gitweb\.gentoo\.org/data/glsa\.git/plain/"
+            r"glsa\-\d+\-\d+\.xml$",
+            url,
     ):
         xpaths = ["//references//uri/text()"]
 

@@ -165,7 +165,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "repo_name",
         help="The name of the Github repository in the form"
-        "<owner-name>/<repo-name>",
+             "<owner-name>/<repo-name>",
     )
     args = parser.parse_args()
     github_parser = GithubParser()
