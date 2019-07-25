@@ -301,7 +301,8 @@ class DefaultSpider(scrapy.Spider):
             return self._divide_links(response, links)
         return links
 
-    def _divide_links(self, response, links):
+    @staticmethod
+    def _divide_links(response, links):
         """Divide links into patch links and non patch links
 
         Args:
@@ -341,7 +342,8 @@ class DefaultSpider(scrapy.Spider):
             return 1
         return 0
 
-    def _create_patch_item(self, patch_link, reaching_path):
+    @staticmethod
+    def _create_patch_item(patch_link, reaching_path):
         patch = items.Patch()
         patch["patch_link"] = patch_link
         patch["reaching_path"] = reaching_path

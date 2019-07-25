@@ -41,7 +41,6 @@ class GenericVulnerability(Vulnerability):
         packages=None,
         entrypoint_urls=None,
         parse_mode=None,
-        **kwargs
     ):
         self.base_url = base_url
         self.equivalent_vulns = []
@@ -120,6 +119,15 @@ class GLSA(GenericVulnerability):
 
 
 def create_vuln(vuln_id, packages=None):
+    """Returns a Vulnerability instance.
+
+    Args:
+        vuln_id: The vulnerability ID.
+        packages: A list of packages associated with the vulnerability.
+
+    Returns:
+        An appropriate Vulnerability instance.
+    """
     vuln = None
     if CVE.pattern.match(vuln_id):
         vuln = CVE(vuln_id, packages)
@@ -133,6 +141,15 @@ def create_vuln(vuln_id, packages=None):
 
 
 def create_vulns(*vulns):
+    """Returns a list of Vulnerability instances.
+
+    Args:
+        vulns: Can be just vulnerability IDs or tuples of vuln IDs and list of
+            packages.
+
+    Returns:
+        A list of Vulnerability instances.
+    """
     vuln_objects = []
     for vuln in vulns:
         if isinstance(vuln, tuple):
