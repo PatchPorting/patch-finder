@@ -135,10 +135,13 @@ def create_vuln(vuln_id, packages=None):
     return vuln
 
 
-def create_vulns(*vuln_ids):
-    vulns = []
-    for vuln_id in vuln_ids:
-        vuln = create_vuln(vuln_id)
+def create_vulns(*vulns):
+    vuln_objects = []
+    for vuln in vulns:
+        if isinstance(vuln, tuple):
+            vuln = create_vuln(vuln[0], packages=vuln[1])
+        else:
+            vuln = create_vuln(vuln)
         if vuln:
-            vulns.append(vuln)
-    return vulns
+            vuln_objects.append(vuln)
+    return vuln_objects
