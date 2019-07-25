@@ -5,28 +5,25 @@ import patchfinder.context as context
 class TestContext(unittest.TestCase):
     """Test Class for the context module"""
 
-    def test_cve_init(self):
-        vuln_id = "CVE-2019-1010"
-        vuln = context.CVE(vuln_id)
-        self.assertEqual(vuln.vuln_id, vuln_id)
-        vuln = context.CVE(
-            vuln_id, {"upstream": ["graphicsmagick", "Imagemagick"]}
-        )
-        self.assertEqual(
-            vuln.packages, {"upstream": ["graphicsmagick", "Imagemagick"]}
-        )
-
-    def test_create_vuln(self):
+    def test_create_vuln_for_cve(self):
+        """Vulnerability instantiation for a CVE"""
         vuln = context.create_vuln("CVE-2018-20406", {"upstream": ["python"]})
-        self.assertEqual(vuln.vuln_id, "CVE-2018-20406")
-        self.assertEqual(vuln.packages, {"upstream": ["python"]})
-        vuln = context.create_vuln("TALOS-2018-20406", {"upstream": ["python"]})
-        self.assertEqual(vuln, None)
+        self.assertTrue(vuln)
 
-    def test_dsa_init(self):
-        vuln_id = "DSA-4431-1"
-        vuln = context.DSA(vuln_id)
-        self.assertEqual(vuln.vuln_id, vuln_id)
+    def test_create_vuln_for_unknown_vuln(self):
+        """Vulnerability instantiation for an unknown vulnerability"""
+        vuln = context.create_vuln("foo bar")
+        self.assertFalse(vuln)
+
+    def test_create_vuln_for_inconsistent_cve(self):
+        """Vulnerability instantiation for an inconsistent CVE notation"""
+        vuln = context.create_vuln("cve 2019-4040")
+        self.assertTrue(vuln)
+
+    def test_create_vuln_for_dsa(self):
+        """Vulnerability instantiation for a DSA"""
+        vuln = context.create_vuln("DSA-4444-1")
+        self.assertTrue(vuln)
 
 
 if __name__ == "__main__":
