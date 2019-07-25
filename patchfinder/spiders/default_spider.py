@@ -60,8 +60,7 @@ class DefaultSpider(scrapy.Spider):
         self.name = "default_spider"
         self.patches = []
         if "vuln" in kwargs:
-            self.vuln = kwargs.get("vuln")
-            self.cves = set()
+            self.set_context(kwargs.get("vuln"))
         self.__dict__.update(
             (k, v) for k, v in kwargs.items() if k in self._allowed_keys
         )
@@ -82,6 +81,7 @@ class DefaultSpider(scrapy.Spider):
 
     def set_context(self, vuln):
         self.vuln = vuln
+        self.cves = set()
 
     # TODO: (critical) Yielding requests from here propagates the depth to
     #       further requests. This could be resolved by using scrapy signals.
@@ -100,32 +100,22 @@ class DefaultSpider(scrapy.Spider):
         Args:
             response: Response object for the vulnerability's base URL.
         """
-        vulns = set([self.vuln])
+        vulns = [self.vuln]
         processed_vulns = set()
-        while True:
-            if not vulns:
-                break
-            temp_aliases = set()
-            for vuln in vulns:
-                if vuln.vuln_id in processed_vulns:
+        while vulns:
+            vuln = vulns.pop()
+            if vuln.vuln_id is not self.vuln.vuln_id:
+                response = yield Request(vuln.base_url)
+            processed_vulns.add(vuln.vuln_id)
+            aliases = list(context.create_vulns(list(self.parse(response))))
+            for alias in aliases:
+                if alias.vuln_id in processed_vulns:
                     continue
-                if vuln.vuln_id is self.vuln.vuln_id:
-                    vuln_response = response
+                if isinstance(alias, context.GenericVulnerability):
+                    vulns.append(alias)
                 else:
-                    vuln_response = yield Request(vuln.base_url)
-                processed_vulns.add(vuln.vuln_id)
-                aliases = self.parse(vuln_response)
-                for alias in aliases:
-                    if alias in processed_vulns:
-                        continue
-                    alias = context.create_vuln(alias)
-                    if isinstance(alias, context.GenericVulnerability):
-                        temp_aliases.add(alias)
-                    else:
-                        logger.info("Alias discovered: %s", alias.vuln_id)
-                        self.cves.add(alias)
-                        processed_vulns.add(alias.vuln_id)
-            vulns = temp_aliases
+                    logger.info("Alias discovered: %s", alias.vuln_id)
+                    self.cves.add(alias)
         yield from self._generate_requests_for_vulns()
 
     def parse_debian(self, response):
@@ -262,9 +252,9 @@ class DefaultSpider(scrapy.Spider):
         callback = None
         url = response.url
         if (
-                url.startswith("https://security-tracker.debian.org")
-                and self.debian
-                and response.meta.get("find_patches")
+            url.startswith("https://security-tracker.debian.org")
+            and self.debian
+            and response.meta.get("find_patches")
         ):
             callback = self.parse_debian
         return callback
