@@ -107,7 +107,7 @@ class DefaultSpider(scrapy.Spider):
             if vuln.vuln_id is not self.vuln.vuln_id:
                 response = yield Request(vuln.base_url)
             processed_vulns.add(vuln.vuln_id)
-            aliases = list(context.create_vulns(list(self.parse(response))))
+            aliases = context.create_vulns(*list(self.parse(response)))
             for alias in aliases:
                 if alias.vuln_id in processed_vulns:
                     continue

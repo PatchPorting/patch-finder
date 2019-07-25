@@ -135,8 +135,10 @@ def create_vuln(vuln_id, packages=None):
     return vuln
 
 
-def create_vulns(vuln_ids):
+def create_vulns(*vuln_ids):
+    vulns = []
     for vuln_id in vuln_ids:
         vuln = create_vuln(vuln_id)
         if vuln:
-            yield vuln
+            vulns.append(vuln)
+    return vulns
