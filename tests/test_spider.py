@@ -12,7 +12,7 @@ class TestSpider(unittest.TestCase):
     def setUp(self):
         self.spider = default_spider.DefaultSpider()
 
-    def test_start_requests_with_parsable_vuln(self):
+    def test_start_requests_with_vuln(self):
         """Start requests for a parsable vulnerability.
 
         For a parsable vulnerability, the spider should generate as
@@ -26,7 +26,7 @@ class TestSpider(unittest.TestCase):
         requests = list(self.spider.start_requests())
         self.assertEqual(len(requests), len(vuln.entrypoint_urls))
 
-    def test_start_requests_with_unparsable_vuln(self):
+    def test_start_requests_with_generic_vuln(self):
         """Start requests for an unparsable vulnerability.
 
         For an unparsable vulnerability, the spider should generate only
@@ -77,9 +77,34 @@ class TestSpider(unittest.TestCase):
         requests_and_items = self.spider.parse(response)
         patch_item = next(requests_and_items)
         req_urls = [request.url for request in requests_and_items]
-        self.assertEqual(patch_item['patch_link'], patch_link)
+        self.assertEqual(patch_item["patch_link"], patch_link)
         self.assertTrue(all(url not in req_urls) for url in absent_urls)
         self.assertTrue(all(url in req_urls) for url in present_urls)
+
+    def test_determine_aliases_with_no_generic_vulns(self):
+        vuln_id = "DSA-4444-1"
+        vuln = context.create_vuln(vuln_id)
+        expected_aliases = {
+            "CVE-2018-12126",
+            "CVE-2018-12127",
+            "CVE-2018-12130",
+            "CVE-2019-11091",
+        }
+        response = fake_response_from_file(
+            "./mocks/debsec_dsa_4444_1.html",
+            url="https://security-tracker.debian.org/tracker/{vuln_id}".format(
+                vuln_id=vuln_id
+            ),
+        )
+        response.headers["Content-Type"] = b"text/html"
+        self.spider.set_context(vuln)
+        req_urls = [
+            request.url for request in self.spider.determine_aliases(response)
+        ]
+        got_aliases = set([alias.vuln_id for alias in self.spider.cves])
+        self.assertEqual(expected_aliases, got_aliases)
+        for cve in self.spider.cves:
+            self.assertTrue(url in req_urls for url in cve.entrypoint_urls)
 
     @unittest.skip("Redo this")
     def test_patch_limit_with_parse(self):
