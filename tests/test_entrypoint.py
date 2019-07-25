@@ -6,40 +6,14 @@ import patchfinder.entrypoint as entrypoint
 class TestEntrypoint(unittest.TestCase):
     """Test Class for Entrypoint"""
 
-    def test_entrypoint_init(self):
-        vuln = context.create_vuln("CVE-2018-20406")
-        self.assertTrue(
-            "https://nvd.nist.gov/vuln/detail/CVE-2018-20406"
-            in vuln.entrypoint_urls
-        )
-        self.assertTrue(
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?"
-            "name=CVE-2018-20406" in vuln.entrypoint_urls
-        )
-
-    def test_github_init(self):
-        github = entrypoint.Github()
-        link = (
-            "https://github.com/python/cpython/commit/a4ae828ee416a6"
-            "6d8c7bf5ee71d653c2cc6a26dd"
-        )
-        self.assertEqual(
-            github.link_components, ["github\.com", "/(commit|pull)/"]
-        )
-
     def test_github_match_link(self):
         github = entrypoint.Github()
-        link = (
+        links = [
             "https://github.com/python/cpython/commit/a4ae828ee416a6"
-            "6d8c7bf5ee71d653c2cc6a26dd"
-        )
-        self.assertTrue(github.match_link(link))
-        link = "https://github.com/python/cpython/pull/13797"
-        self.assertTrue(github.match_link(link))
-
-    def test_map_entrypoint_name(self):
-        self.assertTrue(entrypoint.map_entrypoint_name("github.com"))
-        self.assertFalse(entrypoint.map_entrypoint_name("opensuse"))
+            "6d8c7bf5ee71d653c2cc6a26dd",
+            "https://github.com/python/cpython/pull/13797",
+        ]
+        self.assertTrue(github.match_link(link) for link in links)
 
     def test_github_is_patch(self):
         link = (
