@@ -18,7 +18,7 @@ class Vulnerability(object):
 
     @staticmethod
     def _normalize_vuln(vuln_id):
-        return vuln_id.upper().replace(" ", "-")
+        return vuln_id.upper().replace(" ", "-").replace("_", "-")
 
 
 class GenericVulnerability(Vulnerability):
