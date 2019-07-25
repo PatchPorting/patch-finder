@@ -17,8 +17,8 @@ class Vulnerability(object):
         self.packages = packages
 
     @staticmethod
-    def _rectify_vuln(vuln_id):
-        return vuln_id.replace(" ", "-")
+    def _normalize_vuln(vuln_id):
+        return vuln_id.upper().replace(" ", "-")
 
 
 class GenericVulnerability(Vulnerability):
@@ -35,13 +35,13 @@ class GenericVulnerability(Vulnerability):
     """
 
     def __init__(
-            self,
-            vuln_id,
-            base_url,
-            packages=None,
-            entrypoint_urls=None,
-            parse_mode=None,
-            **kwargs
+        self,
+        vuln_id,
+        base_url,
+        packages=None,
+        entrypoint_urls=None,
+        parse_mode=None,
+        **kwargs
     ):
         self.base_url = base_url
         self.equivalent_vulns = []
@@ -60,8 +60,10 @@ class GenericVulnerability(Vulnerability):
 class CVE(Vulnerability):
     """Subclass for CVE"""
 
+    pattern = re.compile(r"^CVE[ \-_]\d+[ \-_]\d+$", re.I)
+
     def __init__(self, vuln_id, packages=None):
-        vuln_id = self._rectify_vuln(vuln_id)
+        vuln_id = self._normalize_vuln(vuln_id)
         entrypoint_urls = [
             "https://nvd.nist.gov/vuln/detail/{vuln_id}".format(
                 vuln_id=vuln_id
@@ -79,8 +81,10 @@ class CVE(Vulnerability):
 class DSA(GenericVulnerability):
     """Subclass for Debian Security Advisory (DSA)"""
 
+    pattern = re.compile(r"^DSA[ \-_]\d{3,}[ \-_]\d+$", re.I)
+
     def __init__(self, vuln_id, packages=None):
-        vuln_id = self._rectify_vuln(vuln_id)
+        vuln_id = self._normalize_vuln(vuln_id)
         base_url = "https://security-tracker.debian.org/tracker/{vuln_id}".format(
             vuln_id=vuln_id
         )
@@ -90,8 +94,10 @@ class DSA(GenericVulnerability):
 class RHSA(GenericVulnerability):
     """Subclass for Redhat Security Advisory (RHSA)"""
 
+    pattern = re.compile(r"^RHSA[ \-_]\d+:\d+$", re.I)
+
     def __init__(self, vuln_id, packages=None):
-        vuln_id = self._rectify_vuln(vuln_id)
+        vuln_id = self._normalize_vuln(vuln_id)
         base_url = (
             "https://access.redhat.com/labs/securitydataapi/"
             "cve.json?advisory={vuln_id}".format(vuln_id=vuln_id)
@@ -102,8 +108,10 @@ class RHSA(GenericVulnerability):
 class GLSA(GenericVulnerability):
     """Subclass for Gentoo Linux Security Advisory (GLSA)"""
 
+    pattern = re.compile(r"^GLSA[ \-_]\d+[ \-_]\d+$", re.I)
+
     def __init__(self, vuln_id, packages=None):
-        vuln_id = self._rectify_vuln(vuln_id)
+        vuln_id = self._normalize_vuln(vuln_id)
         base_url = (
             "https://gitweb.gentoo.org/data/glsa.git/plain/"
             "{vuln_id}.xml".format(vuln_id=vuln_id.lower())
@@ -113,13 +121,13 @@ class GLSA(GenericVulnerability):
 
 def create_vuln(vuln_id, packages=None):
     vuln = None
-    if re.match(r"^CVE\-\d+\-\d+$", vuln_id, re.I):
+    if CVE.pattern.match(vuln_id):
         vuln = CVE(vuln_id, packages)
-    elif re.match(r"^DSA\-\d{3,}\-\d+$", vuln_id, re.I):
+    elif DSA.pattern.match(vuln_id):
         vuln = DSA(vuln_id, packages)
-    elif re.match(r"^RHSA\-\d+:\d+$", vuln_id, re.I):
+    elif RHSA.pattern.match(vuln_id):
         vuln = RHSA(vuln_id, packages)
-    elif re.match(r"^GLSA( |\-)\d+-\d+$", vuln_id, re.I):
+    elif GLSA.pattern.match(vuln_id):
         vuln = GLSA(vuln_id, packages)
     return vuln
 
