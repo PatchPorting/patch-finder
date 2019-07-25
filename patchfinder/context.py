@@ -16,7 +16,8 @@ class Vulnerability(object):
         self.entrypoint_urls = entrypoint_urls
         self.packages = packages
 
-    def _rectify_vuln(self, vuln_id):
+    @staticmethod
+    def _rectify_vuln(vuln_id):
         return vuln_id.replace(" ", "-")
 
 
@@ -30,17 +31,14 @@ class GenericVulnerability(Vulnerability):
             this will point to a JSON-based, XML-based or HTML-based URL to
             facilitate "translation" of the vulnerability to a parsable
             vulnerability
-        equivalent_vulns: A list of equivalent vulnerabilities that can be
-            used by the default spider.
-        allowed_keys: A set of allowed keys for initialization
         parse_mode: The content type returned by base_url's response
     """
 
     def __init__(
             self,
             vuln_id,
-            packages,
             base_url,
+            packages=None,
             entrypoint_urls=None,
             parse_mode=None,
             **kwargs
@@ -48,19 +46,10 @@ class GenericVulnerability(Vulnerability):
         self.base_url = base_url
         self.equivalent_vulns = []
         self.parse_mode = parse_mode
-        self.allowed_keys = {
-            "start_block",
-            "end_block",
-            "search_params",
-            "as_per_block",
-        }
         if not entrypoint_urls:
             entrypoint_urls = []
-        self.__dict__.update(
-            (k, v) for k, v in kwargs.items() if k in self.allowed_keys
-        )
         super(GenericVulnerability, self).__init__(
-            vuln_id, entrypoint_urls, packages
+            vuln_id, entrypoint_urls, packages=packages
         )
 
     def clean_data(self, data):
@@ -84,7 +73,7 @@ class CVE(Vulnerability):
                 vuln_id=vuln_id
             ),
         ]
-        super(CVE, self).__init__(vuln_id, entrypoint_urls, packages)
+        super(CVE, self).__init__(vuln_id, entrypoint_urls, packages=packages)
 
 
 class DSA(GenericVulnerability):
@@ -95,7 +84,7 @@ class DSA(GenericVulnerability):
         base_url = "https://security-tracker.debian.org/tracker/{vuln_id}".format(
             vuln_id=vuln_id
         )
-        super(DSA, self).__init__(vuln_id, packages, base_url)
+        super(DSA, self).__init__(vuln_id, base_url, packages=packages)
 
 
 class RHSA(GenericVulnerability):
@@ -107,7 +96,7 @@ class RHSA(GenericVulnerability):
             "https://access.redhat.com/labs/securitydataapi/"
             "cve.json?advisory={vuln_id}".format(vuln_id=vuln_id)
         )
-        super(RHSA, self).__init__(vuln_id, packages, base_url)
+        super(RHSA, self).__init__(vuln_id, base_url, packages=packages)
 
 
 class GLSA(GenericVulnerability):
