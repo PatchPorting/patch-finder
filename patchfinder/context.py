@@ -133,3 +133,10 @@ def create_vuln(vuln_id, packages=None):
     elif re.match(r"^GLSA( |\-)\d+-\d+$", vuln_id, re.I):
         vuln = GLSA(vuln_id, packages)
     return vuln
+
+
+def create_vulns(vuln_ids):
+    for vuln_id in vuln_ids:
+        vuln = create_vuln(vuln_id)
+        if vuln:
+            yield vuln
