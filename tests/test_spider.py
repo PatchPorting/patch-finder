@@ -13,9 +13,9 @@ class TestSpider(unittest.TestCase):
         self.spider = default_spider.DefaultSpider()
 
     def test_start_requests_with_vuln(self):
-        """Start requests for a parsable vulnerability.
+        """Start requests for a normal vulnerability.
 
-        For a parsable vulnerability, the spider should generate as
+        For a normal vulnerability (i.e. a CVE), the spider should generate as
         many requests as the entrypoint URLs for the vulnerability.
 
         Tests:
@@ -27,9 +27,9 @@ class TestSpider(unittest.TestCase):
         self.assertEqual(len(requests), len(vuln.entrypoint_urls))
 
     def test_start_requests_with_generic_vuln(self):
-        """Start requests for an unparsable vulnerability.
+        """Start requests for an generic vulnerability.
 
-        For an unparsable vulnerability, the spider should generate only
+        For a generic vulnerability, the spider should generate only
         one request, i.e. for the base URL of the vulnerability.
 
         Tests:
@@ -82,6 +82,11 @@ class TestSpider(unittest.TestCase):
         self.assertTrue(all(url in req_urls) for url in present_urls)
 
     def test_determine_aliases_with_no_generic_vulns(self):
+        """The aliases of a vulnerability should be scraped from the response.
+
+        Tests:
+            patchfinder.spiders.default_spider.DefaultSpider.determine_aliases
+        """
         vuln_id = "DSA-4444-1"
         vuln = context.create_vuln(vuln_id)
         expected_aliases = {
