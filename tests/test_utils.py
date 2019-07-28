@@ -10,36 +10,12 @@ from tests import fake_response_from_file
 class TestUtils(unittest.TestCase):
     """Test Class for the utils modules"""
 
-    @unittest.skip('Is this a real test?')
-    @mock.patch("patchfinder.utils.open", new_callable=mock.mock_open)
-    def test_write_response_to_file(self, mock_file):
-        response = fake_response_from_file("./mocks/mock_file")
-        body = response.body.decode("utf-8")
-        save_as = "foo"
-        utils.write_response_to_file(response, save_as)
-        mock_file.assert_called_with(save_as, "w")
-        handle = mock_file()
-        handle.write.assert_called_with(body)
-        handle.close.assert_called_once()
-
-    def test_parse_file_by_block_debian(self):
-        vuln_id = "CVE-2016-4796"
-        file_name = "./tests/mocks/mock_debian_cve_list"
-        debian_parser = DebianParser()
-        debian_parser.set_context(vuln_id)
-        matches = utils.parse_file_by_block(
-            file_name,
-            debian_parser.file_start_block,
-            debian_parser.file_end_block,
-            debian_parser.pkg_ver_line,
-        )
-        self.assertEqual(next(matches), ["openjpeg2", "2.1.1-1"])
-
+    @unittest.skip('Redo this')
     def test_parse_web_page(self):
         url = "file://" + os.path.abspath("./tests/mocks/3.html")
         href = "https://bugzilla.redhat.com/show_bug.cgi?id=1317826"
         regex = re.compile(r"/show_bug\.cgi\?id=\d{7}$")
-        search_results = utils.parse_web_page(url, "a", href=regex)
+        search_results = utils.parse_web_page(url)
         self.assertEqual(search_results["href"], href)
 
     def test_parse_dict(self):

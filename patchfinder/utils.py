@@ -1,12 +1,13 @@
 import os
 import re
 import logging
-import dicttoxml
 import json
 import tarfile
 import urllib.request
 import urllib.error
-from bs4 import BeautifulSoup
+import dicttoxml
+import lxml
+import patchfinder.entrypoint as entrypoint
 
 logger = logging.getLogger(__name__)
 
@@ -46,39 +47,29 @@ def json_response_to_xml(response):
     return response.replace(body=xml)
 
 
-def parse_file_by_block(file_name, start_block, end_block, search_params):
-    f = open(file_name)
-    try:
-        block_found = False
-        for line in f:
-            line = line.rstrip()
-            if block_found:
-                if end_block.match(line):
-                    break
-                search_results = search_params.search(line)
-                if search_results:
-                    yield list(search_results.groups())
-            elif start_block.match(line):
-                block_found = True
-    finally:
-        f.close()
-
-
-def parse_web_page(url, tag, **kwargs):
+def parse_web_page(url, xpaths=None):
+    logger.info("Opening %s...", url)
     try:
         html = urllib.request.urlopen(url)
     except urllib.error.HTTPError as e:
         raise Exception("Error opening {url}".format(url=url))
     logger.info("Crawled %s", url)
-    soup = BeautifulSoup(html, "html.parser")
 
-    # currently returns only one item, use find_all for multiple
-    search_results = soup.find(tag, **kwargs)
+    search_results = []
+    if not xpaths:
+        xpaths = entrypoint.get_resource(url).get_normal_xpaths()
+    elements = lxml.html.fromstring(html.read())
+    for element in elements:
+        if element.tag != "body":
+            continue
+        for xpath in xpaths:
+            search_results.extend(element.xpath(xpath))
+        break
     return search_results
 
 
 def parse_dict(dictionary, key_list, get_key):
-    if not len(key_list):
+    if not key_list:
         return []
     search_results = []
     for key in dictionary.keys():
