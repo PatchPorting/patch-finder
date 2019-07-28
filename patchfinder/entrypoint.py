@@ -183,7 +183,7 @@ def get_resource(url):
             url,
             links_xpaths=["//pre/a"],
             normal_xpaths=[
-                "//table[3]//tr//td[1]//text()|//table[3]//tr//td[3]//text()"
+                "//table[3]//tr//td[1]//text()|//table[3]//tr//td[4]//text()"
             ],
         )
 
