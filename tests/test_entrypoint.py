@@ -30,13 +30,11 @@ class TestEntrypoint(unittest.TestCase):
 
     def test_mitre_url_mapping(self):
         url = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-4796"
-        xpath = entrypoint.get_xpath(url)
-        self.assertEqual(xpath, ['//*[@id="GeneratedTable"]/table/tr[7]/td//a'])
+        resource = entrypoint.get_resource(url)
 
     def test_openwall_url_mapping(self):
         url = "https://www.openwall.com/lists/oss-security/2016/05/13/2"
-        xpath = entrypoint.get_xpath(url)
-        self.assertEqual(xpath, ["//pre/a"])
+        resource = entrypoint.get_resource(url)
 
     def test_fedoraproject_lists_url_mapping(self):
         url = (
@@ -44,21 +42,18 @@ class TestEntrypoint(unittest.TestCase):
             "ce@lists.fedoraproject.org/message/5FFMOZOF2EI6N2CR23EQ5EA"
             "TWLQKBMHW/"
         )
-        xpath = entrypoint.get_xpath(url)
-        self.assertEqual(xpath, ["//div[contains(@class, 'email-body')]//a"])
+        resource = entrypoint.get_resource(url)
 
     def test_debian_lists_url_mapping(self):
         url = (
             "https://lists.debian.org/debian-lts-announce/2019/05/msg0003"
             "9.html"
         )
-        xpath = entrypoint.get_xpath(url)
-        self.assertEqual(xpath, ["//pre/a"])
+        resource = entrypoint.get_resource(url)
 
     def test_seclists_url_mapping(self):
         url = "https://seclists.org/oss-sec/2018/q3/179"
-        xpath = entrypoint.get_xpath(url)
-        self.assertEqual(xpath, ["//pre/a"])
+        resource = entrypoint.get_resource(url)
 
 
 if __name__ == "__main__":

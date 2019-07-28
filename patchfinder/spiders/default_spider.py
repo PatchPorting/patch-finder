@@ -185,7 +185,7 @@ class DefaultSpider(scrapy.Spider):
         if response.meta.get("find_patches"):
             yield from self._patches_and_requests(response)
         else:
-            xpaths = entrypoint.get_xpath(response.url)
+            xpaths = entrypoint.get_resource(response.url).get_normal_xpaths()
             for xpath in xpaths:
                 scraped_items = response.xpath(xpath).extract()
                 for item in scraped_items:
@@ -291,7 +291,7 @@ class DefaultSpider(scrapy.Spider):
         Returns:
             A dictionary of links divided into patch and non-patch links.
         """
-        xpaths = entrypoint.get_xpath(response.url)
+        xpaths = entrypoint.get_resource(response.url).get_links_xpaths()
         links = LxmlLinkExtractor(
             deny=self.deny_pages,
             deny_domains=self.deny_domains,
