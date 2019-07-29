@@ -1,8 +1,7 @@
 # TODO: figure out a more sophisticated way to construct URLs,
 #      maybe define a method to substitute a %s for multiple strings
-import re
-import patchfinder.utils as utils
 
+import re
 
 class Provider(object):
     """Subclass for a patch Provider
@@ -21,7 +20,7 @@ class Provider(object):
     patch_format_dict = {r"/commit/": r"/patch/"}
 
     def __init__(
-        self, link_components, patch_components, patch_format_dict=None
+            self, link_components, patch_components, patch_format_dict=None
     ):
         self.link_components = link_components
         self.patch_components = patch_components
@@ -34,13 +33,19 @@ class Provider(object):
             link = re.sub(i, self.patch_format_dict[i], link)
         return link
 
+    @staticmethod
+    def match_all(string, patterns):
+        if all(re.search(x, string) for x in patterns):
+            return True
+        return False
+
     def is_patch_link(self, link):
         """Check if 'link' is a patch-formatted link"""
-        return utils.match_all(link, self.patch_components)
+        return Provider.match_all(link, self.patch_components)
 
     def match_link(self, link):
         """Checks if 'link' belongs to this provider"""
-        return utils.match_all(link, self.link_components)
+        return Provider.match_all(link, self.link_components)
 
     def belongs(self, link):
         if self.match_link(link):
@@ -119,6 +124,97 @@ class Resource(object):
         self.links_xpaths = kwargs.get("links_xpaths")
         self.normal_xpaths = kwargs.get("normal_xpaths")
 
+    @staticmethod
+    def get_resource(url):
+        """Given a URL, return an Resource instance.
+
+        Args:
+            url: The URL to return the instance of.
+
+        Returns:
+            A resource instance.
+        """
+
+        resource = Resource(url, links_xpaths=["//body//a"])
+
+        if re.match(r"^https://github\.com/", url):
+            resource = Resource(
+                url, links_xpaths=["//div[contains(@class, 'commit-message')]//a"]
+            )
+
+        elif re.match(r"^https://cve\.mitre\.org/", url):
+            resource = Resource(
+                url, links_xpaths=['//*[@id="GeneratedTable"]/table/tr[7]/td//a']
+            )
+
+        elif re.match(r"^https://nvd\.nist\.gov/", url):
+            resource = Resource(
+                url,
+                links_xpaths=[
+                    '//table[@data-testid="vuln-hyperlinks-table"]/tbody//a'
+                ],
+            )
+
+        elif re.match(
+                r"^https://security\-tracker\.debian\.org/tracker/CVE\-\d+\-\d+$", url
+        ):
+            resource = Resource(
+                url,
+                links_xpaths=["//pre/a"],
+                normal_xpaths=[
+                    "//table[3]//tr//td[1]//text()|//table[3]//tr//td[4]//text()"
+                ],
+            )
+
+        elif re.match(
+                r"^https://security\-tracker\.debian\.org/tracker/DSA\-\d+\-\d+$", url
+        ):
+            resource = Resource(
+                url,
+                normal_xpaths=[
+                    "//table//td//b[text()='References']/following::td[1]//a/text()"
+                ],
+            )
+
+        elif re.match(r"^https://www.openwall\.com/lists/oss\-security", url):
+            resource = Resource(url, links_xpaths=["//pre/a"])
+
+        elif re.match(r"^https://lists\.fedoraproject\.org/archives/list/", url):
+            resource = Resource(
+                url, link_xpaths=["//div[contains(@class, 'email-body')]//a"]
+            )
+
+        elif re.match(r"^https://lists\.debian\.org/", url):
+            resource = Resource(url, link_xpaths=["//pre/a"])
+
+        elif re.match(r"^https://bugzilla\.redhat\.com/show_bug\.cgi\?id=", url):
+            resource = Resource(
+                url,
+                links_xpaths=[
+                    "//pre[contains(@class, 'bz_comment_text')]//a",
+                    "//table[@id='external_bugs_table']//a",
+                ],
+            )
+
+        elif re.match(r"^https://seclists\.org/", url):
+            resource = Resource(url, links_xpaths=["//pre/a"])
+
+        elif re.match(
+                r"^https://access\.redhat\.com/labs/securitydataapi/"
+                r"cve.json\?advisory=",
+                url,
+        ):
+            resource = Resource(url, normal_xpaths=["//cve/text()"])
+
+        elif re.match(
+                r"^https://gitweb\.gentoo\.org/data/glsa\.git/plain/"
+                r"glsa\-\d+\-\d+\.xml$",
+                url,
+        ):
+            resource = Resource(url, normal_xpaths=["//references//uri/text()"])
+
+        return resource
+
     def get_links_xpaths(self):
         links_xpaths = []
         if self.links_xpaths:
@@ -144,97 +240,6 @@ def map_entrypoint_name(entrypoint_name):
     elif entrypoint_name == "git.kernel.org":
         return GitKernel()
     return None
-
-
-def get_resource(url):
-    """Given a URL, return an Resource instance.
-
-    Args:
-        url: The URL to return the instance of.
-
-    Returns:
-        A resource instance.
-    """
-
-    resource = Resource(url, links_xpaths=["//body//a"])
-
-    if re.match(r"^https://github\.com/", url):
-        resource = Resource(
-            url, links_xpaths=["//div[contains(@class, 'commit-message')]//a"]
-        )
-
-    elif re.match(r"^https://cve\.mitre\.org/", url):
-        resource = Resource(
-            url, links_xpaths=['//*[@id="GeneratedTable"]/table/tr[7]/td//a']
-        )
-
-    elif re.match(r"^https://nvd\.nist\.gov/", url):
-        resource = Resource(
-            url,
-            links_xpaths=[
-                '//table[@data-testid="vuln-hyperlinks-table"]/tbody//a'
-            ],
-        )
-
-    elif re.match(
-        r"^https://security\-tracker\.debian\.org/tracker/CVE\-\d+\-\d+$", url
-    ):
-        resource = Resource(
-            url,
-            links_xpaths=["//pre/a"],
-            normal_xpaths=[
-                "//table[3]//tr//td[1]//text()|//table[3]//tr//td[4]//text()"
-            ],
-        )
-
-    elif re.match(
-        r"^https://security\-tracker\.debian\.org/tracker/DSA\-\d+\-\d+$", url
-    ):
-        resource = Resource(
-            url,
-            normal_xpaths=[
-                "//table//td//b[text()='References']/following::td[1]//a/text()"
-            ],
-        )
-
-    elif re.match(r"^https://www.openwall\.com/lists/oss\-security", url):
-        resource = Resource(url, links_xpaths=["//pre/a"])
-
-    elif re.match(r"^https://lists\.fedoraproject\.org/archives/list/", url):
-        resource = Resource(
-            url, link_xpaths=["//div[contains(@class, 'email-body')]//a"]
-        )
-
-    elif re.match(r"^https://lists\.debian\.org/", url):
-        resource = Resource(url, link_xpaths=["//pre/a"])
-
-    elif re.match(r"^https://bugzilla\.redhat\.com/show_bug\.cgi\?id=", url):
-        resource = Resource(
-            url,
-            links_xpaths=[
-                "//pre[contains(@class, 'bz_comment_text')]//a",
-                "//table[@id='external_bugs_table']//a",
-            ],
-        )
-
-    elif re.match(r"^https://seclists\.org/", url):
-        resource = Resource(url, links_xpaths=["//pre/a"])
-
-    elif re.match(
-        r"^https://access\.redhat\.com/labs/securitydataapi/"
-        r"cve.json\?advisory=",
-        url,
-    ):
-        resource = Resource(url, normal_xpaths=["//cve/text()"])
-
-    elif re.match(
-        r"^https://gitweb\.gentoo\.org/data/glsa\.git/plain/"
-        r"glsa\-\d+\-\d+\.xml$",
-        url,
-    ):
-        resource = Resource(url, normal_xpaths=["//references//uri/text()"])
-
-    return resource
 
 
 def is_patch(link):

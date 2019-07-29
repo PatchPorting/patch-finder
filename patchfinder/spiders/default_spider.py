@@ -7,7 +7,7 @@ from inline_requests import inline_requests
 import patchfinder.context as context
 import patchfinder.parsers as parsers
 import patchfinder.spiders.items as items
-import patchfinder.entrypoint as entrypoint
+from patchfinder.entrypoint import Resource, is_patch
 import patchfinder.settings as settings
 import patchfinder.utils as utils
 
@@ -185,7 +185,7 @@ class DefaultSpider(scrapy.Spider):
         if response.meta.get("find_patches"):
             yield from self._patches_and_requests(response)
         else:
-            xpaths = entrypoint.get_resource(response.url).get_normal_xpaths()
+            xpaths = Resource.get_resource(response.url).get_normal_xpaths()
             for xpath in xpaths:
                 scraped_items = response.xpath(xpath).extract()
                 for item in scraped_items:
@@ -291,7 +291,7 @@ class DefaultSpider(scrapy.Spider):
         Returns:
             A dictionary of links divided into patch and non-patch links.
         """
-        xpaths = entrypoint.get_resource(response.url).get_links_xpaths()
+        xpaths = Resource.get_resource(response.url).get_links_xpaths()
         links = LxmlLinkExtractor(
             deny=self.deny_pages,
             deny_domains=self.deny_domains,
@@ -315,7 +315,7 @@ class DefaultSpider(scrapy.Spider):
         divided_links = {"patch_links": [], "links": []}
         for link in links:
             link = response.urljoin(link.url[0:])
-            patch_link = entrypoint.is_patch(link)
+            patch_link = is_patch(link)
             if patch_link:
                 divided_links["patch_links"].append(patch_link)
             else:

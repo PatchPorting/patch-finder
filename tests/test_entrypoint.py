@@ -1,6 +1,7 @@
 import unittest
 import patchfinder.context as context
 import patchfinder.entrypoint as entrypoint
+from patchfinder.entrypoint import Resource
 
 
 class TestEntrypoint(unittest.TestCase):
@@ -30,11 +31,11 @@ class TestEntrypoint(unittest.TestCase):
 
     def test_mitre_url_mapping(self):
         url = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-4796"
-        resource = entrypoint.get_resource(url)
+        resource = Resource.get_resource(url)
 
     def test_openwall_url_mapping(self):
         url = "https://www.openwall.com/lists/oss-security/2016/05/13/2"
-        resource = entrypoint.get_resource(url)
+        resource = Resource.get_resource(url)
 
     def test_fedoraproject_lists_url_mapping(self):
         url = (
@@ -42,18 +43,18 @@ class TestEntrypoint(unittest.TestCase):
             "ce@lists.fedoraproject.org/message/5FFMOZOF2EI6N2CR23EQ5EA"
             "TWLQKBMHW/"
         )
-        resource = entrypoint.get_resource(url)
+        resource = Resource.get_resource(url)
 
     def test_debian_lists_url_mapping(self):
         url = (
             "https://lists.debian.org/debian-lts-announce/2019/05/msg0003"
             "9.html"
         )
-        resource = entrypoint.get_resource(url)
+        resource = Resource.get_resource(url)
 
     def test_seclists_url_mapping(self):
         url = "https://seclists.org/oss-sec/2018/q3/179"
-        resource = entrypoint.get_resource(url)
+        resource = Resource.get_resource(url)
 
 
 if __name__ == "__main__":

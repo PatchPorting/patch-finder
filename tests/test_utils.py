@@ -1,22 +1,17 @@
-import os
-import re
 import unittest
 import unittest.mock as mock
-import patchfinder.utils as utils
-from patchfinder.parsers import DebianParser
+from patchfinder.utils import parse_web_page,parse_dict, download_item, find_in_directory,\
+    member_in_tarfile, json_response_to_xml
 from tests import fake_response_from_file
 
 
 class TestUtils(unittest.TestCase):
     """Test Class for the utils modules"""
 
-    @unittest.skip('Redo this')
     def test_parse_web_page(self):
-        url = "file://" + os.path.abspath("./tests/mocks/3.html")
         href = "https://bugzilla.redhat.com/show_bug.cgi?id=1317826"
-        regex = re.compile(r"/show_bug\.cgi\?id=\d{7}$")
-        search_results = utils.parse_web_page(url)
-        self.assertEqual(search_results["href"], href)
+        search_results = parse_web_page(href)
+        print(search_results)
 
     def test_parse_dict(self):
         dictionary = {
@@ -37,7 +32,7 @@ class TestUtils(unittest.TestCase):
         }
         key_list = [r"^CVE", r"^releases$", r".*"]
         expected_results = ["stretch", "jessie", "sid", "buster", "wheezy"]
-        search_results = utils.parse_dict(dictionary, key_list, True)
+        search_results = parse_dict(dictionary, key_list, True)
         self.assertEqual(set(search_results), set(expected_results))
 
     @mock.patch("patchfinder.utils.urllib.request")
@@ -46,7 +41,7 @@ class TestUtils(unittest.TestCase):
         file_name = "./tests/mocks/mock_file"
         file_url = "mock_url"
         mock_os.path.isfile.return_value = True
-        utils.download_item(file_url, file_name)
+        download_item(file_url, file_name)
         mock_os.path.isfile.assert_called_with(file_name)
         mock_os.path.split.assert_not_called()
         mock_urllib_request.urlretrieve.assert_not_called()
@@ -59,20 +54,20 @@ class TestUtils(unittest.TestCase):
         mock_os.path.isfile.return_value = False
         mock_os.path.isdir.return_value = False
         mock_os.path.split.return_value = "."
-        utils.download_item(file_url, file_name)
+        download_item(file_url, file_name)
         mock_os.path.isfile.assert_called_with(file_name)
         mock_os.path.split.assert_called_with(file_name)
         mock_urllib_request.urlretrieve.assert_called_with(file_url, file_name)
 
     def test_find_in_directory(self):
-        files = list(utils.find_in_directory("./tests/mocks", "mock"))
+        files = list(find_in_directory("./tests/mocks", "mock"))
         self.assertIn("./tests/mocks/mock_debian_cve_list", files)
         self.assertIn("./tests/mocks/mock_file", files)
 
     def test_member_in_tarfile(self):
         tar_file = "./tests/mocks/openjpeg2_2.1.1-1.debian.tar.xz"
-        self.assertTrue(utils.member_in_tarfile(tar_file, "debian"))
-        self.assertFalse(utils.member_in_tarfile(tar_file, "deb"))
+        self.assertTrue(member_in_tarfile(tar_file, "debian"))
+        self.assertFalse(member_in_tarfile(tar_file, "deb"))
 
     @mock.patch("patchfinder.utils.dicttoxml.dicttoxml")
     @mock.patch("patchfinder.utils.json.loads")
@@ -83,7 +78,7 @@ class TestUtils(unittest.TestCase):
         mock_json_loads.return_value = dictionary
         response = fake_response_from_file("./mocks/mock_file")
         prev_body = response.body
-        response = utils.json_response_to_xml(response)
+        response = json_response_to_xml(response)
 
         mock_json_loads.assert_called_with(prev_body)
         mock_dicttoxml.assert_called_with(dictionary)

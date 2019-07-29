@@ -7,15 +7,10 @@ import urllib.request
 import urllib.error
 import dicttoxml
 import lxml
-import patchfinder.entrypoint as entrypoint
+from .entrypoint import Resource
 
 logger = logging.getLogger(__name__)
 
-
-def match_all(string, patterns):
-    if all(re.search(x, string) for x in patterns):
-        return True
-    return False
 
 
 def match_any(string, patterns):
@@ -57,7 +52,7 @@ def parse_web_page(url, xpaths=None):
 
     search_results = []
     if not xpaths:
-        xpaths = entrypoint.get_resource(url).get_normal_xpaths()
+        xpaths = Resource.get_resource(url).get_normal_xpaths()
     elements = lxml.html.fromstring(html.read())
     for element in elements:
         if element.tag != "body":
