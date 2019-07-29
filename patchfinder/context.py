@@ -80,7 +80,7 @@ class CVE(Vulnerability):
 class DSA(GenericVulnerability):
     """Subclass for Debian Security Advisory (DSA)"""
 
-    pattern = re.compile(r"^DSA[ \-_]\d{3,}[ \-_]\d+$", re.I)
+    pattern = re.compile(r"^DSA[ \-_]\d+[ \-_]\d+$", re.I)
 
     def __init__(self, vuln_id, packages=None):
         vuln_id = self._normalize_vuln(vuln_id)
