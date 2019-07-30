@@ -115,14 +115,14 @@ class Resource(object):
 
     Attributes:
         url: The URL of the resource
-        links_xpaths: A list of xpaths to use for scraping links/patches
-        normal_xpaths: A list of xpaths to use for generic scraping
+        _links_xpaths: A list of xpaths to use for scraping links/patches
+        _normal_xpaths: A list of xpaths to use for generic scraping
     """
 
     def __init__(self, url, **kwargs):
         self.url = url
-        self.links_xpaths = kwargs.get("links_xpaths")
-        self.normal_xpaths = kwargs.get("normal_xpaths")
+        self._links_xpaths = kwargs.get("links_xpaths")
+        self._normal_xpaths = kwargs.get("normal_xpaths")
 
     @staticmethod
     def get_resource(url):
@@ -217,14 +217,14 @@ class Resource(object):
 
     def get_links_xpaths(self):
         links_xpaths = []
-        if self.links_xpaths:
-            links_xpaths = self.links_xpaths
+        if self._links_xpaths:
+            links_xpaths = self._links_xpaths
         return links_xpaths
 
     def get_normal_xpaths(self):
         normal_xpaths = []
-        if self.normal_xpaths:
-            normal_xpaths = self.normal_xpaths
+        if self._normal_xpaths:
+            normal_xpaths = self._normal_xpaths
         return normal_xpaths
 
 
