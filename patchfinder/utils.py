@@ -42,7 +42,7 @@ def json_response_to_xml(response):
     return response.replace(body=xml)
 
 
-def parse_web_page(url, xpaths=None):
+def parse_web_page(url, xpaths=None, links=False):
     logger.info("Opening %s...", url)
     try:
         html = urllib.request.urlopen(url)
@@ -52,7 +52,10 @@ def parse_web_page(url, xpaths=None):
 
     search_results = []
     if not xpaths:
-        xpaths = Resource.get_resource(url).get_normal_xpaths()
+        if not links:
+            xpaths = Resource.get_resource(url).get_normal_xpaths()
+        else:
+            xpaths = Resource.get_resource(url).get_link_xpaths()
     elements = lxml.html.fromstring(html.read())
     for element in elements:
         if element.tag != "body":
@@ -63,7 +66,7 @@ def parse_web_page(url, xpaths=None):
     return search_results
 
 
-def parse_dict(dictionary, key_list, get_key):
+def parse_dict(dictionary, key_list, get_key=False):
     if not key_list:
         return []
     search_results = []
