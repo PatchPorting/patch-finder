@@ -1,3 +1,11 @@
+"""Provides parsing functionality for Debian sites and packages.
+
+This module determines fixed packages relevant to a vulnerability and extracts
+relevant patches from those packages.
+
+Attributes:
+    logger: Module level logger.
+"""
 import logging
 import os
 import re

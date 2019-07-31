@@ -1,3 +1,11 @@
+"""Provides parsing functionaility for Github repositories.
+
+This module uses the Github API to look for commits specific to a vulnerability
+in a repository.
+
+Attributes:
+    logger: Module level logger.
+"""
 import argparse
 import logging
 import github

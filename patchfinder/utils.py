@@ -1,3 +1,8 @@
+"""Provides multipurpose utilities used by the patch finder miscellaneously.
+
+Attributes:
+    logger: Module level logger.
+"""
 import os
 import re
 import logging
@@ -10,7 +15,6 @@ import lxml
 from .entrypoint import Resource
 
 logger = logging.getLogger(__name__)
-
 
 
 def match_any(string, patterns):

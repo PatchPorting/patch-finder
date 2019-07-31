@@ -1,3 +1,10 @@
+"""Module used for the scraping and patch finding.
+
+This module provides a Scrapy Spider to facilitate patch finding.
+
+Attributes:
+    logger: Module level logger.
+"""
 import logging
 from urllib.parse import urlparse
 from scrapy.http import Request

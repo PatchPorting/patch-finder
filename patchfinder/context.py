@@ -1,3 +1,7 @@
+"""Provides vulnerability identification and input functionality.
+
+This module is used to set the context of patch finding by the spider.
+"""
 import re
 
 
@@ -22,16 +26,16 @@ class Vulnerability(object):
 
 
 class GenericVulnerability(Vulnerability):
-    """Subclass for an unparsable vulnerability
+    """Subclass for an generic vulnerability.
 
     This vulnerability cannot be used by the default spider.
 
     Attributes:
-        base_url: The URL to start parsing from. For unparsable vulnerabilities
+        base_url: The URL to start parsing from. For generic vulnerabilities
             this will point to a JSON-based, XML-based or HTML-based URL to
-            facilitate "translation" of the vulnerability to a parsable
-            vulnerability
-        parse_mode: The content type returned by base_url's response
+            facilitate "translation" of the vulnerability to CVEs or equivalent
+            vulnerabilities.
+        parse_mode: The content type returned by base_url's response.
     """
 
     def __init__(
@@ -50,10 +54,6 @@ class GenericVulnerability(Vulnerability):
         super(GenericVulnerability, self).__init__(
             vuln_id, entrypoint_urls, packages=packages
         )
-
-    def clean_data(self, data):
-        # Clean data scraped as needed
-        pass
 
 
 class CVE(Vulnerability):

@@ -1,3 +1,8 @@
+"""Module used for interacting with the patch-finder.
+
+Attributes:
+    logger: Module level logger.
+"""
 import argparse
 import logging
 from scrapy.crawler import CrawlerProcess
@@ -12,12 +17,6 @@ def spawn_crawler(args):
     vuln = context.create_vuln(args.vuln_id)
     if not vuln:
         return False
-    # if args.map_vuln:
-        # process = CrawlerProcess({"USER_AGENT": settings.USER_AGENT,
-                                  # "EXTENSIONS": settings.EXTENSIONS})
-        # process.crawl(vuln_spider.VulnSpider, vuln=vuln)
-        # process.start()
-    # else:
     process = CrawlerProcess(
         {
             "USER_AGENT": settings.USER_AGENT,
@@ -46,14 +45,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "vuln_id", help="The vulnerability ID to find patches for"
     )
-    # parser.add_argument(
-        # "-m",
-        # "--map-vuln",
-        # dest="map_vuln",
-        # action="store_true",
-        # default=False,
-        # help="Map vuln ID to parsable vulnerabilities",
-    # )
     parser.add_argument(
         "-d",
         "--depth",

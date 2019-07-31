@@ -1,5 +1,9 @@
-# TODO: figure out a more sophisticated way to construct URLs,
-#      maybe define a method to substitute a %s for multiple strings
+"""Provides URL and Patch provider identification.
+
+This module has classes to identify URLs. The purpose for this identification
+is either to determine if a URL is a patch or to determine the xpaths to use
+for crawling a page.
+"""
 
 import re
 

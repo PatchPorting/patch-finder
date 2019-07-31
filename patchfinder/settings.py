@@ -1,3 +1,32 @@
+"""Settings used by the patch finder.
+
+These settings are specific to Scrapy as well as to the patch-finder and its
+behaviour.
+
+Attributes:
+    USER_AGENT: The user agent used by the spider while crawling.
+    DENY_DOMAINS: A list of domains for which links are not to be scraped or
+        followed.
+    IMPORTANT_DOMAINS: A list of domains to prioritize crawling.
+    PATCH_LIMIT: The maximum number of patches to scrape.
+    DEPTH_LIMIT: The maximum depth the spider should go to while crawling, i.e.,
+        while following links.
+    PARSE_DEBIAN: If True, the DebianParser is used while crawling.
+    DOWNLOAD_DIRECTORY: Path of directory to use for temporary storage of any
+        items downloaded.
+    TEMP_FILE: Path to a temporary file used by the spider. This file will only
+        be used in certain cases to write a response body for further
+        processing.
+    PATCHES_JSON: Path or name of the JSON file to be used for storing patches
+        found.
+    REQUEST_META: A base meta dictionary to be used by every request yielded
+        by the spider.
+    PATCH_FIND_META: A meta dictionary to be used by the spider in finding
+        patches and following links. This dictionary extends on REQUEST_META.
+    NORMAL_META: A meta dictionary to be used by the spider in normal scraping.
+        This dictionary extends on REQUEST_META.
+    EXTENSIONS: A dictionary of extensions to be used by Scrapy.
+"""
 import os
 
 USER_AGENT = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)"
