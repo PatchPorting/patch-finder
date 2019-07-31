@@ -17,6 +17,7 @@ import patchfinder.spiders.items as items
 from patchfinder.entrypoint import Resource, is_patch
 import patchfinder.settings as settings
 import dicttoxml
+import json
 
 logger = logging.getLogger(__name__)
 
