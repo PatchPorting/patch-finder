@@ -51,13 +51,14 @@ class Provider(object):
         """Checks if 'link' belongs to this provider"""
         return Provider.match_all(link, self.link_components)
 
-    def belongs(self, link):
-        if self.match_link(link):
-            if self.is_patch_link(link):
-                return link
-            else:
-                return self.patch_format(link)
-        return None
+    @classmethod
+    def belongs(cls, link):
+        provider = cls()
+        if not provider.match_link(link):
+            return None
+        if not provider.is_patch_link(link):
+            link = provider.patch_format(link)
+        return link
 
 
 class Github(Provider):
@@ -232,25 +233,20 @@ class Resource(object):
         return normal_xpaths
 
 
-# TODO: Make this more sophisticated, maybe use something like getattr
-def map_entrypoint_name(entrypoint_name):
-    """given an entrypoint name return its corresponding Entrypoint object"""
-    if entrypoint_name == "github.com":
-        return Github()
-    elif entrypoint_name == "pagure.io":
-        return Pagure()
-    elif entrypoint_name == "gitlab.com":
-        return Gitlab()
-    elif entrypoint_name == "git.kernel.org":
-        return GitKernel()
-    return None
-
-
+#TODO: Add this to a class.
 def is_patch(link):
-    provider_names = ["github.com", "pagure.io", "gitlab.com", "git.kernel.org"]
-    for provider_name in provider_names:
-        provider = map_entrypoint_name(provider_name)
+    """Determine if given link is a patch link.
+
+    Args:
+        link: The link to determine as patch or not.
+
+    Returns:
+        If the link is a patch link then the formatted patch link, else None.
+    """
+    providers = [Github, Pagure, GitKernel, Gitlab]
+    patch_link = None
+    for provider in providers:
         patch_link = provider.belongs(link)
         if patch_link:
-            return patch_link
-    return None
+            break
+    return patch_link

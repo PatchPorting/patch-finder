@@ -24,6 +24,12 @@ class Vulnerability(object):
     def _normalize_vuln(vuln_id):
         return vuln_id.upper().replace(" ", "-").replace("_", "-")
 
+    @classmethod
+    def belongs(cls, vuln_id):
+        if cls.pattern.match(vuln_id):
+            return True
+        return False
+
 
 class GenericVulnerability(Vulnerability):
     """Subclass for an generic vulnerability.
@@ -129,14 +135,11 @@ def create_vuln(vuln_id, packages=None):
         An appropriate Vulnerability instance.
     """
     vuln = None
-    if CVE.pattern.match(vuln_id):
-        vuln = CVE(vuln_id, packages)
-    elif DSA.pattern.match(vuln_id):
-        vuln = DSA(vuln_id, packages)
-    elif RHSA.pattern.match(vuln_id):
-        vuln = RHSA(vuln_id, packages)
-    elif GLSA.pattern.match(vuln_id):
-        vuln = GLSA(vuln_id, packages)
+    vuln_classes = [CVE, DSA, RHSA, GLSA]
+    for vuln_class in vuln_classes:
+        if vuln_class.belongs(vuln_id):
+            vuln = vuln_class(vuln_id, packages)
+            break
     return vuln
 
 
