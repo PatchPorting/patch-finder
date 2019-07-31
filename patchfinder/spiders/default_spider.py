@@ -16,7 +16,7 @@ import patchfinder.parsers as parsers
 import patchfinder.spiders.items as items
 from patchfinder.entrypoint import Resource, is_patch
 import patchfinder.settings as settings
-import patchfinder.utils as utils
+import dicttoxml
 
 logger = logging.getLogger(__name__)
 
@@ -168,8 +168,14 @@ class DefaultSpider(scrapy.Spider):
         Args:
             response: The Response object
         """
-        response = utils.json_response_to_xml(response)
+        response = self._json_response_to_xml(response)
         yield from self._generate_items_and_requests(response)
+
+    @staticmethod
+    def _json_response_to_xml(response):
+        dictionary = json.loads(response.body)
+        xml = dicttoxml.dicttoxml(dictionary)
+        return response.replace(body=xml)
 
     def _generate_requests_for_vulns(self):
         for vuln in self.cves:
