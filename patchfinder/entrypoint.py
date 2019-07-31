@@ -10,9 +10,7 @@ import re
 class Provider(object):
     """Subclass for a patch Provider
 
-    Inherits from Entrypoint
-    Provider is an entity that provides patches.
-    A provider can also be an Entrypoint.
+    Provider is a resource that provides patches.
 
     Attributes:
         link_components: A list of components in a patch link for this provider

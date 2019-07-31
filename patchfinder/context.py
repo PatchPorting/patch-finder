@@ -128,7 +128,9 @@ def create_vuln(vuln_id, packages=None):
     """Returns a Vulnerability instance.
 
     Args:
-        vuln_id: The vulnerability ID.
+        vuln_id: The vulnerability ID. It should be recognizable, i.e., there
+            should be a corresponding subclass for the vulnerability with its
+            regular expression based pattern.
         packages: A list of packages associated with the vulnerability.
 
     Returns:
