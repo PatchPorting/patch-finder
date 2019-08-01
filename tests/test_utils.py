@@ -8,6 +8,7 @@ from tests import fake_response_from_file
 class TestUtils(unittest.TestCase):
     """Test Class for the utils modules"""
 
+    @unittest.skip("Takes time")
     def test_parse_web_page(self):
         href = "https://bugzilla.redhat.com/show_bug.cgi?id=1317826"
         search_results = parse_web_page(href)
