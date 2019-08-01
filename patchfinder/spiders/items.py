@@ -1,3 +1,4 @@
+"""Provides Scrapy Item classes used by the spider."""
 import scrapy
 
 

@@ -1,3 +1,4 @@
+"""Provides pipelines for use by the spider."""
 from scrapy.exporters import JsonItemExporter
 import patchfinder.settings as settings
 
