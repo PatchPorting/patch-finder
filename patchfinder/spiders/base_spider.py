@@ -17,10 +17,27 @@ logger = logging.getLogger(__name__)
 class BaseSpider(scrapy.Spider):
     """Base Scrapy Spider.
 
-    This spider has the functionalities that can be used by successive spiders.
+    This spider has functionalities that can be used by successive spiders.
+
+    Attributes:
+        name: Name of the spider.
     """
 
+    def __init__(self, name):
+        self.name = name
+
     def parse(self, response):
+        """Parse the given response.
+
+        The relevant parse callable for the response is determined and items are
+        generated from it.
+
+        Args:
+            response: A response object.
+
+        Yields:
+            Items/Requests generated from the parse callable.
+        """
         parse_callable = self._callback(response)
         if parse_callable:
             yield from parse_callable(response)
@@ -36,19 +53,32 @@ class BaseSpider(scrapy.Spider):
         yield from self._generate_items_and_requests(response)
 
     def parse_json(self, response):
-        """Parse a JSON response
+        """Parse a JSON response.
 
         The response is converted to XML and then parsed as per the necessary
         xpath(s).
 
         Args:
-            response: The Response object
+            response: The Response object.
+
+        Yields:
+            Items/Requests generated from the response.
         """
         response = self._json_response_to_xml(response)
         yield from self._generate_items_and_requests(response)
 
     @staticmethod
     def _json_response_to_xml(response):
+        """Convert a JSON response to XML.
+
+        This enables parsing the JSON with Xpaths.
+
+        Args:
+            response: A response object.
+
+        Yields:
+            The same response with an XML body.
+        """
         dictionary = json.loads(response.body)
         xml = dicttoxml.dicttoxml(dictionary)
         return response.replace(body=xml)
@@ -56,16 +86,18 @@ class BaseSpider(scrapy.Spider):
     def _generate_items_and_requests(self, response):
         yield from self._scrape(response)
 
+    #TODO: Should yield Item objects rather than strings.
     def _scrape(self, response):
-        """Generate items and requests for a given response.
+        """Scrape a given response.
 
-        If the find_patches argument is passed in the response's metadata, i.e.,
-        if the spider is to be used as a patch finder, the patches and requests
-        for the response are generated. Else, the necessary data is scraped from
-        the response and generated.
+        Items are scraped from the response w/r/t the response's normal xpaths.
+        These items are then yielded.
 
         Args:
             response: A Response object.
+
+        Yields:
+            Items scraped from the response.
         """
         xpaths = Resource.get_resource(response.url).get_normal_xpaths()
         for xpath in xpaths:
@@ -74,19 +106,17 @@ class BaseSpider(scrapy.Spider):
                 yield item
 
     def _callback(self, response):
-        """Determine the callback method based on a URL
+        """Returns the callback method for a response.
 
-        The callback method can be based on the content-type of the response of
-        the URL or on the URL itself, i.e., certain URLs can warrant using a
-        different parse method altogether. This method determines the callback
-        for a given response.
+        The callback method is used to parse the response. It can be based on
+        the content-type of the response or on the response URL itself, since
+        certain URLs can warrant using a different parse method altogether.
 
         Args:
-            response: The response for which the callback method is to be
-                determined.
+            response: The response for which the callable is to be determined.
 
         Returns:
-            A callback method object
+            A parse callable.
         """
         callback = self._callback_by_url(response)
         if not callback:
@@ -94,24 +124,24 @@ class BaseSpider(scrapy.Spider):
         return callback
 
     def _callback_by_url(self, response):
-        """Set the current callback method for a given URL
+        """Returns the parse callable based on the response URL.
 
         Args:
-            url: The URL for which the callback method is to be determined
+            response: The response for which the callable is to be determined.
 
         Returns:
-            A callback method object
+            A parse callable.
         """
         return None
 
     def _callback_by_content(self, response):
-        """Set the current callback method for a given content-type
+        """Returns the parse callable based on the response's content-type.
 
         Args:
             response: A Response object.
 
         Returns:
-            A callback method object
+            A parse callable.
         """
         callback = None
         content_type = response.headers["Content-Type"].decode()

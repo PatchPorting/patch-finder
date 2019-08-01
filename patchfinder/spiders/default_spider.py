@@ -15,27 +15,29 @@ import patchfinder.parsers as parsers
 import patchfinder.spiders.items as items
 from patchfinder.entrypoint import Resource, is_patch
 import patchfinder.settings as settings
-from patchfinder.spiders.base_spider import BaseSpider
+from .base_spider import BaseSpider
 
 logger = logging.getLogger(__name__)
 
 
 class DefaultSpider(BaseSpider):
-    """Scrapy Spider to extract patches
+    """Scrapy Spider to extract patches.
 
-    Inherits from scrapy.Spider
-    This spider would run by default
+    If given a CVE as a vulnerability, the spider crawls each of its entrypoint
+    URLs and extracts patches/follows links found. For a generic vulnerability,
+    i.e. a vulnerability that is not a CVE, the spider determines its aliases
+    (which would be CVEs) and crawls their entrypoint URLs. Scraped patches
+    are fed to the PatchPipeline. Any links that are found are followed if the
+    depth limit is not reached.
 
     Attributes:
-        name: Name of the spider
-        vuln_id: The vulnerability ID for which patches are to be found
-        recursion_limit: The recursion depth the spider would go to
-        patches: A list of patch links the spider has found
-        deny_domains: A list of domains to deny crawling links of
-        important_domains: A list of domains with higher crawling priority
-        patch_limit: A threshold for the number of patches to collect
-        allowed_keys: A set of allowed keys for initialization
-        debian: Boolean value to call the Debian parser
+        vuln: The vulnerability for which patches are to be found.
+        patches: A list of patch links the spider has found.
+        deny_domains: A list of domains to deny crawling links of.
+        important_domains: A list of domains with higher crawling priority.
+        patch_limit: A threshold for the number of patches to collect.
+        allowed_keys: A set of allowed keys for initialization.
+        debian: Boolean value to call the Debian parser.
     """
 
     deny_pages = [
@@ -63,16 +65,24 @@ class DefaultSpider(BaseSpider):
     }
 
     def __init__(self, *args, **kwargs):
-        self.name = "default_spider"
         self.patches = []
         if "vuln" in kwargs:
             self.set_context(kwargs.get("vuln"))
         self.__dict__.update(
             (k, v) for k, v in kwargs.items() if k in self._allowed_keys
         )
-        super(DefaultSpider, self).__init__(*args, **kwargs)
+        super(DefaultSpider, self).__init__("default_spider")
 
     def start_requests(self):
+        """Generates initial requests.
+
+        If the given vulnerability is generic, a request for the vulnerability's
+        base URL is yielded. Else, requests for the vulnerability's entrypoint
+        URLs are yielded.
+
+        Yields:
+            Initial requests.
+        """
         if isinstance(self.vuln, context.GenericVulnerability):
             yield Request(
                 self.vuln.base_url,
@@ -97,14 +107,16 @@ class DefaultSpider(BaseSpider):
 
         Aliases for a vulnerability are determined by scraping the data from the
         response. The given response is for the base URL of the vulnerability.
-        Aliases which are parsable are set in the spider's instance. Aliases
-        which are unparsable are run through the method themselves to
-        determine their parsable vulnerabilities. Once a complete set of
-        parsable aliases is found, requests for the aliases' entrypoints is
-        generated.
+        Aliases that are CVEs are set in the spiders' instance. Aliases that are
+        generic are run through the method themselves to determine their CVE
+        aliases. Once a complete set of aliases is determined, requests for the
+        aliases' entrypoint URLs is generated.
 
         Args:
             response: Response object for the vulnerability's base URL.
+
+        Yields:
+            Requests for the found aliases' entrypoint URLs.
         """
         vulns = [self.vuln]
         processed_vulns = set()
@@ -144,6 +156,7 @@ class DefaultSpider(BaseSpider):
                 yield patch
 
     def _generate_requests_for_vulns(self):
+        """Yields requests for determined aliases' (CVEs) entrypoint URLs."""
         for vuln in self.cves:
             for url in vuln.entrypoint_urls:
                 yield Request(
@@ -160,6 +173,10 @@ class DefaultSpider(BaseSpider):
 
         Args:
             response: A Response object.
+
+        Yields:
+            If find_patches in the response meta is True, patch items and
+            requests, else data, i.e., strings from the response.
         """
         if response.meta.get("find_patches"):
             yield from self._patches_and_requests(response)
@@ -196,13 +213,14 @@ class DefaultSpider(BaseSpider):
                 )
 
     def _callback_by_url(self, response):
-        """Set the current callback method for a given URL
+        """Returns the parse callable based on the response URL.
 
         Args:
-            url: The URL for which the callback method is to be determined
+            response: The response for which the callable is to be determined.
 
         Returns:
-            A callback method object
+            If the response URL is recognized, its corresponding parse callable.
+            Else, None.
         """
         callback = None
         url = response.url
@@ -217,17 +235,17 @@ class DefaultSpider(BaseSpider):
     # TODO: Handle www. case here. In fact, create a method to return
     #      domain name such that all corner cases are handled.
     def _domain_priority(self, url):
-        """Returns a priority for a url
+        """Returns a priority for a url.
 
         The URL's domain is checked for in the important domains list. If found,
         a relatively higher priority is returned, i.e. 1. Else a relatively
         lower priority i.e. 0 is returned.
 
         Args:
-            url: The URL for which the priority is to be determined
+            url: The URL for which the priority is to be determined.
 
         Returns:
-            1 if the url belongs to an important domain, 0 otherwise
+            1 if the url belongs to an important domain, 0 otherwise.
         """
         domain = urlparse(url).hostname
         if domain in self.important_domains:
@@ -239,15 +257,18 @@ class DefaultSpider(BaseSpider):
         and non-patch links.
 
         Links are extracted from the Response body. These are extracted from
-        the relevant xpath of the page. Links of domains in the deny_domains
+        the relevant xpath(s) of the page. Links of domains in the deny_domains
         list are ignored. The extracted links are then divided into patch links
         and non-patch links.
 
         Args:
             response: The Response object used to extract links from.
+            divide: If True, the links are to be divided into patch and
+                non-patch links.
 
         Returns:
-            A dictionary of links divided into patch and non-patch links.
+            If divide is True, a dictionary of patch and non-patch links,
+            else a list of links.
         """
         xpaths = Resource.get_resource(response.url).get_links_xpaths()
         links = LxmlLinkExtractor(
