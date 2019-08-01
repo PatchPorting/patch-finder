@@ -16,16 +16,15 @@ logger = logging.getLogger(__name__)
 class GithubParser(object):
     """Class for Github as a parser
 
-    This class will be used for parsing an upstream repository
-    located at Github.
+    This class is used for parsing an upstream repository located at Github.
 
     Attributes:
-        github: The main class of the Github Client
-        repo: The github Repository object
+        github: The main class of the Github Client.
+        repo: The github Repository object.
         search_strings: A list of strings to be searched for in the repo
-            entities
-        found_issues: A list of issues relevant to context
-        patches: A list of patches found relevant to context
+            entities.
+        found_issues: A list of issues relevant to context.
+        patches: A list of patches found relevant to context.
     """
 
     def __init__(self):
@@ -35,19 +34,20 @@ class GithubParser(object):
         self.patches = []
 
     def parse(self, vuln_id, repo_name):
-        """The parse method
+        """The parse method for Github.
 
         The context of the searching is first set, and the repo's entities
-        are then searched for patches.
+        are then searched for patches. For now, these entities are issues and
+        pulls in the repository.
 
         Args:
             vuln_id: The vulnerability ID to for which patches are to be
                 found.
             repo_name: The owner-name, repo-name pair designating the
-                repository
+                repository.
 
         Returns:
-            A list of patches found
+            A list of patches found.
         """
         self._clean()
         self.set_context(vuln_id, repo_name)
@@ -55,7 +55,7 @@ class GithubParser(object):
         return self.patches
 
     def set_context(self, vuln_id, repo_name):
-        """Set the context of the patch finding
+        """Set the context of the patch finding.
 
         Parameters relevant to the patch finding for Github are taken
         and set accordingly.
@@ -64,7 +64,7 @@ class GithubParser(object):
             vuln_id: The vulnerability ID to for which patches are to be
                 found.
             repo_name: The owner-name, repo-name pair designating the
-                repository
+                repository.
         """
         self.vuln_id = vuln_id
         self._add_to_search_strings(vuln_id)
@@ -103,7 +103,7 @@ class GithubParser(object):
         return None
 
     def _add_issue(self, issue):
-        """Extract patches from an issue and append it to other data structures
+        """Extract patches from an issue and append it to other data structures.
 
         If the issue has a corresponding pull request, the pull's patch url is
         appended to the found patches list if the pull has been merged.
@@ -114,7 +114,7 @@ class GithubParser(object):
         search strings list as well.
 
         Args:
-            issues: A github Issue object
+            issues: A github Issue object.
         """
         issue_id = "#" + str(issue.number)
         if issue_id not in self.found_issues:

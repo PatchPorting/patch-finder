@@ -34,7 +34,7 @@ class DebianParser(object):
         self._patches = []
 
     def parse(self, vuln_id, response=None):
-        """The parse method for Debian
+        """The parse method for Debian.
 
         The fixed Debian packages w/r/t the given vulnerability are determined
         and retrieved. The debian/patches folder in these packages is checked
@@ -42,10 +42,10 @@ class DebianParser(object):
         found is returned.
 
         Args:
-            vuln_id: Self explanatory
+            vuln_id: The vulnerability ID to set the context of the parser.
 
         Returns:
-            A list of patches found
+            A list of patches found.
         """
         self._clean()
         self.set_context(vuln_id)
@@ -58,10 +58,10 @@ class DebianParser(object):
         self.vuln_id = vuln_id
 
     def _find_fixed_packages(self):
-        """finds the fixed packages for the current vuln_id
+        """Finds the fixed packages for the instance's vulnerability ID.
 
         For a CVE, the corresponding fixed package names and their versions are
-        scraped from the security tracker.
+        scraped from the Debian Security Tracker.
         """
         pkg_vers = []
         logger.info("Looking for fixed packages...")
@@ -80,12 +80,12 @@ class DebianParser(object):
             )
 
     def _retrieve_packages(self):
-        """Downloads the package found by find_fixed_packages
+        """Downloads the fixed packages.
 
         The Debian packages are downloaded from snapshot.debian.org.
         Since snapshot only has a web interface for access to these packages,
         the corresponding package and version link is extracted and the package
-        is downloaded.
+        is downloaded. This package is a tarball.
         """
 
         for package in self._fixed_packages:
@@ -110,11 +110,11 @@ class DebianParser(object):
             self._package_paths.append({"path": pkg_path, "source": pkg_url})
 
     def _extract_patches(self):
-        """Extract patches from downloaded packages
+        """Extract patches from downloaded packages.
 
-        Relevant patches are searched for in the tarball.
+        Members of the tarballs that are patches and are relevant to the
+        vulnerability are extracted.
         """
-
         for package in self._package_paths:
             pkg_path = package["path"]
             pkg_source = package["source"]
