@@ -9,20 +9,18 @@ import logging
 from urllib.parse import urlparse
 from scrapy.http import Request
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
-import scrapy
 from inline_requests import inline_requests
 import patchfinder.context as context
 import patchfinder.parsers as parsers
 import patchfinder.spiders.items as items
 from patchfinder.entrypoint import Resource, is_patch
 import patchfinder.settings as settings
-import dicttoxml
-import json
+from patchfinder.spiders.base_spider import BaseSpider
 
 logger = logging.getLogger(__name__)
 
 
-class DefaultSpider(scrapy.Spider):
+class DefaultSpider(BaseSpider):
     """Scrapy Spider to extract patches
 
     Inherits from scrapy.Spider
@@ -145,39 +143,6 @@ class DefaultSpider(scrapy.Spider):
                 )
                 yield patch
 
-    def parse(self, response):
-        parse_callable = self._callback(response)
-        if parse_callable:
-            yield from parse_callable(response)
-
-    def parse_default(self, response):
-        """Default parse method.
-
-        The response is parsed as per the necessary xpath(s).
-
-        Args:
-            response: A response object
-        """
-        yield from self._generate_items_and_requests(response)
-
-    def parse_json(self, response):
-        """Parse a JSON response
-
-        The response is converted to XML and then parsed as per the necessary
-        xpath(s).
-
-        Args:
-            response: The Response object
-        """
-        response = self._json_response_to_xml(response)
-        yield from self._generate_items_and_requests(response)
-
-    @staticmethod
-    def _json_response_to_xml(response):
-        dictionary = json.loads(response.body)
-        xml = dicttoxml.dicttoxml(dictionary)
-        return response.replace(body=xml)
-
     def _generate_requests_for_vulns(self):
         for vuln in self.cves:
             for url in vuln.entrypoint_urls:
@@ -199,11 +164,7 @@ class DefaultSpider(scrapy.Spider):
         if response.meta.get("find_patches"):
             yield from self._patches_and_requests(response)
         else:
-            xpaths = Resource.get_resource(response.url).get_normal_xpaths()
-            for xpath in xpaths:
-                scraped_items = response.xpath(xpath).extract()
-                for item in scraped_items:
-                    yield item
+            yield from self._scrape(response)
 
     def _patches_and_requests(self, response):
         """Extract patch links and links to crawl from a response.
@@ -234,26 +195,6 @@ class DefaultSpider(scrapy.Spider):
                     priority=priority,
                 )
 
-    def _callback(self, response):
-        """Determine the callback method based on a URL
-
-        The callback method can be based on the content-type of the response of
-        the URL or on the URL itself, i.e., certain URLs can warrant using a
-        different parse method altogether. This method determines the callback
-        for a given response.
-
-        Args:
-            response: The response for which the callback method is to be
-                determined.
-
-        Returns:
-            A callback method object
-        """
-        callback = self._callback_by_url(response)
-        if not callback:
-            callback = self._callback_by_content(response)
-        return callback
-
     def _callback_by_url(self, response):
         """Set the current callback method for a given URL
 
@@ -273,22 +214,25 @@ class DefaultSpider(scrapy.Spider):
             callback = self.parse_debian
         return callback
 
-    def _callback_by_content(self, response):
-        """Set the current callback method for a given content-type
+    # TODO: Handle www. case here. In fact, create a method to return
+    #      domain name such that all corner cases are handled.
+    def _domain_priority(self, url):
+        """Returns a priority for a url
+
+        The URL's domain is checked for in the important domains list. If found,
+        a relatively higher priority is returned, i.e. 1. Else a relatively
+        lower priority i.e. 0 is returned.
 
         Args:
-            response: A Response object.
+            url: The URL for which the priority is to be determined
 
         Returns:
-            A callback method object
+            1 if the url belongs to an important domain, 0 otherwise
         """
-        callback = None
-        content_type = response.headers["Content-Type"].decode()
-        if content_type.startswith("application/json"):
-            callback = self.parse_json
-        else:
-            callback = self.parse_default
-        return callback
+        domain = urlparse(url).hostname
+        if domain in self.important_domains:
+            return 1
+        return 0
 
     def _extract_links(self, response, divide=True):
         """Extract links from a response and divide them into patch links
@@ -335,26 +279,6 @@ class DefaultSpider(scrapy.Spider):
             else:
                 divided_links["links"].append(link)
         return divided_links
-
-    # TODO: Handle www. case here. In fact, create a method to return
-    #      domain name such that all corner cases are handled.
-    def _domain_priority(self, url):
-        """Returns a priority for a url
-
-        The URL's domain is checked for in the important domains list. If found,
-        a relatively higher priority is returned, i.e. 1. Else a relatively
-        lower priority i.e. 0 is returned.
-
-        Args:
-            url: The URL for which the priority is to be determined
-
-        Returns:
-            1 if the url belongs to an important domain, 0 otherwise
-        """
-        domain = urlparse(url).hostname
-        if domain in self.important_domains:
-            return 1
-        return 0
 
     @staticmethod
     def _create_patch_item(patch_link, reaching_path):
