@@ -6,7 +6,6 @@ Attributes:
 import os
 import re
 import logging
-import json
 import tarfile
 import urllib.request
 import urllib.error
