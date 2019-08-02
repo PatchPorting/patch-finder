@@ -25,6 +25,11 @@ class TestContext(unittest.TestCase):
         vuln = context.create_vuln("DSA-4444-1")
         self.assertTrue(vuln)
 
+    def test_create_vuln_for_glsa(self):
+        """Vulnerability instantiation for a DSA"""
+        vuln = context.create_vuln("GLSA-200602-01")
+        self.assertTrue(vuln)
+
 
 if __name__ == "__main__":
     unittest.main()
