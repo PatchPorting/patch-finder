@@ -23,6 +23,9 @@ def spawn_crawler(args):
             "ITEM_PIPELINES": {
                 "patchfinder.spiders.pipelines.PatchPipeline": 300
             },
+            "SPIDER_MIDDLEWARES": {
+                "patchfinder.spiders.middlewares.DepthResetMiddleware": 850
+            },
             "DEPTH_LIMIT": args.depth,
             "LOG_ENABLED": args.log,
             "EXTENSIONS": settings.EXTENSIONS
