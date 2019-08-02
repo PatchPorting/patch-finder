@@ -123,7 +123,9 @@ class DefaultSpider(BaseSpider):
         while vulns:
             vuln = vulns.pop()
             if vuln.vuln_id is not self.vuln.vuln_id:
-                response = yield Request(vuln.base_url)
+                response = yield Request(
+                    vuln.base_url, meta={"reset_depth": True}
+                )
             processed_vulns.add(vuln.vuln_id)
             aliases = context.create_vulns(*list(self.parse(response)))
             for alias in aliases:
@@ -157,11 +159,11 @@ class DefaultSpider(BaseSpider):
 
     def _generate_requests_for_vulns(self):
         """Yields requests for determined aliases' (CVEs) entrypoint URLs."""
+        vuln_request_meta = self._patch_find_meta.copy()
+        vuln_request_meta["reset_depth"] = True
         for vuln in self.cves:
             for url in vuln.entrypoint_urls:
-                yield Request(
-                    url, callback=self.parse, meta=self._patch_find_meta
-                )
+                yield Request(url, callback=self.parse, meta=vuln_request_meta)
 
     def _generate_items_and_requests(self, response):
         """Generate items and requests for a given response.
