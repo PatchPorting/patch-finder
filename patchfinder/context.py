@@ -121,7 +121,7 @@ class GLSA(GenericVulnerability):
             "https://gitweb.gentoo.org/data/glsa.git/plain/"
             "{vuln_id}.xml".format(vuln_id=vuln_id.lower())
         )
-        super(GLSA, self).__init__(vuln_id, packages, base_url)
+        super(GLSA, self).__init__(vuln_id, base_url, packages=packages)
 
 
 def create_vuln(vuln_id, packages=None):
