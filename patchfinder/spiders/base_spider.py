@@ -79,7 +79,7 @@ class BaseSpider(scrapy.Spider):
         Yields:
             The same response with an XML body.
         """
-        dictionary = json.loads(response.body)
+        dictionary = json.loads(response.body.decode())
         xml = dicttoxml.dicttoxml(dictionary)
         return response.replace(body=xml)
 
