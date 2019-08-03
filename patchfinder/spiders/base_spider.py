@@ -153,6 +153,8 @@ class BaseSpider(scrapy.Spider):
             callable: A parse callable.
         """
         callback = None
+        if "Content-Type" not in response.headers:
+            return callback
         content_type = response.headers["Content-Type"].decode()
         if content_type.startswith("application/json"):
             callback = self.parse_json
