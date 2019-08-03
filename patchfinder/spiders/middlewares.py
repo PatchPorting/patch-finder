@@ -1,4 +1,3 @@
-import pdb
 from scrapy import signals
 from scrapy.http import Request
 
@@ -9,14 +8,14 @@ class DepthResetMiddleware(object):
         return s
 
     def process_spider_output(self, response, result, spider):
-        for r in result:
-            if not isinstance(r, Request):
-                yield r
+        for obj in result:
+            if not isinstance(obj, Request):
+                yield obj
                 continue
             if (
-                "depth" in r.meta
-                and "reset_depth" in r.meta
-                and r.meta["reset_depth"]
+                "depth" in obj.meta
+                and "reset_depth" in obj.meta
+                and obj.meta["reset_depth"]
             ):
-                r.meta["depth"] = 0
-            yield r
+                obj.meta["depth"] = 0
+            yield obj
