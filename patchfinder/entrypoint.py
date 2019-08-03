@@ -8,15 +8,23 @@ for crawling a page.
 import re
 
 class Provider(object):
-    """Subclass for a patch Provider
+    """Base Class for a patch Provider.
 
-    Provider is a resource that provides patches.
+    A patch provider is a resource that provides patches. These are usually
+    web hosting services for version control, for example Github. Patches
+    are determined w/r/t Providers, i.e., a link must belong to a Provider
+    and conform to the Provider's patch/commit link format to be recognized as a
+    patch link. Since most links discovered are in the form of commits, these
+    links must be formatted into patch links w/r/t the Provider's patch link
+    format.
 
     Attributes:
-        link_components: A list of components in a patch link for this provider
-        patch_components: A list of components in a patch-formatted link for
-            this provider
-        patch_format_dict: A dictionary for formatting a link into a patch link
+        link_components (list[str]): A list of components in a patch link for
+            this provider.
+        patch_components (list[str]): A list of components in a patch-formatted
+            link for this provider.
+        patch_format_dict (dict[str, str] or None): A dictionary for formatting
+            a link into a patch link. Defaults to {r"/commit/": r"/patch/"}.
     """
 
     patch_format_dict = {r"/commit/": r"/patch/"}
@@ -30,23 +38,32 @@ class Provider(object):
             self.patch_format_dict = patch_format_dict
 
     def patch_format(self, link):
-        """Format link into patch link"""
+        """str: Returns a link formatted into a patch link."""
         for i in self.patch_format_dict:
             link = re.sub(i, self.patch_format_dict[i], link)
         return link
 
     @staticmethod
     def match_all(string, patterns):
+        """Match a string with regular expression patterns.
+
+        Args:
+            string (str): String to match patterns with.
+            patterns (list[str]): A list of regular expression patterns.
+
+        Returns:
+            bool: True if string matches with all patterns, False otherwise.
+        """
         if all(re.search(x, string) for x in patterns):
             return True
         return False
 
     def is_patch_link(self, link):
-        """Check if 'link' is a patch-formatted link"""
+        """bool: Check if 'link' is a patch-formatted link."""
         return Provider.match_all(link, self.patch_components)
 
     def match_link(self, link):
-        """Checks if 'link' belongs to this provider"""
+        """bool: Checks if 'link' belongs to this provider."""
         return Provider.match_all(link, self.link_components)
 
     @classmethod
@@ -60,7 +77,7 @@ class Provider(object):
 
 
 class Github(Provider):
-    """Subclass for GitHub as a Provider"""
+    """Subclass for GitHub as a Provider."""
 
     def __init__(self):
         link_components = [r"github\.com", r"/(commit|pull)/"]
@@ -74,7 +91,7 @@ class Github(Provider):
 
 
 class Pagure(Provider):
-    """Subclass for Pagure as a Provider"""
+    """Subclass for Pagure as a Provider."""
 
     def __init__(self):
         link_components = [r"pagure\.io", "/c/"]
@@ -88,18 +105,18 @@ class Pagure(Provider):
 
 
 class Gitlab(Provider):
-    """Subclass for Gitlab as a Provider"""
+    """Subclass for Gitlab as a Provider."""
 
     def __init__(self):
         link_components = [r"gitlab\.com", r"/commit/"]
-        patch_components = {r"\.patch$"}
+        patch_components = [r"\.patch$"]
         super(Gitlab, self).__init__(
             link_components=link_components, patch_components=patch_components
         )
 
 
 class GitKernel(Provider):
-    """Subclass for git.kernel.org as a Provider"""
+    """Subclass for git.kernel.org as a Provider."""
 
     def __init__(self):
         link_components = [
@@ -114,12 +131,12 @@ class GitKernel(Provider):
 
 
 class Resource(object):
-    """Base class for a resource w/r/t a URL
+    """Base class for a resource w/r/t a URL.
 
     Attributes:
-        url: The URL of the resource
-        _links_xpaths: A list of xpaths to use for scraping links/patches
-        _normal_xpaths: A list of xpaths to use for generic scraping
+        url (str): The URL of the resource
+        _links_xpaths (list[str]): A list of xpaths to use for scraping links/patches
+        _normal_xpaths (list[str]): A list of xpaths to use for generic scraping
     """
 
     def __init__(self, url, **kwargs):
@@ -132,10 +149,10 @@ class Resource(object):
         """Given a URL, return an Resource instance.
 
         Args:
-            url: The URL to return the instance of.
+            url (str): The URL to return the instance of.
 
         Returns:
-            A resource instance.
+            Resource: A resource instance.
         """
 
         resource = Resource(url, links_xpaths=["//body//a"])
@@ -218,13 +235,21 @@ class Resource(object):
 
         return resource
 
-    def get_links_xpaths(self):
+    @property
+    def links_xpaths(self):
+        """list[str]: Returns the links xpaths, if the instance has links
+        xpaths.
+        """
         links_xpaths = []
         if self._links_xpaths:
             links_xpaths = self._links_xpaths
         return links_xpaths
 
-    def get_normal_xpaths(self):
+    @property
+    def normal_xpaths(self):
+        """list[str]: Returns the normal xpaths, if the instance has normal
+        xpaths.
+        """
         normal_xpaths = []
         if self._normal_xpaths:
             normal_xpaths = self._normal_xpaths
@@ -236,10 +261,11 @@ def is_patch(link):
     """Determine if given link is a patch link.
 
     Args:
-        link: The link to determine as patch or not.
+        link (str): The link to determine as patch or not.
 
     Returns:
-        If the link is a patch link then the formatted patch link, else None.
+        (str or None): If the link is a patch link then the formatted patch link,
+            else None.
     """
     providers = [Github, Pagure, GitKernel, Gitlab]
     patch_link = None

@@ -4,20 +4,20 @@ These settings are specific to Scrapy as well as to the patch-finder and its
 behaviour.
 
 Attributes:
-    USER_AGENT: The user agent used by the spider while crawling.
-    DENY_DOMAINS: A list of domains for which links are not to be scraped or
+    USER_AGENT (str): The user agent used by the spider while crawling.
+    DENY_DOMAINS (list[str]): A list of domains for which links are not to be scraped or
         followed.
-    IMPORTANT_DOMAINS: A list of domains to prioritize crawling.
-    PATCH_LIMIT: The maximum number of patches to scrape.
-    DEPTH_LIMIT: The maximum depth the spider should go to while crawling, i.e.,
+    IMPORTANT_DOMAINS (list[str]): A list of domains to prioritize crawling.
+    PATCH_LIMIT (int): The maximum number of patches to scrape.
+    DEPTH_LIMIT (int): The maximum depth the spider should go to while crawling, i.e.,
         while following links.
-    PARSE_DEBIAN: If True, the DebianParser is used while crawling.
-    DOWNLOAD_DIRECTORY: Path of directory to use for temporary storage of any
+    PARSE_DEBIAN (bool): If True, the DebianParser is used while crawling.
+    DOWNLOAD_DIRECTORY (str): Path of directory to use for temporary storage of any
         items downloaded.
-    TEMP_FILE: Path to a temporary file used by the spider. This file will only
+    TEMP_FILE (str): Path to a temporary file used by the spider. This file will only
         be used in certain cases to write a response body for further
         processing.
-    PATCHES_JSON: Path or name of the JSON file to be used for storing patches
+    PATCHES_JSON (str): Path or name of the JSON file to be used for storing patches
         found.
     REQUEST_META: A base meta dictionary to be used by every request yielded
         by the spider.
@@ -38,7 +38,7 @@ PARSE_DEBIAN = True
 DOWNLOAD_DIRECTORY = "./cache/"
 TEMP_FILE = os.path.join(DOWNLOAD_DIRECTORY, "temp_file")
 PATCHES_JSON = "./patches.json"
-REQUEST_META = {"dont_redirect": True, "handle_httpstatus_list": [302]}
+REQUEST_META = {"dont_redirect": True, "handle_httpstatus_list": [301, 302]}
 PATCH_FIND_META = dict(REQUEST_META)
 PATCH_FIND_META["find_patches"] = True
 NORMAL_META = dict(REQUEST_META)

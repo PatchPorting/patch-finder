@@ -26,9 +26,9 @@ def parse_web_page(url, xpaths=None, links=False):
     search_results = []
     if not xpaths:
         if not links:
-            xpaths = Resource.get_resource(url).get_normal_xpaths()
+            xpaths = Resource.get_resource(url).normal_xpaths
         else:
-            xpaths = Resource.get_resource(url).get_link_xpaths()
+            xpaths = Resource.get_resource(url).link_xpaths
     elements = lxml.html.fromstring(html.read())
     for element in elements:
         if element.tag != "body":
@@ -62,9 +62,9 @@ def download_item(url, save_as, overwrite=False):
     """Download an item
 
     Args:
-        url: The url of the item
-        save_as: The path to which the item should be saved
-        overwrite: optional argument to overwrite existing file with
+        url (str): The url of the item.
+        save_as (str): The path to which the item should be saved.
+        overwrite (bool): optional argument to overwrite existing file with
             same name as save_as. If overwrite is True, the file will
             be downloaded from url and the existing file will be
             overwritten.
@@ -81,14 +81,14 @@ def download_item(url, save_as, overwrite=False):
 
 
 def member_in_tarfile(tar_file, member):
-    """Determine if member is a member of a tarfile
+    """Determine if member is a member of a tarfile.
 
     Args:
-        tar_file: The path to the tarfile
-        member: Name of the member to be searched for
+        tar_file (str): The path to the tarfile.
+        member (str): Name of the member to be searched for.
 
     Returns:
-        True if member is a member of the tarfile, false otherwise
+        bool: True if member is a member of the tarfile, false otherwise.
     """
     tar = tarfile.open(tar_file)
     try:

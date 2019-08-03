@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class DefaultSpider(BaseSpider):
-    """Scrapy Spider to extract patches.
+    """Scrapy Spider to extract patches. Inherits from BaseSpider.
 
     If given a CVE as a vulnerability, the spider crawls each of its entrypoint
     URLs and extracts patches/follows links found. For a generic vulnerability,
@@ -31,13 +31,14 @@ class DefaultSpider(BaseSpider):
     depth limit is not reached.
 
     Attributes:
-        vuln: The vulnerability for which patches are to be found.
-        patches: A list of patch links the spider has found.
-        deny_domains: A list of domains to deny crawling links of.
-        important_domains: A list of domains with higher crawling priority.
-        patch_limit: A threshold for the number of patches to collect.
-        allowed_keys: A set of allowed keys for initialization.
-        debian: Boolean value to call the Debian parser.
+        vuln (Vulnerability): The vulnerability for which patches are to be found.
+        patches (list[str]): A list of patch links the spider has found.
+        deny_domains (list[str]): A list of domains to deny crawling links of.
+        important_domains (list[str]): A list of domains with higher crawling
+            priority.
+        patch_limit (int): A threshold for the number of patches to collect.
+        allowed_keys (set[str]): A set of allowed keys for initialization.
+        debian (bool): Boolean value to call the Debian parser.
     """
 
     deny_pages = [
@@ -81,7 +82,7 @@ class DefaultSpider(BaseSpider):
         URLs are yielded.
 
         Yields:
-            Initial requests.
+            scrapy.http.Request: Initial requests.
         """
         if isinstance(self.vuln, context.GenericVulnerability):
             yield Request(
@@ -99,8 +100,6 @@ class DefaultSpider(BaseSpider):
         self.vuln = vuln
         self.cves = set()
 
-    # TODO: (critical) Yielding requests from here propagates the depth to
-    #       further requests. This could be resolved by using scrapy signals.
     @inline_requests
     def determine_aliases(self, response):
         """Determine aliases for a vulnerability.
@@ -113,10 +112,12 @@ class DefaultSpider(BaseSpider):
         aliases' entrypoint URLs is generated.
 
         Args:
-            response: Response object for the vulnerability's base URL.
+            response (scrapy.http.Response):
+                Response object for the vulnerability's base URL.
 
         Yields:
-            Requests for the found aliases' entrypoint URLs.
+            scrapy.http.Request: Requests for the found aliases' entrypoint
+                URLs.
         """
         vulns = [self.vuln]
         processed_vulns = set()
@@ -145,7 +146,11 @@ class DefaultSpider(BaseSpider):
         from Debian.
 
         Args:
-            response: The Response object sent by Scrapy.
+            response (scrapy.http.Response):
+                The Response object sent by Scrapy.
+
+        Yields:
+            scrapy.Item: Patch Items.
         """
         parser = parsers.DebianParser()
         patches = parser.parse(self.vuln.vuln_id)
@@ -174,11 +179,13 @@ class DefaultSpider(BaseSpider):
         the response and generated.
 
         Args:
-            response: A Response object.
+            response (scrapy.http.Response):
+                A Response object.
 
         Yields:
-            If find_patches in the response meta is True, patch items and
-            requests, else data, i.e., strings from the response.
+            (str or scrapy.Item or scrapy.http.Request):
+                If find_patches in the response meta is True, patch items and
+                requests, else data, i.e., strings from the response.
         """
         if response.meta.get("find_patches"):
             yield from self._patches_and_requests(response)
@@ -195,7 +202,11 @@ class DefaultSpider(BaseSpider):
         no more requests or items are generated.
 
         Args:
-            response: The Response object sent by Scrapy.
+            response (scrapy.http.Response): The Response object sent by Scrapy.
+
+        Yields:
+            (scrapy.Item or scrapy.http.Request):
+                Items/Requests scraped from the response.
         """
         links = self._extract_links(response)
         for link in links["patch_links"]:
@@ -218,11 +229,13 @@ class DefaultSpider(BaseSpider):
         """Returns the parse callable based on the response URL.
 
         Args:
-            response: The response for which the callable is to be determined.
+            response (scrapy.http.Response):
+                The response for which the callable is to be determined.
 
         Returns:
-            If the response URL is recognized, its corresponding parse callable.
-            Else, None.
+            (callable or None):
+                If the response URL is recognized, its corresponding parse callable.
+                Else, None.
         """
         callback = None
         url = response.url
@@ -244,16 +257,17 @@ class DefaultSpider(BaseSpider):
         lower priority i.e. 0 is returned.
 
         Args:
-            url: The URL for which the priority is to be determined.
+            url (str): The URL for which the priority is to be determined.
 
         Returns:
-            1 if the url belongs to an important domain, 0 otherwise.
+            int: 1 if the url belongs to an important domain, 0 otherwise.
         """
         domain = urlparse(url).hostname
         if domain in self.important_domains:
             return 1
         return 0
 
+    # TODO: This method should return only list[str], not list[scrapy.link.Link]
     def _extract_links(self, response, divide=True):
         """Extract links from a response and divide them into patch links
         and non-patch links.
@@ -264,15 +278,17 @@ class DefaultSpider(BaseSpider):
         and non-patch links.
 
         Args:
-            response: The Response object used to extract links from.
-            divide: If True, the links are to be divided into patch and
+            response (scrapy.http.Response):
+                The Response object used to extract links from.
+            divide (bool): If True, the links are to be divided into patch and
                 non-patch links.
 
         Returns:
-            If divide is True, a dictionary of patch and non-patch links,
-            else a list of links.
+            (list[scrapy.link.Link] or list[str]):
+                If divide is True, a dictionary of patch and non-patch links,
+                else a list of links.
         """
-        xpaths = Resource.get_resource(response.url).get_links_xpaths()
+        xpaths = Resource.get_resource(response.url).links_xpaths
         links = LxmlLinkExtractor(
             deny=self.deny_pages,
             deny_domains=self.deny_domains,
@@ -287,11 +303,13 @@ class DefaultSpider(BaseSpider):
         """Divide links into patch links and non patch links
 
         Args:
-            response: The response from which the links are extracted
-            links: The list of links extracted
+            response (scrapy.http.Response):
+                The response from which the links are extracted
+            links (list[scrapy.link.Link]): The list of links extracted
 
         Returns:
-            A dictionary of links divided into patch and non-patch links
+            dict{str: list[str]}:
+                A dictionary of links divided into patch and non-patch links
         """
         divided_links = {"patch_links": [], "links": []}
         for link in links:

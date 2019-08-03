@@ -6,14 +6,21 @@ import re
 
 
 class Vulnerability(object):
-    """Base class for vulnerabilities
+    """Base class for vulnerabilities.
 
     Attributes:
-        vuln_id: Self explanatory
-        entrypoint_urls: A list of entrypoint URLs for the vulnerability
-        packages: Dictionary of packages the vuln affects.
-            The keys are the provider to which the package name is relevant
+        vuln_id (str): The vulnerability ID.
+        entrypoint_urls (list[str]): A list of entrypoint URLs for the vulnerability
+        packages (dict{str: str} or None): Dictionary of packages the vuln affects.
+            The keys are the provider to which the package name is relevant.
+            Defaults to None.
+        pattern (re.Pattern or None): A Regular expression of the vulnerability's
+            notation. This pattern is matched to the input vulnerability to
+            determine if the input vulnerability belongs to this vulnerability
+            type. Defaults to None.
     """
+
+    pattern = None
 
     def __init__(self, vuln_id, entrypoint_urls, packages=None):
         self.vuln_id = vuln_id
@@ -26,22 +33,26 @@ class Vulnerability(object):
 
     @classmethod
     def belongs(cls, vuln_id):
-        if cls.pattern.match(vuln_id):
+        if cls.pattern and cls.pattern.match(vuln_id):
             return True
         return False
 
 
 class GenericVulnerability(Vulnerability):
-    """Subclass for an generic vulnerability.
+    """Subclass for a generic vulnerability. Inherits from the Vulnerability
+    class.
 
-    This vulnerability cannot be used by the default spider.
+    While patches can be found with respect to this vulnerability, it would
+    not be as expansive as finding them with respect to a CVE. Aliases of
+    Generic vulnerabilities are thus determined by the spider to find patches.
+    These aliases are scraped from the Generic Vulnerability's base URL.
 
     Attributes:
-        base_url: The URL to start parsing from. For generic vulnerabilities
+        base_url (str): The URL to start parsing from. For generic vulnerabilities
             this will point to a JSON-based, XML-based or HTML-based URL to
             facilitate "translation" of the vulnerability to CVEs or equivalent
             vulnerabilities.
-        parse_mode: The content type returned by base_url's response.
+        parse_mode (str): The content type returned by base_url's response.
     """
 
     def __init__(
@@ -63,7 +74,9 @@ class GenericVulnerability(Vulnerability):
 
 
 class CVE(Vulnerability):
-    """Subclass for CVE"""
+    """Subclass for CVE (Common Vulnerabilities and Exposures). Inherits from
+    the Vulnerability class.
+    """
 
     pattern = re.compile(r"^CVE[ \-_]\d+[ \-_]\d+$", re.I)
 
@@ -84,9 +97,11 @@ class CVE(Vulnerability):
 
 
 class DSA(GenericVulnerability):
-    """Subclass for Debian Security Advisory (DSA)"""
+    """Subclass for Debian Security Advisory (DSA). Inherits from
+    the GenericVulnerability class.
+    """
 
-    pattern = re.compile(r"^DSA[ \-_]\d+[ \-_]\d+$", re.I)
+    pattern = re.compile(r"^DSA[ \-_]\d+([ \-_]\d+)?$", re.I)
 
     def __init__(self, vuln_id, packages=None):
         vuln_id = self._normalize_vuln(vuln_id)
@@ -97,7 +112,9 @@ class DSA(GenericVulnerability):
 
 
 class RHSA(GenericVulnerability):
-    """Subclass for Redhat Security Advisory (RHSA)"""
+    """Subclass for Redhat Security Advisory (RHSA). Inherits from
+    the GenericVulnerability class.
+    """
 
     pattern = re.compile(r"^RHSA[ \-_]\d+:\d+$", re.I)
 
@@ -111,7 +128,9 @@ class RHSA(GenericVulnerability):
 
 
 class GLSA(GenericVulnerability):
-    """Subclass for Gentoo Linux Security Advisory (GLSA)"""
+    """Subclass for Gentoo Linux Security Advisory (GLSA). Inherits from
+    the GenericVulnerability class.
+    """
 
     pattern = re.compile(r"^GLSA[ \-_]\d+[ \-_]\d+$", re.I)
 
@@ -128,13 +147,14 @@ def create_vuln(vuln_id, packages=None):
     """Returns a Vulnerability instance.
 
     Args:
-        vuln_id: The vulnerability ID. It should be recognizable, i.e., there
+        vuln_id (str): The vulnerability ID. It should be recognizable, i.e., there
             should be a corresponding subclass for the vulnerability with its
             regular expression based pattern.
-        packages: A list of packages associated with the vulnerability.
+        packages (dict{str: str} or None): A list of packages associated with the
+            vulnerability. Defaults to None.
 
     Returns:
-        An appropriate Vulnerability instance.
+        Vulnerability: An appropriate Vulnerability instance.
     """
     vuln = None
     vuln_classes = [CVE, DSA, RHSA, GLSA]
@@ -149,11 +169,11 @@ def create_vulns(*vulns):
     """Returns a list of Vulnerability instances.
 
     Args:
-        vulns: Can be just vulnerability IDs or tuples of vuln IDs and list of
-            packages.
+        *vulns (str or tuple[str, list[str]]): Can be just vulnerability IDs or
+            tuples of vuln IDs and list of packages.
 
     Returns:
-        A list of Vulnerability instances.
+        list[Vulnerability]: A list of Vulnerability instances.
     """
     vuln_objects = []
     for vuln in vulns:

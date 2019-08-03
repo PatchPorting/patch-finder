@@ -20,7 +20,7 @@ class BaseSpider(scrapy.Spider):
     This spider has functionalities that can be used by successive spiders.
 
     Attributes:
-        name: Name of the spider.
+        name (str): Name of the spider.
     """
 
     def __init__(self, name):
@@ -33,10 +33,11 @@ class BaseSpider(scrapy.Spider):
         generated from it.
 
         Args:
-            response: A response object.
+            response (scrapy.Response): A response object.
 
         Yields:
-            Items/Requests generated from the parse callable.
+            (str or scrapy.Item or scrapy.http.Request):
+                Items/Requests generated from the parse callable.
         """
         parse_callable = self._callback(response)
         if parse_callable:
@@ -48,7 +49,11 @@ class BaseSpider(scrapy.Spider):
         The response is parsed as per the necessary xpath(s).
 
         Args:
-            response: A response object
+            response (scrapy.http.Response): A response object
+
+        Yields:
+            (str or scrapy.Item or scrapy.http.Response):
+                Items/Requests generated from the response.
         """
         yield from self._generate_items_and_requests(response)
 
@@ -59,10 +64,11 @@ class BaseSpider(scrapy.Spider):
         xpath(s).
 
         Args:
-            response: The Response object.
+            response (scrapy.http.Response): The Response object.
 
         Yields:
-            Items/Requests generated from the response.
+            (str or scrapy.Item or scrapy.http.Request):
+                Items/Requests generated from the response.
         """
         response = self._json_response_to_xml(response)
         yield from self._generate_items_and_requests(response)
@@ -74,16 +80,17 @@ class BaseSpider(scrapy.Spider):
         This enables parsing the JSON with Xpaths.
 
         Args:
-            response: A response object.
+            response (scrapy.http.Response): A response object.
 
         Yields:
-            The same response with an XML body.
+            scrapy.http.Response: The same response with an XML body.
         """
         dictionary = json.loads(response.body.decode())
         xml = dicttoxml.dicttoxml(dictionary)
         return response.replace(body=xml)
 
     def _generate_items_and_requests(self, response):
+        """str: Yields scraped items."""
         yield from self._scrape(response)
 
     #TODO: Should yield Item objects rather than strings.
@@ -94,12 +101,12 @@ class BaseSpider(scrapy.Spider):
         These items are then yielded.
 
         Args:
-            response: A Response object.
+            response (scrapy.http.Response): A Response object.
 
         Yields:
-            Items scraped from the response.
+            str: Items scraped from the response.
         """
-        xpaths = Resource.get_resource(response.url).get_normal_xpaths()
+        xpaths = Resource.get_resource(response.url).normal_xpaths
         for xpath in xpaths:
             scraped_items = response.xpath(xpath).extract()
             for item in scraped_items:
@@ -113,10 +120,11 @@ class BaseSpider(scrapy.Spider):
         certain URLs can warrant using a different parse method altogether.
 
         Args:
-            response: The response for which the callable is to be determined.
+            response (scrapy.http.Response):
+                The response for which the callable is to be determined.
 
         Returns:
-            A parse callable.
+            callable: A parse callable.
         """
         callback = self._callback_by_url(response)
         if not callback:
@@ -127,10 +135,11 @@ class BaseSpider(scrapy.Spider):
         """Returns the parse callable based on the response URL.
 
         Args:
-            response: The response for which the callable is to be determined.
+            response (scrapy.http.Response):
+                The response for which the callable is to be determined.
 
         Returns:
-            A parse callable.
+            callable: A parse callable.
         """
         return None
 
@@ -138,10 +147,10 @@ class BaseSpider(scrapy.Spider):
         """Returns the parse callable based on the response's content-type.
 
         Args:
-            response: A Response object.
+            response (scrapy.http.Response): A Response object.
 
         Returns:
-            A parse callable.
+            callable: A parse callable.
         """
         callback = None
         content_type = response.headers["Content-Type"].decode()

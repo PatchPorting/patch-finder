@@ -22,10 +22,11 @@ class DebianParser(object):
     """Class for parsing utilities relevant to Debian
 
     Attributes:
-        cve_list_url: The link to the CVE list used in the Deb Sec Tracker
-        cve_file: The path to the file used to save the cve list locally
-        fixed_packages: A list of fixed Debian packages w/r/t the input
-            vulnerability
+        _fixed_packages (list[dict{str: str}]): A dict of fixed Debian packages
+            w/r/t the input vulnerability.
+        _package_paths (list[dict{str: str}]): A dict of paths to downloaded
+            package tarballs.
+        _patches (list[dict{str: str}]): A dict of scraped patches.
     """
 
     def __init__(self):
@@ -42,10 +43,10 @@ class DebianParser(object):
         found is returned.
 
         Args:
-            vuln_id: The vulnerability ID to set the context of the parser.
+            vuln_id (str): The vulnerability ID to set the context of the parser.
 
         Returns:
-            A list of patches found.
+            list[dict{str: str}]: A list of patches found.
         """
         self._clean()
         self.set_context(vuln_id)
