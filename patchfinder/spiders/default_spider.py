@@ -11,7 +11,6 @@ from scrapy.http import Request
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 from inline_requests import inline_requests
 import patchfinder.context as context
-import patchfinder.parsers as parsers
 import patchfinder.spiders.items as items
 from patchfinder.entrypoint import Resource, is_patch
 import patchfinder.settings as settings
@@ -88,13 +87,12 @@ class DefaultSpider(BaseSpider):
             yield Request(
                 self.vuln.base_url,
                 callback=self.determine_aliases,
-                meta=self._normal_meta,
+                meta={"reset_depth": True},
             )
         else:
-            for url in self.vuln.entrypoint_urls:
-                yield Request(
-                    url, callback=self.parse, meta=self._patch_find_meta
-                )
+            yield from self._generate_requests_for_vuln(
+                self.vuln, meta=self._patch_find_meta
+            )
 
     def set_context(self, vuln):
         self.vuln = vuln
@@ -139,36 +137,18 @@ class DefaultSpider(BaseSpider):
                     self.cves.add(alias)
         yield from self._generate_requests_for_vulns()
 
-    def parse_debian(self, response):
-        """The parse method for Debian.
-
-        The DebianParser class' parse method is called for retrieving patches
-        from Debian.
-
-        Args:
-            response (scrapy.http.Response):
-                The Response object sent by Scrapy.
-
-        Yields:
-            scrapy.Item: Patch Items.
-        """
-        parser = parsers.DebianParser()
-        patches = parser.parse(self.vuln.vuln_id)
-        for patch in patches:
-            if len(self.patches) < self.patch_limit:
-                self._add_patch(patch["patch_link"])
-                patch = self._create_patch_item(
-                    patch["patch_link"], patch["reaching_path"]
-                )
-                yield patch
-
     def _generate_requests_for_vulns(self):
         """Yields requests for determined aliases' (CVEs) entrypoint URLs."""
         vuln_request_meta = self._patch_find_meta.copy()
         vuln_request_meta["reset_depth"] = True
         for vuln in self.cves:
-            for url in vuln.entrypoint_urls:
-                yield Request(url, callback=self.parse, meta=vuln_request_meta)
+            yield from self._generate_requests_for_vuln(
+                vuln, meta=vuln_request_meta
+            )
+
+    def _generate_requests_for_vuln(self, vuln, meta={}):
+        for url in vuln.entrypoint_urls:
+            yield Request(url, callback=self.parse, meta=meta)
 
     def _generate_items_and_requests(self, response):
         """Generate items and requests for a given response.
@@ -224,28 +204,6 @@ class DefaultSpider(BaseSpider):
                     callback=self.parse,
                     priority=priority,
                 )
-
-    def _callback_by_url(self, response):
-        """Returns the parse callable based on the response URL.
-
-        Args:
-            response (scrapy.http.Response):
-                The response for which the callable is to be determined.
-
-        Returns:
-            (callable or None):
-                If the response URL is recognized, its corresponding parse callable.
-                Else, None.
-        """
-        callback = None
-        url = response.url
-        if (
-            url.startswith("https://security-tracker.debian.org")
-            and self.debian
-            and response.meta.get("find_patches")
-        ):
-            callback = self.parse_debian
-        return callback
 
     # TODO: Handle www. case here. In fact, create a method to return
     #      domain name such that all corner cases are handled.

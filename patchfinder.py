@@ -83,12 +83,12 @@ if __name__ == "__main__":
         action="store_false",
         help="Disable Scrapy logging",
     )
-    parser.add_argument(
-        "--no-debian",
-        dest="debian",
-        action="store_false",
-        help="Don't call Debian's parser",
-    )
+    # parser.add_argument(
+        # "--no-debian",
+        # dest="debian",
+        # action="store_false",
+        # help="Don't call Debian's parser",
+    # )
     parser.set_defaults(log=True)
     parser.set_defaults(debian=settings.PARSE_DEBIAN)
     args = parser.parse_args()
