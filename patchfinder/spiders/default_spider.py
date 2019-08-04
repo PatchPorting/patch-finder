@@ -146,7 +146,7 @@ class DefaultSpider(BaseSpider):
                 vuln, meta=vuln_request_meta
             )
 
-    def _generate_requests_for_vuln(self, vuln, meta={}):
+    def _generate_requests_for_vuln(self, vuln, meta=None):
         for url in vuln.entrypoint_urls:
             yield Request(url, callback=self.parse, meta=meta)
 
