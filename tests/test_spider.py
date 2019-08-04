@@ -80,6 +80,22 @@ class TestSpider(unittest.TestCase):
         self.assertTrue(all(url not in req_urls) for url in absent_urls)
         self.assertTrue(all(url in req_urls) for url in present_urls)
 
+    def test_parse_response_with_no_links_to_find_patches(self):
+        """Parse a response with no links to find patches. No Requests or Items
+        should be generated.
+
+        Tests:
+            patchfinder.spiders.base_spider.BaseSpider.parse
+        """
+        response = fake_response_from_file(
+            "./mocks/debsec_cve_2017_1088.html",
+            url="https://security-tracker.debian.org/tracker/CVE-2017-1088",
+            meta=settings.PATCH_FIND_META,
+        )
+        response.headers["Content-Type"] = b"text/html"
+        requests_and_items = list(self.spider.parse(response))
+        self.assertFalse(requests_and_items)
+
     def test_parse_json_response_with_redhat_secapi_url(self):
         """Parse a JSON response.
 
