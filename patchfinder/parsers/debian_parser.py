@@ -34,7 +34,7 @@ class DebianParser(object):
         self._package_paths = []
         self._patches = []
 
-    def parse(self, vuln_id, response=None):
+    def parse(self, vuln_id):
         """The parse method for Debian.
 
         The fixed Debian packages w/r/t the given vulnerability are determined
