@@ -2,6 +2,9 @@
 .vscode/
 .idea/
 
+# py.test coverage
+.coverage
+
 #standard python ignores follow
 
 # Byte-compiled / optimized / DLL files
