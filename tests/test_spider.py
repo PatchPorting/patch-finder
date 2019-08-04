@@ -96,6 +96,20 @@ class TestSpider(unittest.TestCase):
         requests_and_items = list(self.spider.parse(response))
         self.assertFalse(requests_and_items)
 
+    def test_parse_response_with_no_content_type(self):
+        """Parse a response with no content-type in its headers. Such responses
+        should not be parsed.
+
+        Tests:
+            patchfinder.spiders.base_spider.BaseSpider.parse
+        """
+        response = fake_response_from_file(
+            "./mocks/debsec_dsa_4444_1.html",
+            url="https://security-tracker.debian.org/tracker/DSA-4444-1",
+        )
+        requests_and_items = list(self.spider.parse(response))
+        self.assertFalse(requests_and_items)
+
     def test_parse_json_response_with_redhat_secapi_url(self):
         """Parse a JSON response.
 
