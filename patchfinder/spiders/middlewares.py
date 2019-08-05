@@ -36,7 +36,8 @@ class ContentTypeFilterDownloaderMiddleware:
 
     def process_response(self, _, response, spider):
         """Process response content-type to determine if response should be
-        allowed.
+        allowed. If the response has no Content-Type or if does not match the
+        regular expression of any of the allowed content types, drops it.
 
         Returns:
             scrapy.http.Response: The response object.
