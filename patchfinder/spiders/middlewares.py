@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class DepthResetMiddleware:
-    def process_spider_output(self, response, result, spider):
+    def process_spider_output(self, _, result, __):
         """Reset the depth to 0 for requests.
 
         For any request with 'reset_depth' as True in its meta and 'depth' in
@@ -20,11 +20,7 @@ class DepthResetMiddleware:
             if not isinstance(obj, Request):
                 yield obj
                 continue
-            if (
-                "depth" in obj.meta
-                and "reset_depth" in obj.meta
-                and obj.meta["reset_depth"]
-            ):
+            if "depth" in obj.meta and "reset_depth" in obj.meta and obj.meta["reset_depth"]:
                 obj.meta["depth"] = 0
             yield obj
 
@@ -33,14 +29,12 @@ class ContentTypeFilterDownloaderMiddleware:
     @staticmethod
     def is_valid_response(allowed_content_types, content_type):
         """bool: Check if content-type is allowed."""
-        if any(
+        return any(
             re.search(pattern, content_type)
             for pattern in allowed_content_types
-        ):
-            return True
-        return False
+        )
 
-    def process_response(self, request, response, spider):
+    def process_response(self, _, response, spider):
         """Process response content-type to determine if response should be
         allowed.
 
