@@ -1,4 +1,3 @@
-import pdb
 import re
 import logging
 from scrapy.http import Request
@@ -39,7 +38,6 @@ class ContentTypeFilterDownloaderMiddleware(object):
             for pattern in allowed_content_types
         ):
             return True
-        pdb.set_trace()
         return False
 
     def process_response(self, request, response, spider):
