@@ -26,6 +26,9 @@ def spawn_crawler(args):
             "SPIDER_MIDDLEWARES": {
                 "patchfinder.spiders.middlewares.DepthResetMiddleware": 850
             },
+            "DOWNLOADER_MIDDLEWARES": {
+                "patchfinder.spiders.middlewares.ContentTypeFilterDownloaderMiddleware": 1000
+            },
             "DEPTH_LIMIT": args.depth,
             "LOG_ENABLED": args.log,
             "EXTENSIONS": settings.EXTENSIONS
