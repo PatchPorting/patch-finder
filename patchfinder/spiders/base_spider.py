@@ -3,13 +3,13 @@
 Attributes:
     logger: Module level logger.
 """
+import re
 import logging
 import json
 import scrapy
-import patchfinder.context as context
+import dicttoxml
 import patchfinder.settings as settings
 from patchfinder.entrypoint import Resource
-import dicttoxml
 
 logger = logging.getLogger(__name__)
 
@@ -21,10 +21,15 @@ class BaseSpider(scrapy.Spider):
 
     Attributes:
         name (str): Name of the spider.
+        allowed_content_types (list[str]): A list of content-types, responses
+            of which should be parsed.
     """
+
+    allowed_content_types = settings.ALLOWED_CONTENT_TYPES
 
     def __init__(self, name):
         self.name = name
+        super(BaseSpider, self).__init__(name)
 
     def parse(self, response):
         """Parse the given response.
@@ -93,8 +98,9 @@ class BaseSpider(scrapy.Spider):
         """str: Yields scraped items."""
         yield from self._scrape(response)
 
-    #TODO: Should yield Item objects rather than strings.
-    def _scrape(self, response):
+    # TODO: Should yield Item objects rather than strings.
+    @staticmethod
+    def _scrape(response):
         """Scrape a given response.
 
         Items are scraped from the response w/r/t the response's normal xpaths.
@@ -152,11 +158,8 @@ class BaseSpider(scrapy.Spider):
         Returns:
             callable: A parse callable.
         """
-        callback = None
-        if "Content-Type" not in response.headers:
-            return callback
-        content_type = response.headers["Content-Type"].decode()
-        if content_type.startswith("application/json"):
+        content_type = response.headers.get("Content-Type").decode()
+        if re.search(r"application/json", content_type):
             callback = self.parse_json
         else:
             callback = self.parse_default

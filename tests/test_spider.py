@@ -96,6 +96,7 @@ class TestSpider(unittest.TestCase):
         requests_and_items = list(self.spider.parse(response))
         self.assertFalse(requests_and_items)
 
+    @unittest.skip("Response filtering as per content type is now in middlewares.")
     def test_parse_response_with_no_content_type(self):
         """Parse a response with no content-type in its headers. Such responses
         should not be parsed.
