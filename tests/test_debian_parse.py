@@ -1,10 +1,5 @@
-import os
-import tarfile
-import shutil
 import unittest
 import unittest.mock as mock
-import urllib.parse
-import patchfinder.settings as settings
 from patchfinder.parsers import DebianParser
 
 

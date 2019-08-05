@@ -1,9 +1,9 @@
 import os
-import patchfinder.settings as settings
 from scrapy.http import HtmlResponse, Request
+import patchfinder.settings as settings
 
 
-def fake_response_from_file(file_name, url=None, meta=settings.REQUEST_META):
+def fake_response_from_file(file_name, url=None, meta=None):
     """
     Create a Scrapy fake HTTP response from a HTML file
 

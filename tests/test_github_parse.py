@@ -8,10 +8,10 @@ class TestGithubParser(unittest.TestCase):
     """Test Class for GithubParser"""
 
     @classmethod
-    def setUpClass(self):
-        self.vuln_id = "CVE-2016-4796"
-        self.repo_name = "uclouvain/openjpeg"
-        self.patch_url = "https://github.com/uclouvain/openjpeg/pull/123.patch"
+    def setUpClass(cls):
+        cls.vuln_id = "CVE-2016-4796"
+        cls.repo_name = "uclouvain/openjpeg"
+        cls.patch_url = "https://github.com/uclouvain/openjpeg/pull/123.patch"
 
     @mock.patch("github.Issue.Issue", spec=github.Issue.Issue)
     @mock.patch(

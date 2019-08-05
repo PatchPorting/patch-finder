@@ -26,12 +26,12 @@ class TestContext(unittest.TestCase):
         self.assertTrue(vuln)
 
     def test_create_vuln_for_glsa(self):
-        """Vulnerability instantiation for a DSA"""
+        """Vulnerability instantiation for a GLSA"""
         vuln = context.create_vuln("GLSA-200602-01")
         self.assertTrue(vuln)
 
     def test_create_vuln_for_rhsa(self):
-        """Vulnerability instantiation for a DSA"""
+        """Vulnerability instantiation for a RHSA"""
         vuln = context.create_vuln("RHSA-2019:0094")
         self.assertTrue(vuln)
 

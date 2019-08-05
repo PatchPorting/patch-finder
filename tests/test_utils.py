@@ -1,8 +1,7 @@
 import unittest
 import unittest.mock as mock
-from patchfinder.utils import parse_web_page,parse_dict, download_item, \
+from patchfinder.utils import parse_web_page, parse_dict, download_item, \
     member_in_tarfile
-from tests import fake_response_from_file
 
 
 class TestUtils(unittest.TestCase):

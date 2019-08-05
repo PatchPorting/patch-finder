@@ -1,5 +1,4 @@
 import unittest
-import patchfinder.context as context
 import patchfinder.entrypoint as entrypoint
 from patchfinder.entrypoint import Resource
 
