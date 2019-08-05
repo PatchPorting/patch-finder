@@ -16,13 +16,18 @@ class DepthResetMiddleware:
         Yields:
             Objects from the spider's results.
         """
-        for obj in result:
-            if not isinstance(obj, Request):
-                yield obj
-                continue
-            if "depth" in obj.meta and "reset_depth" in obj.meta and obj.meta["reset_depth"]:
-                obj.meta["depth"] = 0
-            yield obj
+        # TODO (jas): do we really need to yield or non-return is an option?.
+        def _filter(request):
+            if not isinstance(request, Request):
+                return request
+
+            if "depth" in request.meta and \
+                    "reset_depth" in request.meta and \
+                    request.meta["reset_depth"]:
+                request.meta["depth"] = 0
+            return request
+
+        return (r for r in result or () if _filter(r))
 
 
 class ContentTypeFilterDownloaderMiddleware:
