@@ -18,7 +18,7 @@ import patchfinder.utils as utils
 logger = logging.getLogger(__name__)
 
 
-class DebianParser(object):
+class DebianParser:
     """Class for parsing utilities relevant to Debian
 
     Attributes:

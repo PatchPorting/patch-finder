@@ -6,7 +6,7 @@ from scrapy.exceptions import IgnoreRequest
 logger = logging.getLogger(__name__)
 
 
-class DepthResetMiddleware(object):
+class DepthResetMiddleware:
     def process_spider_output(self, response, result, spider):
         """Reset the depth to 0 for requests.
 
@@ -29,7 +29,7 @@ class DepthResetMiddleware(object):
             yield obj
 
 
-class ContentTypeFilterDownloaderMiddleware(object):
+class ContentTypeFilterDownloaderMiddleware:
     @staticmethod
     def is_valid_response(allowed_content_types, content_type):
         """bool: Check if content-type is allowed."""

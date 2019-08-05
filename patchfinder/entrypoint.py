@@ -7,7 +7,7 @@ for crawling a page.
 
 import re
 
-class Provider(object):
+class Provider:
     """Base Class for a patch Provider.
 
     A patch provider is a resource that provides patches. These are usually
@@ -130,7 +130,7 @@ class GitKernel(Provider):
         )
 
 
-class Resource(object):
+class Resource:
     """Base class for a resource w/r/t a URL.
 
     Attributes:

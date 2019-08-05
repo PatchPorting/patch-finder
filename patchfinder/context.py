@@ -5,7 +5,7 @@ This module is used to set the context of patch finding by the spider.
 import re
 
 
-class Vulnerability(object):
+class Vulnerability:
     """Base class for vulnerabilities.
 
     Attributes:

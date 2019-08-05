@@ -3,7 +3,7 @@ from scrapy.exporters import JsonItemExporter
 import patchfinder.settings as settings
 
 
-class JsonItemPipeline(object):
+class JsonItemPipeline:
     file_name = settings.TEMP_FILE
 
     def open_spider(self, spider):

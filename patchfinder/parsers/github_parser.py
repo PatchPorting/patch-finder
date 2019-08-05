@@ -13,7 +13,7 @@ import github
 logger = logging.getLogger(__name__)
 
 
-class GithubParser(object):
+class GithubParser:
     """Class for Github as a parser
 
     This class is used for parsing an upstream repository located at Github.
