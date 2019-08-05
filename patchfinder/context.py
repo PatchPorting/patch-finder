@@ -56,12 +56,12 @@ class GenericVulnerability(Vulnerability):
     """
 
     def __init__(
-        self,
-        vuln_id,
-        base_url,
-        packages=None,
-        entrypoint_urls=None,
-        parse_mode=None,
+            self,
+            vuln_id,
+            base_url,
+            packages=None,
+            entrypoint_urls=None,
+            parse_mode=None,
     ):
         self.base_url = base_url
         self.equivalent_vulns = []
