@@ -19,6 +19,11 @@ Attributes:
         processing.
     PATCHES_JSON (str): Path or name of the JSON file to be used for storing patches
         found.
+    ALLOWED_CONTENT_TYPES (list[str]): A list of regular expressions for allowed
+        content-types. Responses obtained by the spider should have content-types
+        that match any one of these regular expressions to be parsed. Reponses
+        that do not have content-types matching any one of these expressions
+        will not be parsed and will be discarded.
     REQUEST_META: A base meta dictionary to be used by every request yielded
         by the spider.
     PATCH_FIND_META: A meta dictionary to be used by the spider in finding
@@ -38,6 +43,7 @@ PARSE_DEBIAN = True
 DOWNLOAD_DIRECTORY = "./cache/"
 TEMP_FILE = os.path.join(DOWNLOAD_DIRECTORY, "temp_file")
 PATCHES_JSON = "./patches.json"
+ALLOWED_CONTENT_TYPES = [r"text/html", r"text/plain", r"application/json"]
 REQUEST_META = {"dont_redirect": True, "handle_httpstatus_list": [301, 302]}
 PATCH_FIND_META = dict(REQUEST_META)
 PATCH_FIND_META["find_patches"] = True
