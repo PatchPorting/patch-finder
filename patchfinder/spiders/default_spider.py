@@ -4,6 +4,11 @@ This module provides a Scrapy Spider to facilitate patch finding.
 
 Attributes:
     logger: Module level logger.
+
+Todo:
+    * There should be a Settings class so that a Settings object can be given
+    to the spider. A default setting should be overriden if a corresponding
+    setting is given as input.
 """
 import logging
 from urllib.parse import urlparse
@@ -95,6 +100,11 @@ class DefaultSpider(BaseSpider):
             )
 
     def set_context(self, vuln):
+        """Set the context of the spider
+
+        Args:
+            vuln (Vulnerability): A Vulnerability instance.
+        """
         self.vuln = vuln
         self.cves = set()
 
