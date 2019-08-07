@@ -20,10 +20,11 @@ class DepthResetMiddleware:
         def _filter(request):
             if not isinstance(request, Request):
                 return request
-
-            if "depth" in request.meta and \
-                    "reset_depth" in request.meta and \
-                    request.meta["reset_depth"]:
+            if (
+                "depth" in request.meta
+                and "reset_depth" in request.meta
+                and request.meta["reset_depth"]
+            ):
                 request.meta["depth"] = 0
             return request
 
