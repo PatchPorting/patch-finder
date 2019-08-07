@@ -23,7 +23,8 @@ class TestMiddlewares(unittest.TestCase):
             url="https://foo", content_type=b"text/html; charset=utf-8"
         )
         self.assertEqual(
-            middleware.process_response(None, response, spider), response
+            middleware.process_response(response=response, spider=spider),
+            response,
         )
 
     def test_content_type_filter_for_response_with_unallowed_content_type(self):
@@ -40,7 +41,7 @@ class TestMiddlewares(unittest.TestCase):
             content_type=b"application/xhtml+xml; charset=utf-8",
         )
         with self.assertRaises(IgnoreRequest):
-            middleware.process_response(None, response, spider)
+            middleware.process_response(response=response, spider=spider)
 
     def test_content_type_filter_for_response_with_no_content_type(self):
         """For response with no content-type, middleware should raise exception.
@@ -53,7 +54,7 @@ class TestMiddlewares(unittest.TestCase):
         middleware = middlewares.ContentTypeFilterDownloaderMiddleware()
         response = fake_response(url="https://foo")
         with self.assertRaises(IgnoreRequest):
-            middleware.process_response(None, response, spider)
+            middleware.process_response(response=response, spider=spider)
 
     def test_depth_reset_middleware(self):
         """For spider output with reset_depth in meta, depth should be 0.
@@ -62,11 +63,11 @@ class TestMiddlewares(unittest.TestCase):
             patchfinder.spiders.middlewares.ContentTypeFilterDownloaderMiddleware
         """
         middleware = middlewares.DepthResetMiddleware()
-        results = [
+        result = [
             Request(url="https://foo", meta={"depth": 1, "reset_depth": True}),
             Request(url="https://bar", meta={"depth": 1}),
         ]
-        results = middleware.process_spider_output(None, results, None)
+        results = middleware.process_spider_output(result=result)
         for result in results:
             if "depth" in result.meta and "reset_depth" in result.meta:
                 self.assertEqual(result.meta["depth"], 0)

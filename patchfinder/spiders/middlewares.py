@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class DepthResetMiddleware:
-    def process_spider_output(self, _, result, __):
+    def process_spider_output(self, result, **kwargs):
         """Reset the depth to 0 for requests.
 
         For any request with 'reset_depth' as True in its meta and 'depth' in
@@ -40,7 +40,7 @@ class ContentTypeFilterDownloaderMiddleware:
             for pattern in allowed_content_types
         )
 
-    def process_response(self, _, response, spider):
+    def process_response(self, response, spider, **kwargs):
         """Process response content-type to determine if response should be
         allowed. If the response has no Content-Type or if does not match the
         regular expression of any of the allowed content types, drops it.
