@@ -2,7 +2,7 @@ import unittest
 import patchfinder.spiders.default_spider as default_spider
 import patchfinder.context as context
 import patchfinder.settings as settings
-from tests import fake_response_from_file
+from tests import fake_response
 
 
 class TestSpider(unittest.TestCase):
@@ -69,8 +69,8 @@ class TestSpider(unittest.TestCase):
             "https://bugzilla.redhat.com/show_bug.cgi?id=1317822",
             "https://bugzilla.redhat.com/show_bug.cgi?id=1317826",
         ]
-        response = fake_response_from_file(
-            "./mocks/3.html", url, meta=settings.PATCH_FIND_META
+        response = fake_response(
+            file_name="./mocks/3.html", url=url, meta=settings.PATCH_FIND_META
         )
         response.headers["Content-Type"] = b"text/html"
         requests_and_items = self.spider.parse(response)
@@ -87,8 +87,8 @@ class TestSpider(unittest.TestCase):
         Tests:
             patchfinder.spiders.base_spider.BaseSpider.parse
         """
-        response = fake_response_from_file(
-            "./mocks/debsec_cve_2017_1088.html",
+        response = fake_response(
+            file_name="./mocks/debsec_cve_2017_1088.html",
             url="https://security-tracker.debian.org/tracker/CVE-2017-1088",
             meta=settings.PATCH_FIND_META,
         )
@@ -104,8 +104,8 @@ class TestSpider(unittest.TestCase):
         Tests:
             patchfinder.spiders.base_spider.BaseSpider.parse
         """
-        response = fake_response_from_file(
-            "./mocks/debsec_dsa_4444_1.html",
+        response = fake_response(
+            file_name="./mocks/debsec_dsa_4444_1.html",
             url="https://security-tracker.debian.org/tracker/DSA-4444-1",
         )
         requests_and_items = list(self.spider.parse(response))
@@ -117,8 +117,8 @@ class TestSpider(unittest.TestCase):
         Tests:
             patchfinder.spiders.base_spider.BaseSpider.parse_json
         """
-        response = fake_response_from_file(
-            "./mocks/mock_json.json",
+        response = fake_response(
+            file_name="./mocks/mock_json.json",
             url="https://access.redhat.com/labs/securitydataapi/cve.json?"
             "advisory=foobar",
         )
@@ -141,8 +141,8 @@ class TestSpider(unittest.TestCase):
             "CVE-2018-12130",
             "CVE-2019-11091",
         }
-        response = fake_response_from_file(
-            "./mocks/debsec_dsa_4444_1.html", url=vuln.base_url
+        response = fake_response(
+            file_name="./mocks/debsec_dsa_4444_1.html", url=vuln.base_url
         )
         response.headers["Content-Type"] = b"text/html"
         self.spider.set_context(vuln)
@@ -164,8 +164,8 @@ class TestSpider(unittest.TestCase):
         vuln_id = "GLSA-200602-01"
         vuln = context.create_vuln(vuln_id)
         expected_aliases = {"CVE-2005-4048"}
-        response = fake_response_from_file(
-            "./mocks/gentoo_glsa_200602_01.xml", url=vuln.base_url
+        response = fake_response(
+            file_name="./mocks/gentoo_glsa_200602_01.xml", url=vuln.base_url
         )
 
         # The response content-type Scrapy gets for this URL is text/plain.
@@ -194,8 +194,8 @@ class TestSpider(unittest.TestCase):
         """
         vuln_id = "GLSA-200311-04"
         vuln = context.create_vuln(vuln_id)
-        response = fake_response_from_file(
-            "./mocks/gentoo_glsa_200311_04.xml", url=vuln.base_url
+        response = fake_response(
+            file_name="./mocks/gentoo_glsa_200311_04.xml", url=vuln.base_url
         )
 
         # The response content-type Scrapy gets for this URL is text/plain.
