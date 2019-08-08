@@ -4,12 +4,11 @@ This module provides a Scrapy Spider to facilitate patch finding.
 
 Attributes:
     logger: Module level logger.
-
-Todo:
-    * There should be a Settings class so that a Settings object can be given
-    to the spider. A default setting should be overriden if a corresponding
-    setting is given as input.
 """
+# Todo:
+# There should be a Settings class so that a Settings object can be given
+# to the spider. A default setting should be overriden if a corresponding
+# setting is given as input.
 import logging
 from urllib.parse import urlparse
 from scrapy.http import Request
@@ -45,16 +44,7 @@ class DefaultSpider(BaseSpider):
         debian (bool): Boolean value to call the Debian parser.
     """
 
-    deny_pages = [
-        r"github\.com/[^/]+/[^/]+$",
-        r"github\.com/[^/]+/[^/]+/blob/",
-        r"github\.com.+/releases$",
-        r"github\.com.+/releases/.+?/[^/]+$",
-        # homepages
-        r"^https?://[^/]+/?$",
-        # fragmented identifiers
-        r"\#.+$",
-    ]
+    deny_pages = settings.DENY_PAGES
     deny_domains = settings.DENY_DOMAINS
     important_domains = settings.IMPORTANT_DOMAINS
     patch_limit = settings.PATCH_LIMIT

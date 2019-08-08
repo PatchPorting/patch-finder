@@ -36,6 +36,16 @@ import os
 
 USER_AGENT = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)"
 DENY_DOMAINS = ["facebook.com", "twitter.com"]
+DENY_PAGES = [
+    r"github\.com/[^/]+/[^/]+$",
+    r"github\.com/[^/]+/[^/]+/blob/",
+    r"github\.com.+/releases$",
+    r"github\.com.+/releases/.+?/[^/]+$",
+    # homepages
+    r"^https?://[^/]+/?$",
+    # fragmented identifiers
+    r"\#.+$",
+]
 IMPORTANT_DOMAINS = []
 PATCH_LIMIT = 100
 DEPTH_LIMIT = 1
