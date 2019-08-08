@@ -15,3 +15,10 @@ For other options:
 
 ## Run the tests with
 `python -m unittest discover  -v tests`
+
+## Build the docs
+```
+cd docs
+pip install -r requirements-docs.txt
+make html
+```
