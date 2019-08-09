@@ -1,3 +1,8 @@
+"""Provides classes for settings.
+
+This module provides a Base Settings class, and its subclasses for the
+patch-finder and for Scrapy.
+"""
 from collections.abc import MutableMapping
 from patchfinder.settings import patchfinder_settings, scrapy_settings
 
@@ -5,11 +10,16 @@ from patchfinder.settings import patchfinder_settings, scrapy_settings
 class Settings(MutableMapping):
     """Base class for settings.
 
-    Inherits from collections.abc.MutableMapping.
+    The default settings are taken from a default module. Variable names of the
+    default settings must be uppercase for the settings to be read.
+
+    A dictionary of settings is taken and set in the Settings' instance.
+    Any other values are taken from the default module and set. Values given
+    to the instance specifically are not overwritten by these default settings.
 
     Attributes:
         settings (dict): A dictionary of settings.
-        module (Module): A module with default values for settings.
+        module (module): A module with default values for settings.
     """
 
     module = None
@@ -35,9 +45,19 @@ class Settings(MutableMapping):
     def __iter__(self):
         return iter(self.settings)
 
-    def load_settings(self, settings=dict()):
-        for key in settings:
-            self.settings[key] = settings[key]
+    def load_settings(self, settings=None):
+        """Load settings into the Settings' instance.
+
+        The settings are first set from the given dictionary. After that,
+        any missing settings are taken from the default settings module.
+
+        Args:
+            settings (dict): The settings to be set in the instance. Defaults
+                to None.
+        """
+        if settings:
+            for key in settings:
+                self.settings[key] = settings[key]
         self._load_settings_from_module()
 
     def _load_settings_from_module(self):
@@ -49,10 +69,20 @@ class Settings(MutableMapping):
 
 
 class PatchfinderSettings(Settings):
+    """Settings for the patch-finder, i.e., for the spider.
+
+    These settings are meant to be for user preferences in the patch-finding
+    operation.
+    """
 
     module = patchfinder_settings
 
 
 class ScrapySettings(Settings):
+    """Settings for Scrapy.
+
+    These settings will be fed to the CrawlerProcess, which would initiate
+    the crawling.
+    """
 
     module = scrapy_settings
