@@ -12,6 +12,9 @@ EXTENSIONS = {
     "scrapy.extensions.memusage.MemoryUsage": None,
     "scrapy.extensions.logstats.LogStats": None,
 }
+ITEM_PIPELINES = {
+    "patchfinder.spiders.pipelines.PatchPipeline": 300
+}
 SPIDER_MIDDLEWARES = {
     "patchfinder.spiders.middlewares.DepthResetMiddleware": 850
 }
