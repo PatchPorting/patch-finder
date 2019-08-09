@@ -138,6 +138,22 @@ class TestSpider(unittest.TestCase):
         for item in requests_and_items:
             self.assertIsInstance(item, Request)
 
+    def test_parse_response_with_small_patch_limit(self):
+        """Spider should collect only 2 patches.
+
+        Tests:
+            patchfinder.spiders.base_spider.BaseSpider.parse
+        """
+        response = fake_response(
+            file_name="./mocks/debsec_cve_2019_14452.html",
+            url="https://security-tracker.debian.org/tracker/CVE-2019-14452",
+            meta=self.settings["PATCH_FIND_META"],
+            content_type=b"text/html",
+        )
+        self.spider.patch_limit = 2
+        requests_and_items = list(self.spider.parse(response))
+        self.assertEqual(len(requests_and_items), 2)
+
     def test_parse_json_response_with_redhat_secapi_url(self):
         """Parse a JSON response.
 
