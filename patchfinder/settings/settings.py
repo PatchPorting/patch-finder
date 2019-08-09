@@ -1,6 +1,5 @@
 from collections.abc import MutableMapping
-import patchfinder.settings.scrapy_settings as scrapy_settings
-import patchfinder.settings.patchfinder_settings as patchfinder_settings
+from patchfinder.settings import patchfinder_settings, scrapy_settings
 
 
 class Settings(MutableMapping):
