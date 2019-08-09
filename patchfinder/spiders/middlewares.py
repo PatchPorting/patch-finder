@@ -13,8 +13,12 @@ class DepthResetMiddleware:
         For any request with 'reset_depth' as True in its meta and 'depth' in
         its meta, its depth is set to 0.
 
-        Yields:
-            Objects from the spider's results.
+        Args:
+            result: The output of the spider's parse callback.
+
+        Returns:
+            list[scrapy.Item, scrapy.http.Request]:
+                Objects from the spider's results.
         """
         # TODO (jas): do we really need to yield or non-return is an option?.
         def _filter(request):
@@ -41,7 +45,8 @@ class ContentTypeFilterDownloaderMiddleware:
         )
 
     def process_response(self, response, spider, **kwargs):
-        """Process response content-type to determine if response should be
+        """
+        Process response content-type to determine if response should be
         allowed. If the response has no Content-Type or if does not match the
         regular expression of any of the allowed content types, drops it.
 

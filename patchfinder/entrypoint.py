@@ -237,9 +237,7 @@ class Resource:
 
     @property
     def links_xpaths(self):
-        """list[str]: Returns the links xpaths, if the instance has links
-        xpaths.
-        """
+        """list[str]: Returns links xpaths, if instance has links xpaths."""
         links_xpaths = []
         if self._links_xpaths:
             links_xpaths = self._links_xpaths
@@ -247,9 +245,7 @@ class Resource:
 
     @property
     def normal_xpaths(self):
-        """list[str]: Returns the normal xpaths, if the instance has normal
-        xpaths.
-        """
+        """list[str]: Returns normal xpaths, if instance has normal xpaths."""
         normal_xpaths = []
         if self._normal_xpaths:
             normal_xpaths = self._normal_xpaths

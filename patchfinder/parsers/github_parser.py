@@ -108,13 +108,13 @@ class GithubParser:
         If the issue has a corresponding pull request, the pull's patch url is
         appended to the found patches list if the pull has been merged.
         The issue ID is taken and formatted for easily recognizing it
-        in other repository entities. This includes shifting a hash (#)
+        in other repository entities. This includes shifting a hash
         symbol to the start of the issue ID. The formatted issue ID is
         appended to the found issues list and, if it is not present in it, the
         search strings list as well.
 
         Args:
-            issues: A github Issue object.
+            issue: A github Issue object.
         """
         issue_id = "#" + str(issue.number)
         if issue_id not in self.found_issues:
@@ -148,7 +148,7 @@ class GithubParser:
         """Append one or more strings to the search strings list
 
         Args:
-            strings: One or more strings
+            *strings: One or more strings
         """
         self.search_strings.extend(strings)
 
