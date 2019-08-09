@@ -8,7 +8,7 @@ import logging
 import json
 import scrapy
 import dicttoxml
-import patchfinder.settings as settings
+from patchfinder.settings import PatchfinderSettings
 from patchfinder.entrypoint import Resource
 
 logger = logging.getLogger(__name__)
@@ -25,9 +25,10 @@ class BaseSpider(scrapy.Spider):
             of which should be parsed.
     """
 
-    allowed_content_types = settings.ALLOWED_CONTENT_TYPES
-
-    def __init__(self, name):
+    def __init__(self, name, settings=None):
+        if not settings:
+            settings = PatchfinderSettings()
+        self.allowed_content_types = settings["ALLOWED_CONTENT_TYPES"]
         self.name = name
         super(BaseSpider, self).__init__(name)
 
@@ -87,7 +88,7 @@ class BaseSpider(scrapy.Spider):
         Args:
             response (scrapy.http.Response): A response object.
 
-        Yields:
+        Returns:
             scrapy.http.Response: The same response with an XML body.
         """
         dictionary = json.loads(response.body.decode())
@@ -126,8 +127,8 @@ class BaseSpider(scrapy.Spider):
         certain URLs can warrant using a different parse method altogether.
 
         Args:
-            response (scrapy.http.Response):
-                The response for which the callable is to be determined.
+            response (scrapy.http.Response): The response for which the
+                callable is to be determined.
 
         Returns:
             callable: A parse callable.
@@ -141,8 +142,8 @@ class BaseSpider(scrapy.Spider):
         """Returns the parse callable based on the response URL.
 
         Args:
-            response (scrapy.http.Response):
-                The response for which the callable is to be determined.
+            response (scrapy.http.Response): The response for which the
+                callable is to be determined.
 
         Returns:
             callable: A parse callable.

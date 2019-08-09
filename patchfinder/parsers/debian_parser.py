@@ -12,8 +12,8 @@ import re
 import tarfile
 import urllib.parse
 import urllib.request
-import patchfinder.settings as settings
 import patchfinder.utils as utils
+from patchfinder.settings import PatchfinderSettings
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,11 @@ class DebianParser:
         _patches (list[dict{str: str}]): A dict of scraped patches.
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        settings = kwargs.get("settings")
+        if not settings:
+            settings = PatchfinderSettings()
+        self.settings = settings
         self._fixed_packages = []
         self._package_paths = []
         self._patches = []
@@ -105,7 +109,7 @@ class DebianParser:
                 "https://snapshot.debian.org/", pkg_url.pop()
             )
             pkg_path = os.path.join(
-                settings.DOWNLOAD_DIRECTORY, pkg_url.split("/")[-1]
+                self.settings["DOWNLOAD_DIRECTORY"], pkg_url.split("/")[-1]
             )
             utils.download_item(pkg_url, pkg_path)
             self._package_paths.append({"path": pkg_path, "source": pkg_url})

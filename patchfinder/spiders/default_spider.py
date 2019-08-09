@@ -5,10 +5,6 @@ This module provides a Scrapy Spider to facilitate patch finding.
 Attributes:
     logger: Module level logger.
 """
-# Todo:
-# There should be a Settings class so that a Settings object can be given
-# to the spider. A default setting should be overriden if a corresponding
-# setting is given as input.
 import logging
 from urllib.parse import urlparse
 from scrapy.http import Request
@@ -17,7 +13,7 @@ from inline_requests import inline_requests
 import patchfinder.context as context
 import patchfinder.spiders.items as items
 from patchfinder.entrypoint import Resource, is_patch
-import patchfinder.settings as settings
+from patchfinder.settings import PatchfinderSettings
 from .base_spider import BaseSpider
 
 logger = logging.getLogger(__name__)
@@ -44,29 +40,20 @@ class DefaultSpider(BaseSpider):
         debian (bool): Boolean value to call the Debian parser.
     """
 
-    deny_pages = settings.DENY_PAGES
-    deny_domains = settings.DENY_DOMAINS
-    important_domains = settings.IMPORTANT_DOMAINS
-    patch_limit = settings.PATCH_LIMIT
-    debian = settings.PARSE_DEBIAN
-    request_meta = settings.REQUEST_META
-    _patch_find_meta = settings.PATCH_FIND_META
-    _normal_meta = settings.NORMAL_META
-    _allowed_keys = {
-        "deny_domains",
-        "important_domains",
-        "patch_limit",
-        "debian",
-    }
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         self.patches = []
         if "vuln" in kwargs:
             self.set_context(kwargs.get("vuln"))
-        self.__dict__.update(
-            (k, v) for k, v in kwargs.items() if k in self._allowed_keys
-        )
-        super(DefaultSpider, self).__init__("default_spider")
+        settings = kwargs.get("settings", None)
+        if not settings:
+            settings = PatchfinderSettings()
+        self.deny_pages = settings["DENY_PAGES"]
+        self.deny_domains = settings["DENY_DOMAINS"]
+        self.important_domains = settings["IMPORTANT_DOMAINS"]
+        self.patch_limit = settings["PATCH_LIMIT"]
+        self.debian = settings["PARSE_DEBIAN"]
+        self.patch_find_meta = settings["PATCH_FIND_META"]
+        super(DefaultSpider, self).__init__("default_spider", settings=settings)
 
     def start_requests(self):
         """Generates initial requests.
@@ -86,7 +73,7 @@ class DefaultSpider(BaseSpider):
             )
         else:
             yield from self._generate_requests_for_vuln(
-                self.vuln, meta=self._patch_find_meta
+                self.vuln, meta=self.patch_find_meta
             )
 
     def set_context(self, vuln):
@@ -110,8 +97,8 @@ class DefaultSpider(BaseSpider):
         aliases' entrypoint URLs is generated.
 
         Args:
-            response (scrapy.http.Response):
-                Response object for the vulnerability's base URL.
+            response (scrapy.http.Response): Response object for the
+                vulnerability's base URL.
 
         Yields:
             scrapy.http.Request: Requests for the found aliases' entrypoint
@@ -139,7 +126,7 @@ class DefaultSpider(BaseSpider):
 
     def _generate_requests_for_vulns(self):
         """Yields requests for determined aliases' (CVEs) entrypoint URLs."""
-        vuln_request_meta = self._patch_find_meta.copy()
+        vuln_request_meta = self.patch_find_meta.copy()
         vuln_request_meta["reset_depth"] = True
         for vuln in self.cves:
             yield from self._generate_requests_for_vuln(
@@ -159,13 +146,12 @@ class DefaultSpider(BaseSpider):
         the response and generated.
 
         Args:
-            response (scrapy.http.Response):
-                A Response object.
+            response (scrapy.http.Response): A Response object.
 
         Yields:
-            (str or scrapy.Item or scrapy.http.Request):
-                If find_patches in the response meta is True, patch items and
-                requests, else data, i.e., strings from the response.
+            (str or scrapy.Item or scrapy.http.Request): If find_patches in
+                the response meta is True, patch items and requests, else data,
+                i.e., strings from the response.
         """
         if response.meta.get("find_patches"):
             yield from self._patches_and_requests(response)
@@ -200,7 +186,7 @@ class DefaultSpider(BaseSpider):
                 priority = self._domain_priority(link)
                 yield Request(
                     link,
-                    meta=self._patch_find_meta,
+                    meta=self.patch_find_meta,
                     callback=self.parse,
                     priority=priority,
                 )
@@ -227,8 +213,9 @@ class DefaultSpider(BaseSpider):
 
     # TODO: This method should return only list[str], not list[scrapy.link.Link]
     def _extract_links(self, response, divide=True):
-        """Extract links from a response and divide them into patch links
-        and non-patch links.
+        """
+        Extract links from a response and divide them into patch and
+        non-patch links.
 
         Links are extracted from the Response body. These are extracted from
         the relevant xpath(s) of the page. Links of domains in the deny_domains
@@ -261,8 +248,8 @@ class DefaultSpider(BaseSpider):
         """Divide links into patch links and non patch links
 
         Args:
-            response (scrapy.http.Response):
-                The response from which the links are extracted
+            response (scrapy.http.Response): The response from which the links
+                are extracted
             links (list[scrapy.link.Link]): The list of links extracted
 
         Returns:

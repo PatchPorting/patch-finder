@@ -3,12 +3,16 @@ from scrapy.http import Request
 import patchfinder.spiders.default_spider as default_spider
 import patchfinder.spiders.items as items
 import patchfinder.context as context
-import patchfinder.settings as settings
+from patchfinder.settings import PatchfinderSettings
 from tests import fake_response
 
 
 class TestSpider(unittest.TestCase):
     """Test Class for spiders"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.settings = PatchfinderSettings()
 
     def setUp(self):
         self.spider = default_spider.DefaultSpider()
@@ -73,7 +77,7 @@ class TestSpider(unittest.TestCase):
         response = fake_response(
             file_name="./mocks/3.html",
             url=url,
-            meta=settings.PATCH_FIND_META,
+            meta=self.settings["PATCH_FIND_META"],
             content_type=b"text/html",
         )
         requests_and_items = self.spider.parse(response)
@@ -94,7 +98,7 @@ class TestSpider(unittest.TestCase):
         response = fake_response(
             file_name="./mocks/debsec_cve_2017_1088.html",
             url="https://security-tracker.debian.org/tracker/CVE-2017-1088",
-            meta=settings.PATCH_FIND_META,
+            meta=self.settings["PATCH_FIND_META"],
             content_type=b"text/html",
         )
         requests_and_items = list(self.spider.parse(response))
@@ -109,7 +113,7 @@ class TestSpider(unittest.TestCase):
         response = fake_response(
             file_name="./mocks/debsec_cve_2019_14452.html",
             url="https://security-tracker.debian.org/tracker/CVE-2019-14452",
-            meta=settings.PATCH_FIND_META,
+            meta=self.settings["PATCH_FIND_META"],
             content_type=b"text/html",
         )
         requests_and_items = list(self.spider.parse(response))
@@ -126,7 +130,7 @@ class TestSpider(unittest.TestCase):
         response = fake_response(
             file_name="./mocks/debsec_cve_2019_12594.html",
             url="https://security-tracker.debian.org/tracker/CVE-2019-12594",
-            meta=settings.PATCH_FIND_META,
+            meta=self.settings["PATCH_FIND_META"],
             content_type=b"text/html",
         )
         requests_and_items = list(self.spider.parse(response))
