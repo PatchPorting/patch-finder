@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
    patchfinder.parsers
+   patchfinder.settings
    patchfinder.spiders
 
 Submodules
@@ -24,14 +25,6 @@ patchfinder.entrypoint module
 -----------------------------
 
 .. automodule:: patchfinder.entrypoint
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-patchfinder.settings module
----------------------------
-
-.. automodule:: patchfinder.settings
    :members:
    :undoc-members:
    :show-inheritance:
