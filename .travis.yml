@@ -5,6 +5,7 @@ python:
     - "3.7"
 install:
     - pip install -r requirements.txt
+    - pip install -r requirements-travis.txt
 script:
     - pytest --cov=patchfinder tests
 after_success:

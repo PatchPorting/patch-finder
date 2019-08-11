@@ -1,5 +1,6 @@
 # patch-finder
 [![Build Status](https://travis-ci.com/jajajasalu2/patch-finder.svg?branch=master)](https://travis-ci.com/jajajasalu2/patch-finder)
+[![codecov](https://codecov.io/gh/jajajasalu2/patch-finder/branch/master/graph/badge.svg)](https://codecov.io/gh/jajajasalu2/patch-finder)
 
 A tool to find security patches from across the web.
 
