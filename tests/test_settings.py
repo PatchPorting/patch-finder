@@ -32,7 +32,8 @@ class TestSettings(unittest.TestCase):
 
         settings.load_settings(settings={"BLARGH": 5, "BLARF": 6})
         self.assertEqual(
-            dict(settings), {"FOO": 1, "BAR": 2, "BAZ":3, "BLARGH":5, "BLARF":6}
+            dict(settings),
+            {"FOO": 1, "BAR": 2, "BAZ": 3, "BLARGH": 5, "BLARF": 6},
         )
 
 
