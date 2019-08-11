@@ -1,5 +1,6 @@
 import unittest
 import unittest.mock as mock
+
 from patchfinder.settings import Settings
 
 

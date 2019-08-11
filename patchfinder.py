@@ -5,9 +5,11 @@ Attributes:
 """
 import argparse
 import logging
+
 from scrapy.crawler import CrawlerProcess
-import patchfinder.spiders.default_spider as default_spider
+
 import patchfinder.context as context
+import patchfinder.spiders.default_spider as default_spider
 from patchfinder.settings import PatchfinderSettings, ScrapySettings
 
 logger = logging.getLogger(__name__)

@@ -3,12 +3,14 @@
 Attributes:
     logger: Module level logger.
 """
-import os
 import logging
+import os
 import tarfile
-import urllib.request
 import urllib.error
+import urllib.request
+
 import lxml.html
+
 from .entrypoint import Resource
 
 logger = logging.getLogger(__name__)

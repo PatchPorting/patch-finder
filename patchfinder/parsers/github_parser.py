@@ -8,6 +8,7 @@ Attributes:
 """
 import argparse
 import logging
+
 import github
 
 logger = logging.getLogger(__name__)

@@ -3,13 +3,15 @@
 Attributes:
     logger: Module level logger.
 """
-import re
-import logging
 import json
-import scrapy
+import logging
+import re
+
 import dicttoxml
-from patchfinder.settings import PatchfinderSettings
+import scrapy
+
 from patchfinder.entrypoint import Resource
+from patchfinder.settings import PatchfinderSettings
 
 logger = logging.getLogger(__name__)
 

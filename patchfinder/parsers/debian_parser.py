@@ -12,6 +12,7 @@ import re
 import tarfile
 import urllib.parse
 import urllib.request
+
 import patchfinder.utils as utils
 from patchfinder.settings import PatchfinderSettings
 
@@ -128,8 +129,8 @@ class DebianParser:
                 tar = tarfile.open(pkg_path)
                 for member in tar.getmembers():
                     if (
-                        member.name.startswith("debian/patches")
-                        and member.name.find(self.vuln_id) is not -1
+                            member.name.startswith("debian/patches")
+                            and member.name.find(self.vuln_id) is not -1
                     ):
                         self._patches.append(
                             {

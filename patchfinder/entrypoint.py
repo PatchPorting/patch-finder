@@ -7,6 +7,7 @@ for crawling a page.
 
 import re
 
+
 class Provider:
     """Base Class for a patch Provider.
 
@@ -266,7 +267,7 @@ class Resource:
         return normal_xpaths
 
 
-#TODO: Add this to a class.
+# TODO: Add this to a class.
 def is_patch(link):
     """Determine if given link is a patch link.
 

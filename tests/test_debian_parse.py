@@ -1,5 +1,6 @@
 import unittest
 import unittest.mock as mock
+
 from patchfinder.parsers import DebianParser
 
 
@@ -13,7 +14,7 @@ class TestDebianParser(unittest.TestCase):
     @mock.patch("patchfinder.parsers.debian_parser.utils.parse_web_page")
     @mock.patch("patchfinder.parsers.debian_parser.utils.download_item")
     def test_debian_parser_with_no_patches_in_package(
-        self, mock_download_item, mock_parse_page
+            self, mock_download_item, mock_parse_page
     ):
         """No patches should be found in this package.
 
@@ -35,7 +36,7 @@ class TestDebianParser(unittest.TestCase):
     @mock.patch("patchfinder.parsers.debian_parser.utils.parse_web_page")
     @mock.patch("patchfinder.parsers.debian_parser.utils.download_item")
     def test_debian_parser_with_patches_in_package(
-        self, mock_download_item, mock_parse_page
+            self, mock_download_item, mock_parse_page
     ):
         """Patches should be found in the package.
 
@@ -71,7 +72,7 @@ class TestDebianParser(unittest.TestCase):
     @mock.patch("patchfinder.parsers.debian_parser.utils.parse_web_page")
     @mock.patch("patchfinder.parsers.debian_parser.utils.download_item")
     def test_debian_parse_with_no_debian_tarball_found(
-        self, mock_download_item, mock_parse_page
+            self, mock_download_item, mock_parse_page
     ):
         """No debian tarball found on snapshot.d.o, so no patches found.
 

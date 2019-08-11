@@ -1,8 +1,10 @@
 import unittest
+
 from scrapy.http import Request
+
+import patchfinder.context as context
 import patchfinder.spiders.default_spider as default_spider
 import patchfinder.spiders.items as items
-import patchfinder.context as context
 from patchfinder.settings import PatchfinderSettings
 from tests import fake_response
 
@@ -192,7 +194,7 @@ class TestSpider(unittest.TestCase):
         response = fake_response(
             file_name="./mocks/mock_json.json",
             url="https://access.redhat.com/labs/securitydataapi/cve.json?"
-            "advisory=foobar",
+                "advisory=foobar",
             content_type=b"application/json",
         )
         expected_items = {"CVE-2015-5370", "CVE-2016-2110"}

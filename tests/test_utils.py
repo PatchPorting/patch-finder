@@ -1,5 +1,6 @@
 import unittest
 import unittest.mock as mock
+
 from patchfinder.utils import parse_web_page, download_item, member_in_tarfile
 
 

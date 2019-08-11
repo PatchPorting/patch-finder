@@ -1,6 +1,8 @@
 import unittest
 import unittest.mock as mock
+
 import github
+
 from patchfinder.parsers import GithubParser
 
 

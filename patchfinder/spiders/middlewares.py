@@ -1,7 +1,8 @@
-import re
 import logging
-from scrapy.http import Request
+import re
+
 from scrapy.exceptions import IgnoreRequest
+from scrapy.http import Request
 
 logger = logging.getLogger(__name__)
 
@@ -20,14 +21,15 @@ class DepthResetMiddleware:
             list[scrapy.Item, scrapy.http.Request]:
                 Objects from the spider's results.
         """
+
         # TODO (jas): do we really need to yield or non-return is an option?.
         def _filter(request):
             if not isinstance(request, Request):
                 return request
             if (
-                "depth" in request.meta
-                and "reset_depth" in request.meta
-                and request.meta["reset_depth"]
+                    "depth" in request.meta
+                    and "reset_depth" in request.meta
+                    and request.meta["reset_depth"]
             ):
                 request.meta["depth"] = 0
             return request

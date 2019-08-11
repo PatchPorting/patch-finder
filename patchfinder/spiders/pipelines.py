@@ -1,5 +1,6 @@
 """Provides pipelines for use by the spider."""
 from scrapy.exporters import JsonItemExporter
+
 from patchfinder.settings import PatchfinderSettings
 
 
@@ -20,6 +21,5 @@ class JsonItemPipeline:
 
 
 class PatchPipeline(JsonItemPipeline):
-
     # Temporary hack
     file_name = PatchfinderSettings()["PATCHES_JSON"]

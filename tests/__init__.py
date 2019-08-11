@@ -1,5 +1,7 @@
 import os
+
 from scrapy.http import HtmlResponse, Request
+
 
 def fake_response(file_name=None, url=None, meta=None, content_type=None):
     """Create a fake Scrapy HTTP response.

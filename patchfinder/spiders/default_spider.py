@@ -7,9 +7,11 @@ Attributes:
 """
 import logging
 from urllib.parse import urlparse
+
+from inline_requests import inline_requests
 from scrapy.http import Request
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
-from inline_requests import inline_requests
+
 import patchfinder.context as context
 import patchfinder.spiders.items as items
 from patchfinder.entrypoint import Resource, is_patch

@@ -1,7 +1,9 @@
 """Tests for spider and downloader middlewares."""
 import unittest
-from scrapy.http import Request
+
 from scrapy.exceptions import IgnoreRequest
+from scrapy.http import Request
+
 import patchfinder.spiders.default_spider as default_spider
 import patchfinder.spiders.middlewares as middlewares
 from tests import fake_response

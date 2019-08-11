@@ -4,6 +4,7 @@ This module provides a Base Settings class, and its subclasses for the
 patch-finder and for Scrapy.
 """
 from collections.abc import MutableMapping
+
 from patchfinder.settings import patchfinder_settings, scrapy_settings
 
 
