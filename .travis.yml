@@ -6,4 +6,6 @@ python:
 install:
     - pip install -r requirements.txt
 script:
-    - python -m unittest discover -v  tests
+    - pytest --cov=patchfinder tests
+after_success:
+    - codecov
