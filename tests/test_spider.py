@@ -87,6 +87,35 @@ class TestSpider(unittest.TestCase):
         self.assertTrue(all(url not in req_urls) for url in absent_urls)
         self.assertTrue(all(url in req_urls) for url in present_urls)
 
+    def test_parse_response_with_important_domains(self):
+        """Important domains should be given higher priority.
+
+        Tests:
+            patchfinder.spiders.base_spider.BaseSpider.parse
+        """
+        url = (
+            "https://lists.fedoraproject.org/archives/list/package-a"
+            "nnounce@lists.fedoraproject.org/message/5FFMOZOF2EI6N"
+            "2CR23EQ5EATWLQKBMHW/"
+        )
+        important_links = ["https://github.com/uclouvain/openjpeg/issues/771"]
+        self.spider.important_domains = ["github.com"]
+        response = fake_response(
+            file_name="./mocks/3.html",
+            url=url,
+            meta=self.settings["PATCH_FIND_META"],
+            content_type=b"text/html",
+        )
+        requests_and_items = list(self.spider.parse(response))
+        self.assertTrue(requests_and_items)
+        for request in requests_and_items:
+            if not isinstance(request, Request):
+                continue
+            if request.url in important_links:
+                self.assertEqual(request.priority, 1)
+            else:
+                self.assertEqual(request.priority, 0)
+
     def test_parse_response_with_no_links_to_find_patches(self):
         """Parse a response with no links to find patches.
 
