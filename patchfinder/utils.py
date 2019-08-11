@@ -39,25 +39,6 @@ def parse_web_page(url, xpaths=None, links=False):
     return search_results
 
 
-def parse_dict(dictionary, key_list, get_key=False):
-    if not key_list:
-        return []
-    search_results = []
-    for key in dictionary.keys():
-        if not re.match(key_list[0], key):
-            continue
-        if len(key_list) == 1:
-            if get_key:
-                search_results.append(key)
-            else:
-                search_results.append(dictionary[key])
-        else:
-            search_results.extend(
-                parse_dict(dictionary[key], key_list[1:], get_key)
-            )
-    return search_results
-
-
 def download_item(url, save_as, overwrite=False):
     """Download an item
 

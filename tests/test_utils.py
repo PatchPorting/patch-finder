@@ -13,28 +13,6 @@ class TestUtils(unittest.TestCase):
         search_results = parse_web_page(href)
         print(search_results)
 
-    def test_parse_dict(self):
-        dictionary = {
-            "CVE-2016-4796": {
-                "scope": "remote",
-                "debianbug": 652378,
-                "description": "foo bar",
-                "releases": {
-                    "stretch": "foo bar",
-                    "jessie": "foo bar",
-                    "sid": "foo bar",
-                },
-            },
-            "CVE-2018-20406": {"scope": "remote", "description": "foo bar"},
-            "CVE-2019-10017": {
-                "releases": {"buster": "foo bar", "wheezy": "foo bar"}
-            },
-        }
-        key_list = [r"^CVE", r"^releases$", r".*"]
-        expected_results = ["stretch", "jessie", "sid", "buster", "wheezy"]
-        search_results = parse_dict(dictionary, key_list, get_key=True)
-        self.assertEqual(set(search_results), set(expected_results))
-
     @mock.patch("patchfinder.utils.urllib.request")
     @mock.patch("patchfinder.utils.os")
     def test_download_item_file_exists(self, mock_os, mock_urllib_request):
