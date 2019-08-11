@@ -211,7 +211,6 @@ class DefaultSpider(BaseSpider):
             return 1
         return 0
 
-    # TODO: This method should return only list[str], not list[scrapy.link.Link]
     def _extract_links(self, response, divide=True):
         """
         Extract links from a response and divide them into patch and
@@ -229,7 +228,7 @@ class DefaultSpider(BaseSpider):
                 non-patch links.
 
         Returns:
-            (list[scrapy.link.Link] or list[str]):
+            (dict{str: list[str]} or list[str]):
                 If divide is True, a dictionary of patch and non-patch links,
                 else a list of links.
         """
@@ -241,7 +240,7 @@ class DefaultSpider(BaseSpider):
         ).extract_links(response)
         if divide:
             return self._divide_links(response, links)
-        return links
+        return [link.url for link in links]
 
     @staticmethod
     def _divide_links(response, links):
