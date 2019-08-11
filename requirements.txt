@@ -1,5 +1,7 @@
+codecov
 dicttoxml==1.7.4
 scrapy-inline-requests
+pytest-cov
 PyGithub==1.43
 Scrapy
 attrs>=17.4
