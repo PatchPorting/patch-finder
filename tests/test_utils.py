@@ -12,6 +12,26 @@ class TestUtils(unittest.TestCase):
         search_results = parse_web_page(href)
         print(search_results)
 
+    @mock.patch("patchfinder.utils.urllib.request.urlopen")
+    def test_parse_web_page_offline_for_normal_xpaths(self, mock_urlopen):
+        url = "https://security-tracker.debian.org/tracker/DSA-4444-1"
+        try:
+            f = open("./tests/mocks/debsec_dsa_4444_1.html")
+            body = f.read()
+        finally:
+            f.close()
+        expected_results = {
+            "CVE-2018-12126",
+            "CVE-2018-12127",
+            "CVE-2018-12130",
+            "CVE-2019-11091",
+        }
+        mock_html = mock.MagicMock()
+        mock_html.read.return_value = body.encode()
+        mock_urlopen.return_value = mock_html
+        search_results = set(parse_web_page(url))
+        self.assertEqual(expected_results, search_results)
+
     @mock.patch("patchfinder.utils.urllib.request")
     @mock.patch("patchfinder.utils.os")
     def test_download_item_file_exists(self, mock_os, mock_urllib_request):
