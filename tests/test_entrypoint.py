@@ -28,6 +28,14 @@ class TestEntrypoint(unittest.TestCase):
         patch_link = entrypoint.is_patch(link)
         self.assertEqual(patch_link, link + ".patch")
 
+    def test_bitbucket_is_patch(self):
+        link = (
+            "https://bitbucket.org/mpyne/game-music-emu/commits/"
+            "205290614cdc057541b26adeea05a9d45993f860"
+        )
+        patch_link = entrypoint.is_patch(link)
+        self.assertEqual(patch_link, link + "/raw")
+
     def test_mitre_url_mapping(self):
         url = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-4796"
         resource = Resource.get_resource(url)

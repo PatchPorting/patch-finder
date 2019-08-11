@@ -130,6 +130,20 @@ class GitKernel(Provider):
         )
 
 
+class Bitbucket(Provider):
+    """Subclass for Bitbucket as a Provider."""
+
+    def __init__(self):
+        link_components = [r"bitbucket\.org", "/commits/"]
+        patch_components = [r"/raw$"]
+        patch_format_dict = {r"$": r"/raw"}
+        super(Bitbucket, self).__init__(
+            link_components=link_components,
+            patch_components=patch_components,
+            patch_format_dict=patch_format_dict,
+        )
+
+
 class Resource:
     """Base class for a resource w/r/t a URL.
 
@@ -263,7 +277,7 @@ def is_patch(link):
         (str or None): If the link is a patch link then the formatted patch link,
             else None.
     """
-    providers = [Github, Pagure, GitKernel, Gitlab]
+    providers = [Github, Pagure, GitKernel, Gitlab, Bitbucket]
     patch_link = None
     for provider in providers:
         patch_link = provider.belongs(link)
