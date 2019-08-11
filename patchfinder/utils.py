@@ -4,7 +4,6 @@ Attributes:
     logger: Module level logger.
 """
 import os
-import re
 import logging
 import tarfile
 import urllib.request
@@ -16,6 +15,28 @@ logger = logging.getLogger(__name__)
 
 
 def parse_web_page(url, xpaths=None, links=False):
+    """Parse a response returned by a URL.
+
+    The response can be parsed on the basis of xpaths determined by the URL's
+    Resource instance or the xpaths given. If the response is to be parsed based
+    on the former, the xpaths can be normal or related to link extraction, and
+    thus patch-finding/recursion.
+
+    Args:
+        url (str): The URL to be parsed.
+        xpaths (list[str]): A list of xpaths to parse the response with respect
+            to. Defaults to None. If None, the xpaths are taken from the URL's
+            corresponding Resource instance.
+        links (bool): If True, the links xpaths are used from the corresponding
+            Resource, else the normal xpaths are. Defaults to False.
+
+    Returns:
+        list[str]: A list of strings scraped from the determined or given
+            xpaths.
+
+    Raises:
+        Exception: If there is an error in opening the given URL.
+    """
     logger.info("Opening %s...", url)
     try:
         html = urllib.request.urlopen(url)
@@ -28,7 +49,7 @@ def parse_web_page(url, xpaths=None, links=False):
         if not links:
             xpaths = Resource.get_resource(url).normal_xpaths
         else:
-            xpaths = Resource.get_resource(url).link_xpaths
+            xpaths = Resource.get_resource(url).links_xpaths
     elements = lxml.html.fromstring(html.read())
     for element in elements:
         if element.tag != "body":
