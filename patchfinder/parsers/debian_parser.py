@@ -102,7 +102,7 @@ class DebianParser:
             find_pkg = "//a/@href[contains(., '{pkg}_{ver}.debian')]".format(
                 pkg=urllib.parse.quote(pkg), ver=urllib.parse.quote(ver)
             )
-            pkg_url = utils.parse_web_page(snapshot_url, find_pkg)
+            pkg_url = utils.parse_web_page(snapshot_url, xpaths=list(find_pkg))
             if not pkg_url:
                 continue
             pkg_url = urllib.parse.urljoin(
@@ -128,7 +128,7 @@ class DebianParser:
                 tar = tarfile.open(pkg_path)
                 for member in tar.getmembers():
                     if (
-                        member.name.endswith(".patch")
+                        member.name.startswith("debian/patches")
                         and member.name.find(self.vuln_id) is not -1
                     ):
                         self._patches.append(

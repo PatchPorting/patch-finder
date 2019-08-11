@@ -9,7 +9,7 @@ import logging
 import tarfile
 import urllib.request
 import urllib.error
-import lxml
+import lxml.html
 from .entrypoint import Resource
 
 logger = logging.getLogger(__name__)
