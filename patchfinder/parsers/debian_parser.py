@@ -102,7 +102,7 @@ class DebianParser:
             find_pkg = "//a/@href[contains(., '{pkg}_{ver}.debian')]".format(
                 pkg=urllib.parse.quote(pkg), ver=urllib.parse.quote(ver)
             )
-            pkg_url = utils.parse_web_page(snapshot_url, xpaths=list(find_pkg))
+            pkg_url = utils.parse_web_page(snapshot_url, xpaths=[find_pkg])
             if not pkg_url:
                 continue
             pkg_url = urllib.parse.urljoin(

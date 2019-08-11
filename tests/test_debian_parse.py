@@ -26,6 +26,10 @@ class TestDebianParser(unittest.TestCase):
             ["/pool/main/o/openjpeg2_2.1.1-1.debian.tar.xz"],
         ]
         patches = self.parser.parse(vuln_id)
+        mock_parse_page.assert_called_with(
+            "https://snapshot.debian.org/package/openjpeg2/2.1.1-1/",
+            xpaths=["//a/@href[contains(., 'openjpeg2_2.1.1-1.debian')]"]
+        )
         self.assertFalse(patches)
 
     @mock.patch("patchfinder.parsers.debian_parser.utils.parse_web_page")
@@ -43,6 +47,10 @@ class TestDebianParser(unittest.TestCase):
             ],
         ]
         patches = self.parser.parse(vuln_id)
+        mock_parse_page.assert_called_with(
+            "https://snapshot.debian.org/package/libcaca/0.99.beta19-2.1/",
+            xpaths=["//a/@href[contains(., 'libcaca_0.99.beta19-2.1.debian')]"]
+        )
         self.assertIn(
             {
                 "patch_link": "debian/patches/CVE-2018-20544.patch",
