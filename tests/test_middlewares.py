@@ -58,21 +58,53 @@ class TestMiddlewares(unittest.TestCase):
         with self.assertRaises(IgnoreRequest):
             middleware.process_response(response=response, spider=spider)
 
-    def test_depth_reset_middleware(self):
-        """For spider output with reset_depth in meta, depth should be 0.
+    def test_depth_reset_middleware_with_reset_depth_as_true(self):
+        """The middleware should generate the request with depth as 0.
 
         Tests:
-            patchfinder.spiders.middlewares.ContentTypeFilterDownloaderMiddleware
+            patchfinder.spiders.middlewares.DepthResetMiddleware
         """
         middleware = middlewares.DepthResetMiddleware()
-        result = [
-            Request(url="https://foo", meta={"depth": 1, "reset_depth": True}),
-            Request(url="https://bar", meta={"depth": 1}),
-        ]
-        results = middleware.process_spider_output(result=result)
-        for result in results:
-            if "depth" in result.meta and "reset_depth" in result.meta:
-                self.assertEqual(result.meta["depth"], 0)
+        request = Request(
+            url="https://foo", meta={"depth": 1, "reset_depth": True}
+        )
+        result = next(middleware.process_spider_output(result=[request]))
+        self.assertEqual(result.meta["depth"], 0)
+
+    def test_depth_reset_middleware_with_reset_depth_as_false(self):
+        """The middleware should generate the request unchanged.
+
+        Tests:
+            patchfinder.spiders.middlewares.DepthResetMiddleware
+        """
+        middleware = middlewares.DepthResetMiddleware()
+        request = Request(
+            url="https://foo", meta={"depth": 1, "reset_depth": False}
+        )
+        result = next(middleware.process_spider_output(result=[request]))
+        self.assertEqual(result.meta["depth"], 1)
+
+    def test_depth_reset_middleware_with_reset_depth_not_in_meta(self):
+        """The middleware should generate the request unchanged.
+
+        Tests:
+            patchfinder.spiders.middlewares.DepthResetMiddleware
+        """
+        middleware = middlewares.DepthResetMiddleware()
+        request = Request(url="https://foo", meta={"depth": 1})
+        result = next(middleware.process_spider_output(result=[request]))
+        self.assertEqual(result.meta["depth"], 1)
+
+    def test_depth_reset_middleware_with_depth_not_in_meta(self):
+        """The middleware should generate the request unchanged.
+
+        Tests:
+            patchfinder.spiders.middlewares.DepthResetMiddleware
+        """
+        middleware = middlewares.DepthResetMiddleware()
+        request = Request(url="https://foo", meta={"reset_depth": True})
+        result = next(middleware.process_spider_output(result=[request]))
+        self.assertNotIn("depth", result.meta)
 
 
 if __name__ == "__main__":
