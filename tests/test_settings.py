@@ -26,15 +26,9 @@ class TestSettings(unittest.TestCase):
         mock_module.FOO = 1
         mock_module.BAR = 2
         mock_module.BAZ = 3
-        settings = Settings(module=mock_module, settings={"BLARGH": 4})
+        settings = Settings(module=mock_module, values={"FOO": 5, "BLARGH": 4})
         self.assertEqual(
-            dict(settings), {"FOO": 1, "BAR": 2, "BAZ": 3, "BLARGH": 4}
-        )
-
-        settings.load_settings(settings={"BLARGH": 5, "BLARF": 6})
-        self.assertEqual(
-            dict(settings),
-            {"FOO": 1, "BAR": 2, "BAZ": 3, "BLARGH": 5, "BLARF": 6},
+            dict(settings), {"FOO": 5, "BAR": 2, "BAZ": 3, "BLARGH": 4}
         )
 
 
