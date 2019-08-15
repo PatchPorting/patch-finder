@@ -13,6 +13,7 @@ class TestSettings(unittest.TestCase):
                 "FOO",
                 "BAR",
                 "BAZ",
+                "BLARGH",
                 "__builtins__",
                 "__cached__",
                 "__doc__",
@@ -26,9 +27,12 @@ class TestSettings(unittest.TestCase):
         mock_module.FOO = 1
         mock_module.BAR = 2
         mock_module.BAZ = 3
-        settings = Settings(module=mock_module, values={"FOO": 5, "BLARGH": 4})
+        mock_module.BLARGH = 4
+        settings = Settings(
+            module=mock_module, values={"FOO": 5, "BLARGH": 6, "BARF": 7}
+        )
         self.assertEqual(
-            dict(settings), {"FOO": 5, "BAR": 2, "BAZ": 3, "BLARGH": 4}
+            dict(settings), {"FOO": 5, "BAR": 2, "BAZ": 3, "BLARGH": 6}
         )
 
 

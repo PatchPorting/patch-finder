@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     taken from the module. Specific settings given then overwrite their
     respective default values.
 
+    Settings given in the values argument that are unrecognized, i.e., those
+    settings that are not present in the default module, are not set in the
+    instance.
+
     Attributes:
         module (module): A module with default values for settings.
     """
@@ -40,7 +44,14 @@ class Settings(BaseSettings):
             self.setmodule(self.module, "default")
         for name, val in six.iteritems(self):
             self.set(name, val, "default")
+        values = self._filter_values(values)
         self.update(values, priority)
+
+    # if an unrecognized setting is given, should an error be raised?
+    def _filter_values(self, values=None):
+        if values:
+            return {k: v for k, v in values.items() if k in self}
+        return None
 
 
 class PatchfinderSettings(Settings):
