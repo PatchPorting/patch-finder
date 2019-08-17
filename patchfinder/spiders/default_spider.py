@@ -8,7 +8,6 @@ Attributes:
 import logging
 from urllib.parse import urlparse
 
-from inline_requests import inline_requests
 from scrapy.http import Request
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 
@@ -55,6 +54,9 @@ class DefaultSpider(BaseSpider):
         self.patch_limit = settings["PATCH_LIMIT"]
         self.debian = settings["PARSE_DEBIAN"]
         self.patch_find_meta = settings["PATCH_FIND_META"]
+        self._processed_vulns = set()
+        self.vuln_request_meta = self.patch_find_meta.copy()
+        self.vuln_request_meta["reset_depth"] = True
         super(DefaultSpider, self).__init__("default_spider", settings=settings)
 
     def start_requests(self):
@@ -68,6 +70,7 @@ class DefaultSpider(BaseSpider):
             scrapy.http.Request: Initial requests.
         """
         if isinstance(self.vuln, context.GenericVulnerability):
+            self._processed_vulns.add(self.vuln.vuln_id)
             yield Request(
                 self.vuln.base_url,
                 callback=self.determine_aliases,
@@ -87,7 +90,6 @@ class DefaultSpider(BaseSpider):
         self.vuln = vuln
         self.cves = set()
 
-    @inline_requests
     def determine_aliases(self, response):
         """Determine aliases for a vulnerability.
 
@@ -106,34 +108,23 @@ class DefaultSpider(BaseSpider):
             scrapy.http.Request: Requests for the found aliases' entrypoint
                 URLs.
         """
-        vulns = [self.vuln]
-        processed_vulns = set()
-        while vulns:
-            vuln = vulns.pop()
-            if vuln.vuln_id is not self.vuln.vuln_id:
-                response = yield Request(
-                    vuln.base_url, meta={"reset_depth": True}
+        aliases = context.create_vulns(*list(self.parse(response)))
+        for alias in aliases:
+            if alias.vuln_id in self._processed_vulns:
+                continue
+            if isinstance(alias, context.GenericVulnerability):
+                yield Request(
+                    alias.base_url,
+                    callback=self.determine_aliases,
+                    meta={"reset_depth": True},
                 )
-            processed_vulns.add(vuln.vuln_id)
-            aliases = context.create_vulns(*list(self.parse(response)))
-            for alias in aliases:
-                if alias.vuln_id in processed_vulns:
-                    continue
-                if isinstance(alias, context.GenericVulnerability):
-                    vulns.append(alias)
-                else:
-                    logger.info("Alias discovered: %s", alias.vuln_id)
-                    self.cves.add(alias)
-        yield from self._generate_requests_for_vulns()
-
-    def _generate_requests_for_vulns(self):
-        """Yields requests for determined aliases' (CVEs) entrypoint URLs."""
-        vuln_request_meta = self.patch_find_meta.copy()
-        vuln_request_meta["reset_depth"] = True
-        for vuln in self.cves:
-            yield from self._generate_requests_for_vuln(
-                vuln, meta=vuln_request_meta
-            )
+            else:
+                logger.info("Alias discovered: %s", alias.vuln_id)
+                self.cves.add(alias)
+                yield from self._generate_requests_for_vuln(
+                    alias, meta=self.vuln_request_meta
+                )
+            self._processed_vulns.add(alias.vuln_id)
 
     def _generate_requests_for_vuln(self, vuln, meta=None):
         for url in vuln.entrypoint_urls:

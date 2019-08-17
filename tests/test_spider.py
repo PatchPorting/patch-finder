@@ -282,6 +282,33 @@ class TestSpider(unittest.TestCase):
         self.assertFalse(self.spider.cves)
         self.assertFalse(req_urls)
 
+    def test_determine_aliases_with_only_generic_vulns_in_response(self):
+        """Only generic vulnerabilities should be scraped.
+
+        Tests:
+            patchfinder.spiders.default_spider.DefaultSpider.determine_aliases
+        """
+        vuln_id = "GLSA-200607-06"
+        vuln = context.create_vuln(vuln_id)
+        response = fake_response(
+            file_name="./mocks/gentoo_glsa_200607_06.xml",
+            url=vuln.base_url,
+            # The response content-type Scrapy gets for this URL is text/plain.
+            content_type=b"text/plain",
+        )
+        expected_urls = {
+            "https://gitweb.gentoo.org/data/glsa.git/plain/glsa-200601-06.xml",
+            "https://gitweb.gentoo.org/data/glsa.git/plain/glsa-200603-02.xml",
+            "https://gitweb.gentoo.org/data/glsa.git/plain/glsa-200605-04.xml",
+        }
+
+        self.spider.set_context(vuln)
+        req_urls = {
+            request.url for request in self.spider.determine_aliases(response)
+        }
+        self.assertFalse(self.spider.cves)
+        self.assertEqual(req_urls, expected_urls)
+
 
 if __name__ == "__main__":
     unittest.main()
