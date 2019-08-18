@@ -26,11 +26,11 @@ Default settings can be altered as necessary.
 
 For settings relevant to the scraping framework Scrapy, refer:
 
-`patchfinder/settings/scrapy_settings.py`
+`patchfinder.settings.scrapy_settings`
 
 For settings relevant to the Patch-finder, refer:
 
-`patchfinder/settings/patchfinder_settings.py`
+`patchfinder.settings.patchfinder_settings`
 
 ## Vulnerability identifiers
 
@@ -54,6 +54,14 @@ Providers that are currently recognized by the Patch-finder are:
 - git.kernel.org
 - gitlab.com
 - bitbucket.org
+
+## Parsers:
+
+Parsers are crawlers for cases other than simple webcrawling. For example, a crawler for retrieving patches from Debian or RPM packages is a parser.
+
+Currently a parser for retrieving patches from Debian packages can be used.
+
+Parsers can be found in `patchfinder.parsers`. Settings relevant for the operation of these parsers is in `patchfinder.settings.patchfinder_settings` (See Settings section).
 
 ## Tests
 
