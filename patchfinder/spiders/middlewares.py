@@ -22,7 +22,6 @@ class DepthResetMiddleware:
                 Objects from the spider's results.
         """
 
-        # TODO (jas): do we really need to yield or non-return is an option?.
         def _filter(request):
             if not isinstance(request, Request):
                 return request

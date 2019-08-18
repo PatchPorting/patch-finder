@@ -16,7 +16,7 @@ ITEM_PIPELINES = {
     "patchfinder.spiders.pipelines.PatchPipeline": 300
 }
 SPIDER_MIDDLEWARES = {
-    "patchfinder.spiders.middlewares.DepthResetMiddleware": 850
+    "patchfinder.spiders.middlewares.DepthResetMiddleware": 100
 }
 DOWNLOADER_MIDDLEWARES = {
     "patchfinder.spiders.middlewares.ContentTypeFilterDownloaderMiddleware": 1000
