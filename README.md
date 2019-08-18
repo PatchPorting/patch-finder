@@ -43,7 +43,7 @@ Identifiers that are currently recognized by the Patch-finder are:
 - GLSA (Gentoo Linux Security Advisory)
 - RHSA (Red Hat Security Advisory)
 
-## Patch Providers:
+## Patch Providers
 
 While crawling, patches or patch links are identified if they belong to a patch provider.
 
@@ -55,7 +55,7 @@ Providers that are currently recognized by the Patch-finder are:
 - gitlab.com
 - bitbucket.org
 
-## Parsers:
+## Parsers
 
 Parsers are crawlers for cases other than simple webcrawling. For example, a crawler for retrieving patches from Debian or RPM packages is a parser.
 
