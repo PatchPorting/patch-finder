@@ -8,17 +8,17 @@ A webcrawler to extract security patches for vulnerabilities.
 
 For a vulnerability ID, cd into the patch-finder folder and use:
 
-`python . <vuln_id>`
+`python -m patchfinder <vuln_id>`
 
 For Example:
 
-`python . CVE-2019-7738`
+`python -m patchfinder CVE-2019-7738`
 
-Extracted patches along with the site they were retrieved from are written to ./patches.json by default.
+Extracted patches along with the site they were retrieved from are written to `./patches.json` by default.
 
 For other options:
 
-`python . -h`
+`python -m patchfinder -h`
 
 ## Settings
 
