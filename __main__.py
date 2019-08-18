@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 
 
 def spawn_crawler(args):
-    vuln = context.create_vuln(args.vuln_id)
-    scrapy_settings = dict(ScrapySettings())
-    patchfinder_settings = dict(PatchfinderSettings())
+    vuln = context.create_vuln(args["vuln_id"])
+    scrapy_settings = dict(ScrapySettings(values=args))
+    patchfinder_settings = dict(PatchfinderSettings(values=args))
     if not vuln:
         return False
     process = CrawlerProcess(scrapy_settings)
@@ -35,7 +35,25 @@ if __name__ == "__main__":
         "vuln_id",
         help="The vulnerability ID to find patches for",
     )
+    parser.add_argument(
+        "-d",
+        "--depth-limit",
+        dest="DEPTH_LIMIT",
+        type=int,
+        help="The maximum depth the crawler should go to."
+    )
+    parser.add_argument(
+        "-p",
+        "--patch-limit",
+        dest="PATCH_LIMIT",
+        type=int,
+        help="The maximum number of patches to collect."
+    )
     args = parser.parse_args()
+
+    # Filter out arguments that weren't used.
+    # This is so that None is not used for the respective settings.
+    args = {k: v for k, v in vars(args).items() if v}
     spawn_return = spawn_crawler(args)
     if spawn_return:
         logger.info("Crawling completed.")
