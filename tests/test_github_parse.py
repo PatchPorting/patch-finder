@@ -3,7 +3,7 @@ import unittest.mock as mock
 
 import github
 
-from patchfinder.parsers import GithubParser
+from patchfinder.parsers.github_parser import GithubParser
 
 
 class TestGithubParser(unittest.TestCase):

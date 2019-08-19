@@ -6,6 +6,7 @@ relevant patches from those packages.
 Attributes:
     logger: Module level logger.
 """
+import argparse
 import logging
 import os
 import re
@@ -132,6 +133,9 @@ class DebianParser:
                             member.name.startswith("debian/patches")
                             and member.name.find(self.vuln_id) is not -1
                     ):
+                        logger.info(
+                            "Found patch: %s in %s", member.name, pkg_source
+                        )
                         self._patches.append(
                             {
                                 "patch_link": member.name,
@@ -143,3 +147,14 @@ class DebianParser:
         self._fixed_packages = []
         self._package_paths = []
         self._patches = []
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "vuln_id", help="The vulnerability ID to find patches for"
+    )
+    args = parser.parse_args()
+    debian_parser = DebianParser()
+    debian_parser.parse(args.vuln_id)

@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock as mock
 
-from patchfinder.parsers import DebianParser
+from patchfinder.parsers.debian_parser import DebianParser
 
 
 class TestDebianParser(unittest.TestCase):
