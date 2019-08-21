@@ -5,7 +5,12 @@ is either to determine if a URL is a patch or to determine the xpaths to use
 for crawling a page.
 """
 
+import logging
 import re
+
+logger = logging.getLogger(__name__)
+
+_PROVIDERS = ["Github", "Gitlab", "Bitbucket", "GitKernel", "Pagure"]
 
 
 class Provider:
@@ -31,7 +36,7 @@ class Provider:
     patch_format_dict = {r"/commit/": r"/patch/"}
 
     def __init__(
-            self, link_components, patch_components, patch_format_dict=None
+        self, link_components, patch_components, patch_format_dict=None
     ):
         self.link_components = link_components
         self.patch_components = patch_components
@@ -174,12 +179,14 @@ class Resource:
 
         if re.match(r"^https://github\.com/", url):
             resource = Resource(
-                url, links_xpaths=["//div[contains(@class, 'commit-message')]//a"]
+                url,
+                links_xpaths=["//div[contains(@class, 'commit-message')]//a"],
             )
 
         elif re.match(r"^https://cve\.mitre\.org/", url):
             resource = Resource(
-                url, links_xpaths=['//*[@id="GeneratedTable"]/table/tr[7]/td//a']
+                url,
+                links_xpaths=['//*[@id="GeneratedTable"]/table/tr[7]/td//a'],
             )
 
         elif re.match(r"^https://nvd\.nist\.gov/", url):
@@ -191,7 +198,8 @@ class Resource:
             )
 
         elif re.match(
-                r"^https://security\-tracker\.debian\.org/tracker/CVE\-\d+\-\d+$", url
+            r"^https://security\-tracker\.debian\.org/tracker/CVE\-\d+\-\d+$",
+            url,
         ):
             resource = Resource(
                 url,
@@ -202,7 +210,8 @@ class Resource:
             )
 
         elif re.match(
-                r"^https://security\-tracker\.debian\.org/tracker/DSA\-\d+\-\d+$", url
+            r"^https://security\-tracker\.debian\.org/tracker/DSA\-\d+\-\d+$",
+            url,
         ):
             resource = Resource(
                 url,
@@ -214,7 +223,9 @@ class Resource:
         elif re.match(r"^https://www.openwall\.com/lists/oss\-security", url):
             resource = Resource(url, links_xpaths=["//pre/a"])
 
-        elif re.match(r"^https://lists\.fedoraproject\.org/archives/list/", url):
+        elif re.match(
+            r"^https://lists\.fedoraproject\.org/archives/list/", url
+        ):
             resource = Resource(
                 url, link_xpaths=["//div[contains(@class, 'email-body')]//a"]
             )
@@ -222,7 +233,9 @@ class Resource:
         elif re.match(r"^https://lists\.debian\.org/", url):
             resource = Resource(url, link_xpaths=["//pre/a"])
 
-        elif re.match(r"^https://bugzilla\.redhat\.com/show_bug\.cgi\?id=", url):
+        elif re.match(
+            r"^https://bugzilla\.redhat\.com/show_bug\.cgi\?id=", url
+        ):
             resource = Resource(
                 url,
                 links_xpaths=[
@@ -235,16 +248,16 @@ class Resource:
             resource = Resource(url, links_xpaths=["//pre/a"])
 
         elif re.match(
-                r"^https://access\.redhat\.com/labs/securitydataapi/"
-                r"cve.json\?advisory=",
-                url,
+            r"^https://access\.redhat\.com/labs/securitydataapi/"
+            r"cve.json\?advisory=",
+            url,
         ):
             resource = Resource(url, normal_xpaths=["//cve/text()"])
 
         elif re.match(
-                r"^https://gitweb\.gentoo\.org/data/glsa\.git/plain/"
-                r"glsa\-\d+\-\d+\.xml$",
-                url,
+            r"^https://gitweb\.gentoo\.org/data/glsa\.git/plain/"
+            r"glsa\-\d+\-\d+\.xml$",
+            url,
         ):
             resource = Resource(url, normal_xpaths=["//references//uri/text()"])
 
@@ -278,9 +291,16 @@ def is_patch(link):
         (str or None): If the link is a patch link then the formatted patch link,
             else None.
     """
-    providers = [Github, Pagure, GitKernel, Gitlab, Bitbucket]
     patch_link = None
-    for provider in providers:
+    for provider_class in _PROVIDERS:
+        provider = globals().get(provider_class)
+        if not provider:
+            logger.info(
+                "Could not find provider %s in %s, ignoring.",
+                provider_class,
+                __name__,
+            )
+            continue
         patch_link = provider.belongs(link)
         if patch_link:
             break
