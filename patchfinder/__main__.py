@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     # Filter out arguments that weren't used.
     # This is so that None is not used for the respective settings.
-    args = {k: v for k, v in vars(args).items() if v}
+    args = {k: v for k, v in vars(args).items() if v is not None}
     spawn_return = spawn_crawler(args)
     if spawn_return:
         logger.info("Crawling completed.")

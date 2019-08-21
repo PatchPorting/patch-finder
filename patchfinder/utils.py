@@ -42,7 +42,7 @@ def parse_web_page(url, xpaths=None, links=False):
     logger.info("Opening %s...", url)
     try:
         html = urllib.request.urlopen(url)
-    except urllib.error.HTTPError as e:
+    except urllib.error.HTTPError:
         raise Exception("Error opening {url}".format(url=url))
     logger.info("Crawled %s", url)
 
