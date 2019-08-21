@@ -11,7 +11,7 @@ import urllib.request
 
 import lxml.html
 
-from .entrypoint import Resource
+from .resource import Resource
 
 logger = logging.getLogger(__name__)
 

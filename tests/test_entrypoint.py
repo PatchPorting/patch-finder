@@ -1,14 +1,14 @@
 import unittest
 
-import patchfinder.entrypoint as entrypoint
-from patchfinder.entrypoint import Resource
+import patchfinder.resource as resource
+from patchfinder.resource import Resource
 
 
 class TestEntrypoint(unittest.TestCase):
-    """Test Class for Entrypoint"""
+    """Test Class for the resource module."""
 
     def test_github_match_link(self):
-        github = entrypoint.Github()
+        github = resource.Github()
         links = [
             "https://github.com/python/cpython/commit/a4ae828ee416a6"
             "6d8c7bf5ee71d653c2cc6a26dd",
@@ -21,12 +21,12 @@ class TestEntrypoint(unittest.TestCase):
             "https://github.com/uclouvain/openjpeg/commit/162f6199c"
             "0cd3ec1c6c6dc65e41b2faab92b2d91"
         )
-        patch_link = entrypoint.is_patch(link)
+        patch_link = resource.is_patch(link)
         self.assertEqual(patch_link, link + ".patch")
 
     def test_pagure_is_patch(self):
         link = "https://pagure.io/389-ds-base/c/4d9cc24da"
-        patch_link = entrypoint.is_patch(link)
+        patch_link = resource.is_patch(link)
         self.assertEqual(patch_link, link + ".patch")
 
     def test_bitbucket_is_patch(self):
@@ -34,7 +34,7 @@ class TestEntrypoint(unittest.TestCase):
             "https://bitbucket.org/mpyne/game-music-emu/commits/"
             "205290614cdc057541b26adeea05a9d45993f860"
         )
-        patch_link = entrypoint.is_patch(link)
+        patch_link = resource.is_patch(link)
         self.assertEqual(patch_link, link + "/raw")
 
     def test_mitre_url_mapping(self):

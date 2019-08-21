@@ -10,7 +10,7 @@ import re
 import dicttoxml
 import scrapy
 
-from patchfinder.entrypoint import Resource
+from patchfinder.resource import Resource
 from patchfinder.settings import PatchfinderSettings
 
 logger = logging.getLogger(__name__)

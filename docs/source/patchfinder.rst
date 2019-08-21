@@ -21,10 +21,10 @@ patchfinder.context module
    :undoc-members:
    :show-inheritance:
 
-patchfinder.entrypoint module
------------------------------
+patchfinder.resource module
+---------------------------
 
-.. automodule:: patchfinder.entrypoint
+.. automodule:: patchfinder.resource
    :members:
    :undoc-members:
    :show-inheritance:

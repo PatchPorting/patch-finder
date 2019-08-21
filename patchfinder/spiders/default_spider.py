@@ -13,7 +13,7 @@ from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 
 import patchfinder.context as context
 import patchfinder.spiders.items as items
-from patchfinder.entrypoint import Resource, is_patch
+from patchfinder.resource import Resource, is_patch
 from patchfinder.settings import PatchfinderSettings
 from .base_spider import BaseSpider
 
