@@ -106,7 +106,7 @@ class DefaultSpider(BaseSpider):
 
         Yields:
             scrapy.http.Request: Requests for the found aliases' entrypoint
-                URLs.
+                URLs and for found generic vulnerabilities' base URLs.
         """
         aliases = context.create_vulns(*list(self.parse(response)))
         for alias in aliases:
