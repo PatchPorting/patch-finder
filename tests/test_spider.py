@@ -48,7 +48,7 @@ class TestSpider(unittest.TestCase):
         self.assertEqual(len(requests), 1)
         self.assertEqual(requests[0].url, vuln.base_url)
 
-    def test_parse_response_to_find_patches_with_fedora_list_url(self):
+    def test_parse_response_to_find_patches_with_absent_and_present_urls(self):
         """Items and requests yielded should conform to spider's settings.
 
         By the default settings, certain URLs present in the selected mock file
@@ -194,7 +194,7 @@ class TestSpider(unittest.TestCase):
         response = fake_response(
             file_name="./mocks/mock_json.json",
             url="https://access.redhat.com/labs/securitydataapi/cve.json?"
-                "advisory=foobar",
+            "advisory=foobar",
             content_type=b"application/json",
         )
         expected_items = {"CVE-2015-5370", "CVE-2016-2110"}
@@ -308,6 +308,60 @@ class TestSpider(unittest.TestCase):
         }
         self.assertFalse(self.spider.cves)
         self.assertEqual(req_urls, expected_urls)
+
+    def test_determine_aliases_with_same_alias_in_resulting_response(self):
+        """Vulnerability should not scrape same alias in generic vuln response.
+
+        In this case, the input vuln response gives a generic vuln and an alias.
+        A request should be yielded for the generic vuln's base URL. On parsing
+        the response for the generic vuln's base URL, the same alias previously
+        found is found again. Thus, the same alias should not be scraped again,
+        and requests for the alias' entrypoint URLs should not be yielded again.
+
+        Tests:
+            patchfinder.spiders.default_spider.DefaultSpider.determine_aliases
+        """
+        vuln_id = "GLSA-200602-01"
+        vuln = context.create_vuln(vuln_id)
+        expected_req_url = (
+            "https://gitweb.gentoo.org/data/glsa.git/plain/glsa-200601-06.xml"
+        )
+        expected_aliases = {"CVE-2005-4048"}
+        response = fake_response(
+            file_name="./mocks/gentoo_glsa_200602_01.xml",
+            url=vuln.base_url,
+            # The response content-type Scrapy gets for this URL is text/plain.
+            content_type=b"text/plain",
+        )
+
+        self.spider.set_context(vuln)
+        req_urls = [
+            request.url for request in self.spider.determine_aliases(response)
+        ]
+
+        # Check if the expected request URL is present in req_urls (for the
+        # generic vuln).
+        # If so, execute determine_aliases with a response for that URL.
+        self.assertIn(expected_req_url, req_urls)
+        response = fake_response(
+            file_name="./mocks/gentoo_glsa_200602_01.xml",
+            url=expected_req_url,
+            # The response content-type Scrapy gets for this URL is text/plain.
+            content_type=b"text/plain",
+        )
+        req_urls = [
+            request.url for request in self.spider.determine_aliases(response)
+        ]
+
+        # After executing determine_aliases with both the above responses,
+        # got aliases should be equal to expected aliases.
+        got_aliases = [alias.vuln_id for alias in self.spider.cves]
+        self.assertEqual(len(got_aliases), 1)
+
+        # No requests should be yielded from the second time determine_aliases
+        # is executed.
+        self.assertFalse(req_urls)
+        self.assertEqual(expected_aliases, set(got_aliases))
 
 
 if __name__ == "__main__":
