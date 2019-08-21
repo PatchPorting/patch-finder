@@ -2,6 +2,10 @@
 
 These settings will be passed into the CrawlerProcess which will initiate the
 crawling process.
+
+For meanings of individual settings, refer:
+
+    https://docs.scrapy.org/en/latest/topics/settings.html
 """
 
 USER_AGENT = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)"
