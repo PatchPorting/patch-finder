@@ -1,6 +1,6 @@
 # Patch-finder
-[![Build Status](https://travis-ci.com/jajajasalu2/patch-finder.svg?branch=master)](https://travis-ci.com/jajajasalu2/patch-finder)
-[![codecov](https://codecov.io/gh/jajajasalu2/patch-finder/branch/master/graph/badge.svg)](https://codecov.io/gh/jajajasalu2/patch-finder)
+[![Build Status](https://travis-ci.com/PatchPorting/patch-finder.svg?branch=master)](https://travis-ci.com/PatchPorting/patch-finder)
+[![codecov](https://codecov.io/gh/PatchPorting/patch-finder/branch/master/graph/badge.svg)](https://codecov.io/gh/PatchPorting/patch-finder)
 
 A webcrawler to extract security patches for vulnerabilities.
 
