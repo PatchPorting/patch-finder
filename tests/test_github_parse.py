@@ -1,3 +1,5 @@
+"""Tests for Github Parser."""
+#TODO: Rewrite most of these tests.
 import unittest
 import unittest.mock as mock
 

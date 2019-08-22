@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 _PROVIDERS = ["Github", "Gitlab", "Bitbucket", "GitKernel", "Pagure"]
 
 
+# NOTE: is a singleton pattern called for here?
 class Provider:
     """Base Class for a patch Provider.
 
