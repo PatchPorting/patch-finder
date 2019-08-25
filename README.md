@@ -8,15 +8,19 @@ A webcrawler to extract security patches for vulnerabilities.
 
 For a vulnerability ID, cd into the patch-finder folder and use:
 
-`$ python -m patchfinder <vuln_id>`
+```
+$ python -m patchfinder <vuln_id>
+```
 
 For Example:
 
-`$ python -m patchfinder CVE-2019-7738`
+```
+$ python -m patchfinder CVE-2019-7738
+```
 
 You can also install the package. cd into the patch-finder folder and use:
 
-`$ pip install .`
+```$ pip install .```
 
 The patchfinder can then be used as so:
 
@@ -85,11 +89,15 @@ Parsers can be found in `patchfinder.parsers`. Settings relevant for the operati
 
 To run the tests, use:
 
-`$ python -m unittest discover -v tests`
+```
+$ python -m unittest discover -v tests
+```
 
 Or simply:
 
-`$ pytest`
+```
+$ pytest
+```
 
 ## Build the docs
 
