@@ -28,8 +28,7 @@ def spawn_crawler(args):
     process.start()
     return True
 
-
-if __name__ == "__main__":
+def argument_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "vuln_id",
@@ -49,6 +48,10 @@ if __name__ == "__main__":
         type=int,
         help="The maximum number of patches to collect."
     )
+    return parser
+
+def main():
+    parser = argument_parser()
     args = parser.parse_args()
 
     # Filter out arguments that weren't used.
@@ -59,3 +62,6 @@ if __name__ == "__main__":
         logger.info("Crawling completed.")
     else:
         logger.error("Can't recognize that vulnerability.")
+
+if __name__ == "__main__":
+    main()

@@ -14,11 +14,29 @@ For Example:
 
 `python -m patchfinder CVE-2019-7738`
 
+You can also install the package. cd into the patch-finder folder and use:
+
+`pip install .`
+
+The patchfinder can then be used as so:
+
+```
+$ patchfinder --help
+usage: patchfinder [-h] [-d DEPTH_LIMIT] [-p PATCH_LIMIT] vuln_id
+
+positional arguments:
+  vuln_id               The vulnerability ID to find patches for
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DEPTH_LIMIT, --depth-limit DEPTH_LIMIT
+                        The maximum depth the crawler should go to.
+  -p PATCH_LIMIT, --patch-limit PATCH_LIMIT
+                        The maximum number of patches to collect.
+
+```
+
 Extracted patches along with the site they were retrieved from are written to `./patches.json` by default.
-
-For other options:
-
-`python -m patchfinder -h`
 
 ## Settings
 
