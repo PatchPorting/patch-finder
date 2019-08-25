@@ -20,7 +20,9 @@ $ python -m patchfinder CVE-2019-7738
 
 You can also install the package. cd into the patch-finder folder and use:
 
-```$ pip install .```
+```
+$ pip install .
+```
 
 The patchfinder can then be used as so:
 
