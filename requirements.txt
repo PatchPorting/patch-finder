@@ -1,0 +1,4 @@
+dicttoxml==1.7.4
+PyGithub==1.43
+Scrapy
+attrs>=19.2.0
