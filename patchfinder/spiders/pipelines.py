@@ -8,7 +8,7 @@ class JsonItemPipeline:
 
     def open_spider(self, spider):
         self.file = open(self.file_name, "wb")
-        self.exporter = JsonItemExporter(self.file)
+        self.exporter = JsonItemExporter(self.file, indent=4)
         self.exporter.start_exporting()
 
     def close_spider(self, spider):
